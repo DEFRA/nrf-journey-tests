@@ -4,12 +4,12 @@ End-to-end tests using [Playwright](https://playwright.dev/) (browser library) a
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| Browser automation | `playwright` (Chromium) |
-| Test runner / BDD | `@cucumber/cucumber` |
-| Reporting | `allure-cucumberjs` + `allure-commandline` |
-| Language | JavaScript (ESM, Node ≥ 22) |
+| Layer              | Technology                                 |
+| ------------------ | ------------------------------------------ |
+| Browser automation | `playwright` (Chromium)                    |
+| Test runner / BDD  | `@cucumber/cucumber`                       |
+| Reporting          | `allure-cucumberjs` + `allure-commandline` |
+| Language           | JavaScript (ESM, Node ≥ 22)                |
 
 ## Prerequisites
 
@@ -58,6 +58,7 @@ docker compose down
 ```
 
 What this does:
+
 1. `docker compose up --wait -d` — starts `nrf-frontend` (currently backed by nrf-prototypes image) and waits for its healthcheck to pass
 2. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the exposed port)
 
@@ -137,12 +138,12 @@ cucumber.js           # Cucumber profile configuration
 
 ## Environment variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `BASE_URL` | derived from `ENVIRONMENT`, or `http://localhost:3000` | Full base URL for the service under test. Takes precedence over `ENVIRONMENT`. |
-| `ENVIRONMENT` | — | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL automatically. |
-| `E2E_HEADFUL` | `false` | Set to `true` to run with a visible browser window (local mode only). |
-| `NRF_PROTOTYPES` | `latest` | Docker image tag for the nrf-prototypes image used in localstack mode. |
+| Variable         | Default                                                | Description                                                                            |
+| ---------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `BASE_URL`       | derived from `ENVIRONMENT`, or `http://localhost:3000` | Full base URL for the service under test. Takes precedence over `ENVIRONMENT`.         |
+| `ENVIRONMENT`    | —                                                      | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL automatically. |
+| `E2E_HEADFUL`    | `false`                                                | Set to `true` to run with a visible browser window (local mode only).                  |
+| `NRF_PROTOTYPES` | `latest`                                               | Docker image tag for the nrf-prototypes image used in localstack mode.                 |
 
 ---
 
@@ -163,7 +164,7 @@ The `run-journey-tests/action.yml` composite action is designed to be called fro
 ```yaml
 - uses: DEFRA/nrf-journey-tests/run-journey-tests@main
   with:
-    environment: ${{ inputs.environment }}   # e.g. "dev" or "test"
+    environment: ${{ inputs.environment }} # e.g. "dev" or "test"
 ```
 
 ---
@@ -173,6 +174,7 @@ The `run-journey-tests/action.yml` composite action is designed to be called fro
 When the real `nrf-frontend` service is ready to be tested, update the following:
 
 1. **`compose.yml`** — update the `nrf-frontend` service:
+
    - Change `image` to `defradigital/nrf-frontend:${NRF_FRONTEND:-latest}`
    - Change `build.context` to `../nrf-frontend`
    - Add `defra-id-stub` service and the required env vars (`COOKIE_PASSWORD`, `REDIS_HOST`, `LOCALSTACK_ENDPOINT`, `DEFRA_ID_*`)
