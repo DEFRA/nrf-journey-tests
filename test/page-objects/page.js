@@ -1,12 +1,12 @@
-import { browser, $ } from '@wdio/globals'
+import { BasePage } from './BasePage.js'
 
-class Page {
+class Page extends BasePage {
   get pageHeading() {
-    return $('h1')
+    return this.page.locator('h1')
   }
 
-  open(path) {
-    return browser.url(path)
+  async open(path) {
+    return this.goto(path)
   }
 }
 

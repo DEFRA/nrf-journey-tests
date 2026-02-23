@@ -1,96 +1,189 @@
-nrf-journey-tests
+# E2E Tests — Playwright + Cucumber
 
-The template to create a service that runs WDIO tests against an environment.
+End-to-end tests using [Playwright](https://playwright.dev/) (browser library) and [Cucumber](https://cucumber.io/) (BDD runner).
 
-- [Local](#local)
-  - [Requirements](#requirements)
-    - [Node.js](#nodejs)
-  - [Setup](#setup)
-  - [Running local tests](#running-local-tests)
-  - [Debugging local tests](#debugging-local-tests)
-- [Production](#production)
-  - [Debugging tests](#debugging-tests)
-- [Licence](#licence)
-  - [About the licence](#about-the-licence)
+## Stack
 
-## Local Development
+| Layer | Technology |
+|---|---|
+| Browser automation | `playwright` (Chromium) |
+| Test runner / BDD | `@cucumber/cucumber` |
+| Reporting | `allure-cucumberjs` + `allure-commandline` |
+| Language | JavaScript (ESM, Node ≥ 22) |
 
-### Requirements
+## Prerequisites
 
-#### Node.js
+- Node.js ≥ 22.13.1
+- `npm install` (also installs the Chromium browser via `postinstall`)
 
-Please install [Node.js](http://nodejs.org/) `>= v20` and [npm](https://nodejs.org/) `>= v9`. You will find it
-easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
+---
 
-To use the correct version of Node.js for this application, via nvm:
+## Run modes
 
-```bash
-nvm use
+There are three ways to run the tests, depending on what you are testing against.
+
+### Mode 1 — Local (developer machine)
+
+Use this when you have the frontend service running locally on your machine.
+
+```sh
+# Start the service in a separate terminal (prototype or nrf-frontend)
+cd ../nrf-prototypes && npm run dev
+# or
+cd ../nrf-frontend && npm run dev
+
+# Run the tests against it
+npm run test:e2e:local
+
+# Headed mode — opens a visible browser window (useful for debugging)
+npm run test:e2e:debug
 ```
 
-### Setup
+The `BASE_URL` is hardcoded to `http://localhost:3000` by these scripts.
 
-Install application dependencies:
+---
 
-```bash
-npm install
+### Mode 2 — Localstack (Docker Compose)
+
+Use this to run the full stack in Docker locally, or to replicate what GitHub Actions does.
+All services start as Docker containers and communicate over Docker's internal network.
+The test runner itself runs on the host and reaches the service via the exposed port 3000.
+
+```sh
+# Build images and start all services, then run tests
+npm run test:localstack
+
+# Afterwards, tear down the containers
+docker compose down
 ```
 
-### Running local tests
+What this does:
+1. `docker compose up --wait -d` — starts `nrf-frontend` (currently backed by nrf-prototypes image) and waits for its healthcheck to pass
+2. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the exposed port)
 
-Start application you are testing on the url specified in `baseUrl` [wdio.local.conf.js](wdio.local.conf.js)
+To pull a specific image version instead of `latest`:
 
-```bash
-npm run test:local
+```sh
+NRF_PROTOTYPES=1.2.3 npm run test:localstack
 ```
 
-### Debugging local tests
+---
 
-```bash
-npm run test:local:debug
+### Mode 3 — CDP cloud environment (GitHub Actions)
+
+Use this to run tests against a service already deployed on the CDP platform (AWS).
+No Docker Compose is needed — the service is already running in the cloud.
+
+```sh
+# Against the dev environment
+ENVIRONMENT=dev npm run test:e2e
+
+# Against the test environment
+ENVIRONMENT=test npm run test:e2e
 ```
 
-## Production
+The URL is constructed automatically as:
+`https://nrf-frontend.<ENVIRONMENT>.cdp-int.defra.cloud`
 
-### Running the tests
+In GitHub Actions this is triggered by passing the `environment` input to the reusable action — see [Calling the action from another repo](#calling-the-action-from-another-repo) below.
 
-Tests are run from the CDP-Portal under the Test Suites section. Before any changes can be run, a new docker image must be built, this will happen automatically when a pull request is merged into the `main` branch.
-You can check the progress of the build under the actions section of this repository. Builds typically take around 1-2 minutes.
+---
 
-The results of the test run are made available in the portal.
+## Generate and view the Allure report
 
-## Requirements of CDP Environment Tests
+```sh
+# Generate HTML report from the latest run
+npm run report
 
-1. Your service builds as a docker container using the `.github/workflows/publish.yml`
-   The workflow tags the docker images allowing the CDP Portal to identify how the container should be run on the platform.
-   It also ensures its published to the correct docker repository.
+# Open the report (opens index.html in allure-report/)
+npx allure open allure-report
+```
 
-2. The Dockerfile's entrypoint script should return exit code of 0 if the test suite passes or 1/>0 if it fails
+Screenshots of failed scenarios are automatically attached to the report.
 
-3. Test reports should be published to S3 using the script in `./bin/publish-tests.sh`
+---
 
-## Running on GitHub
+## Debug a failing scenario
 
-Alternatively you can run the test suite as a GitHub workflow.
-Test runs on GitHub are not able to connect to the CDP Test environments. Instead, they run the tests agains a version of the services running in docker.
-A docker compose `compose.yml` is included as a starting point, which includes the databases (mongodb, redis) and infrastructure (localstack) pre-setup.
+1. Run headed: `npm run test:e2e:debug`
+2. To pause at a specific step, add `await this.page.pause()` in a step definition — Playwright Inspector opens automatically in headed mode.
+3. Check the Allure report for screenshots taken at the point of failure.
 
-Steps:
+---
 
-1. Edit the compose.yml to include your services.
-2. Modify the scripts in docker/scripts to pre-populate the database, if required and create any localstack resources.
-3. Test the setup locally with `docker compose up` and `npm run test:github`
-4. Set up the workflow trigger in `.github/workflows/journey-tests`.
+## Folder structure
 
-By default, the provided workflow will run when triggered manually from GitHub or when triggered by another workflow.
+```
+test/
+  features/           # Gherkin .feature files
+  step-definitions/   # Cucumber step implementations
+  page-objects/       # Page Object classes (extend BasePage)
+    BasePage.js       # Playwright helpers: goto, click, fill, text, waitFor, title
+    page.js           # Base page with pageHeading locator
+    home.page.js      # HomePage — open()
+  support/
+    world.js          # Cucumber World: launches browser, exposes this.page + this.pageObjects
+    hooks.js          # Before/After lifecycle; screenshot on failure; FAILED file on suite failure
+cucumber.js           # Cucumber profile configuration
+```
 
-If you want to use the repository exclusively for running docker composed based test suites consider displaying the publish.yml workflow.
+## Adding a new Page Object
 
-## BrowserStack
+1. Create `test/page-objects/my.page.js` extending `BasePage` (or `Page`).
+2. Register an instance in `test/support/world.js` under `this.pageObjects`.
+3. Reference it in step definitions as `this.pageObjects.myPage`.
 
-Two wdio configuration files are provided to help run the tests using BrowserStack in both a GitHub workflow (`wdio.github.browserstack.conf.js`) and from the CDP Portal (`wdio.browserstack.conf.js`).
-They can be run from npm using the `npm run test:browserstack` (for running via portal) and `npm run test:github:browserstack` (from GitHib runner).
-See the CDP Documentation for more details.
+---
+
+## Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `BASE_URL` | derived from `ENVIRONMENT`, or `http://localhost:3000` | Full base URL for the service under test. Takes precedence over `ENVIRONMENT`. |
+| `ENVIRONMENT` | — | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL automatically. |
+| `E2E_HEADFUL` | `false` | Set to `true` to run with a visible browser window (local mode only). |
+| `NRF_PROTOTYPES` | `latest` | Docker image tag for the nrf-prototypes image used in localstack mode. |
+
+---
+
+## Calling the action from another repo
+
+The `run-journey-tests/action.yml` composite action is designed to be called from a GitHub Actions workflow in the application repo (e.g. nrf-frontend or nrf-prototypes).
+
+**Localstack mode** — starts Docker Compose, runs tests on the runner host:
+
+```yaml
+- uses: DEFRA/nrf-journey-tests/run-journey-tests@main
+  with:
+    nrf-prototypes: ${{ env.IMAGE_TAG }}
+```
+
+**CDP mode** — skips Docker Compose, runs tests against the deployed service:
+
+```yaml
+- uses: DEFRA/nrf-journey-tests/run-journey-tests@main
+  with:
+    environment: ${{ inputs.environment }}   # e.g. "dev" or "test"
+```
+
+---
+
+## Migrating from nrf-prototypes to nrf-frontend
+
+When the real `nrf-frontend` service is ready to be tested, update the following:
+
+1. **`compose.yml`** — update the `nrf-frontend` service:
+   - Change `image` to `defradigital/nrf-frontend:${NRF_FRONTEND:-latest}`
+   - Change `build.context` to `../nrf-frontend`
+   - Add `defra-id-stub` service and the required env vars (`COOKIE_PASSWORD`, `REDIS_HOST`, `LOCALSTACK_ENDPOINT`, `DEFRA_ID_*`)
+
+2. **`run-journey-tests/action.yml`** — rename the `nrf-prototypes` input to `nrf-frontend`
+
+3. **`package.json`** — update the `NRF_PROTOTYPES` env var reference in `test:localstack` to `NRF_FRONTEND`
+
+4. **Feature files** — update assertions (page titles, routes, content) to match the real frontend
+
+---
 
 ## Licence
 
@@ -98,14 +191,4 @@ THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE
 
 <http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3>
 
-The following attribution statement MUST be cited in your products and applications when using this information.
-
 > Contains public sector information licensed under the Open Government licence v3
-
-### About the licence
-
-The Open Government Licence (OGL) was developed by the Controller of Her Majesty's Stationery Office (HMSO) to enable
-information providers in the public sector to license the use and re-use of their information under a common open
-licence.
-
-It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.

@@ -1,55 +1,77 @@
 name: Run Journey Tests on GitHub
 
 inputs:
-  example-node-backend:
+  environment:
     required: false
-    type: string
-  example-node-frontend:
+    description: >
+      CDP environment name (e.g. dev, test, prod).
+      When set, skips Docker Compose and runs tests against the already-deployed
+      service at https://nrf-frontend.<environment>.cdp-int.defra.cloud.
+      When omitted, Docker Compose starts nrf-frontend locally (localstack mode).
+  nrf-prototypes:
     required: false
-    type: string
+    description: >
+      Docker image tag for nrf-prototypes (localstack mode only).
+      Update to an nrf-frontend input when the real frontend service is ready.
 
 runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v4
       with:
-        repository: DEFRA/cdp-node-journey-test-suite-template
+        repository: DEFRA/nrf-journey-tests
 
     - name: Docker Login
       uses: DEFRA/cdp-build-action/docker-login@main
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: npm
+
     - name: Setup the tests
-      run: npm i
+      run: npm ci
       shell: bash
-    - name: Start docker compose
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+      shell: bash
+
+    - name: Start docker compose (localstack mode)
+      if: ${{ !inputs.environment }}
       shell: bash
       run: |
-          CDP_EXAMPLE_NODE_FRONTEND=${{inputs.example-node-frontend}} \
-          CDP_EXAMPLE_NODE_BACKEND=${{inputs.example-node-backend}} \
-          docker compose up --wait-timeout 300 -d --quiet-pull
+        NRF_PROTOTYPES=${{ inputs.nrf-prototypes }} \
+        docker compose up --wait --wait-timeout 300 -d --quiet-pull
+
     - name: Run the tests
       shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
       run: |
-        npm run test:github
+        npm run test:e2e; TEST_EXIT=$?
         npm run report
-    - name: debug
-      if: always()
-      run: |
-        docker compose logs > logs.txt
-        docker ps
+        exit $TEST_EXIT
+
+    - name: Capture docker compose logs
+      if: ${{ always() && !inputs.environment }}
+      run: docker compose logs > logs.txt
       shell: bash
+
+    - name: Show running containers
+      if: always()
+      run: docker ps
+      shell: bash
+
     - name: Upload allure report
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: allure-report
         path: ./allure-report
+
     - name: Upload docker compose logs
-      if: always()
+      if: ${{ always() && !inputs.environment }}
       uses: actions/upload-artifact@v4
       with:
         name: docker-compose-logs

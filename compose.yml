@@ -8,7 +8,7 @@
 # Both mongo and localstack have init scripts included for setting up resources
 # on startup. These scripts are in docker/scripts.
 #
-# It also includes a selenium-chrome container for running the browser headless.
+# Playwright manages its own Chromium browser — no separate browser container needed.
 #
 # The services being tested can either be started up here using the latest
 # builds from dockerhub.
@@ -18,14 +18,6 @@
 #
 ################################################################################
 services:
-
-################################################################################
-# Headless browser, used by the test suite to actually run the tests against the
-# containers.
-  selenium-chrome:
-    image: selenium/standalone-chrome:123.0
-    ports:
-      - 4444:4444
 
 ################################################################################
   mongodb:
@@ -67,7 +59,34 @@ services:
 
 ################################################################################
 #
-# Add the services you want to test below.
+# Application services under test
+#
+# nrf-frontend is currently backed by nrf-prototypes (GOV.UK Prototype Kit).
+# When the real nrf-frontend service is ready:
+#   1. Update `image` to defradigital/nrf-frontend:${NRF_FRONTEND:-latest}
+#   2. Update `build.context` to ../nrf-frontend
+#   3. Add defra-id-stub service and DEFRA_ID_* / COOKIE_PASSWORD / REDIS_HOST env vars
+#
+################################################################################
+  nrf-frontend:
+    image: defradigital/nrf-prototypes:${NRF_PROTOTYPES:-latest}
+    build:
+      context: ../nrf-prototypes
+      target: development
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      start_period: 20s
+      retries: 5
+
+################################################################################
+#
+# Commented-out example services — keep for reference
 #
 ################################################################################
 #  cdp-example-node-frontend:
