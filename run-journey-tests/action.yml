@@ -8,11 +8,11 @@ inputs:
       When set, skips Docker Compose and runs tests against the already-deployed
       service at https://nrf-frontend.<environment>.cdp-int.defra.cloud.
       When omitted, Docker Compose starts nrf-frontend locally (localstack mode).
-  nrf-prototypes:
+  nrf-frontend:
     required: false
     description: >
-      Docker image tag for nrf-prototypes (localstack mode only).
-      Update to an nrf-frontend input when the real frontend service is ready.
+      Docker image tag for nrf-frontend (localstack mode only).
+      Defaults to latest when omitted.
 
 runs:
   using: "composite"
@@ -41,7 +41,7 @@ runs:
       if: ${{ !inputs.environment }}
       shell: bash
       run: |
-        NRF_PROTOTYPES=${{ inputs.nrf-prototypes }} \
+        NRF_FRONTEND=${{ inputs.nrf-frontend }} \
         docker compose up --wait --wait-timeout 300 -d --quiet-pull
 
     - name: Run the tests

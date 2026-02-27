@@ -27,10 +27,8 @@ There are three ways to run the tests, depending on what you are testing against
 Use this when you have the frontend service running locally on your machine.
 
 ```sh
-# Start the service in a separate terminal (prototype or nrf-frontend)
-cd ../nrf-prototypes && npm run dev
-# or
-cd ../nrf-frontend && npm run dev
+# Start the service in a separate terminal
+cd ../nrf-frontend && NODE_ENV=development ENABLE_DEFRA_ID=false node src/index.js
 
 # Run the tests against it
 npm run test:e2e:local
@@ -59,13 +57,13 @@ docker compose down
 
 What this does:
 
-1. `docker compose up --wait -d` — starts `nrf-frontend` (currently backed by nrf-prototypes image) and waits for its healthcheck to pass
+1. `docker compose up --wait -d` — starts `nrf-frontend` and waits for its `/health` healthcheck to pass
 2. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the exposed port)
 
 To pull a specific image version instead of `latest`:
 
 ```sh
-NRF_PROTOTYPES=1.2.3 npm run test:localstack
+NRF_FRONTEND=1.2.3 npm run test:localstack
 ```
 
 ---
@@ -143,20 +141,20 @@ cucumber.js           # Cucumber profile configuration
 | `BASE_URL`       | derived from `ENVIRONMENT`, or `http://localhost:3000` | Full base URL for the service under test. Takes precedence over `ENVIRONMENT`.         |
 | `ENVIRONMENT`    | —                                                      | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL automatically. |
 | `E2E_HEADFUL`    | `false`                                                | Set to `true` to run with a visible browser window (local mode only).                  |
-| `NRF_PROTOTYPES` | `latest`                                               | Docker image tag for the nrf-prototypes image used in localstack mode.                 |
+| `NRF_FRONTEND`   | `latest`                                               | Docker image tag for nrf-frontend used in localstack mode.                             |
 
 ---
 
 ## Calling the action from another repo
 
-The `run-journey-tests/action.yml` composite action is designed to be called from a GitHub Actions workflow in the application repo (e.g. nrf-frontend or nrf-prototypes).
+The `run-journey-tests/action.yml` composite action is designed to be called from a GitHub Actions workflow in the application repo (e.g. nrf-frontend).
 
 **Localstack mode** — starts Docker Compose, runs tests on the runner host:
 
 ```yaml
 - uses: DEFRA/nrf-journey-tests/run-journey-tests@main
   with:
-    nrf-prototypes: ${{ env.IMAGE_TAG }}
+    nrf-frontend: ${{ env.IMAGE_TAG }}
 ```
 
 **CDP mode** — skips Docker Compose, runs tests against the deployed service:
@@ -166,24 +164,6 @@ The `run-journey-tests/action.yml` composite action is designed to be called fro
   with:
     environment: ${{ inputs.environment }} # e.g. "dev" or "test"
 ```
-
----
-
-## Migrating from nrf-prototypes to nrf-frontend
-
-When the real `nrf-frontend` service is ready to be tested, update the following:
-
-1. **`compose.yml`** — update the `nrf-frontend` service:
-
-   - Change `image` to `defradigital/nrf-frontend:${NRF_FRONTEND:-latest}`
-   - Change `build.context` to `../nrf-frontend`
-   - Add `defra-id-stub` service and the required env vars (`COOKIE_PASSWORD`, `REDIS_HOST`, `LOCALSTACK_ENDPOINT`, `DEFRA_ID_*`)
-
-2. **`run-journey-tests/action.yml`** — rename the `nrf-prototypes` input to `nrf-frontend`
-
-3. **`package.json`** — update the `NRF_PROTOTYPES` env var reference in `test:localstack` to `NRF_FRONTEND`
-
-4. **Feature files** — update assertions (page titles, routes, content) to match the real frontend
 
 ---
 

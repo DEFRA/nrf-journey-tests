@@ -61,67 +61,20 @@ services:
 #
 # Application services under test
 #
-# nrf-frontend is currently backed by nrf-prototypes (GOV.UK Prototype Kit).
-# When the real nrf-frontend service is ready:
-#   1. Update `image` to defradigital/nrf-frontend:${NRF_FRONTEND:-latest}
-#   2. Update `build.context` to ../nrf-frontend
-#   3. Add defra-id-stub service and DEFRA_ID_* / COOKIE_PASSWORD / REDIS_HOST env vars
-#
 ################################################################################
   nrf-frontend:
-    image: defradigital/nrf-prototypes:${NRF_PROTOTYPES:-latest}
+    image: defradigital/nrf-frontend:${NRF_FRONTEND:-latest}
     build:
-      context: ../nrf-prototypes
+      context: ../nrf-frontend
       target: development
     environment:
       - PORT=3000
       - NODE_ENV=development
+      - ENABLE_DEFRA_ID=false
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 5s
-      start_period: 20s
-      retries: 5
-
-################################################################################
-#
-# Commented-out example services — keep for reference
-#
-################################################################################
-#  cdp-example-node-frontend:
-#    image: defradigital/cdp-example-node-frontend:${CDP_EXAMPLE_NODE_FRONTEND:-latest}
-#    env_file:
-#      - ./docker/config/defaults.env
-#      - ./docker/config/example-frontend.env
-#    environment:
-#      - PORT=3000
-#    depends_on:
-#      cdp-example-node-backend:
-#        condition: service_started
-#      redis:
-#        condition: service_healthy
-#    ports:
-#      - 3000:3000
-#    healthcheck:
-#      test: ["CMD", "curl", "http://localhost:3000/health"]
-#      interval: 3s
-#      start_period: 2s
-#      retries: 3
-
-################################################################################
-# cdp-example-node-backend:
-#   image: defradigital/cdp-example-node-backend:${CDP_EXAMPLE_NODE_BACKEND:-latest}
-#   env_file:
-#     - ./docker/config/defaults.env
-#     - ./docker/config/example-backend.env
-#   environment:
-#     - PORT=3001
-#   depends_on:
-#     mongodb:
-#       condition: service_healthy
-#   healthcheck:
-#     test: ["CMD", "curl", "http://localhost:3001/health"]
-#     interval: 3s
-#     start_period: 2s
-#     retries: 3
+      start_period: 30s
+      retries: 6

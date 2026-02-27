@@ -6,10 +6,29 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'CDP environment to test against (e.g. dev, test). Leave blank for localstack mode.'
+        required: false
+      nrf-frontend:
+        description: 'Docker image tag for nrf-frontend (localstack mode only). Defaults to latest.'
+        required: false
   workflow_call:
+    inputs:
+      environment:
+        required: false
+        type: string
+      nrf-frontend:
+        required: false
+        type: string
+
 jobs:
   build:
     name: Run Journey Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: DEFRA/cdp-node-journey-test-suite-template/run-journey-tests@main
+      - uses: actions/checkout@v4
+      - uses: DEFRA/nrf-journey-tests/run-journey-tests@main
+        with:
+          environment: ${{ inputs.environment }}
+          nrf-frontend: ${{ inputs.nrf-frontend }}
