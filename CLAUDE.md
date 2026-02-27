@@ -15,6 +15,7 @@ The framework validates end-to-end user journeys against the NRF frontend servic
 - **CDP cloud** — deployed environments (dev, test, prod) on AWS
 
 **Current testing scope:**
+
 - Web UI journeys (BDD with Cucumber + Playwright) — **active**
 - API tests (non-BDD) — **planned**
 - Database tests (non-BDD) — **planned**
@@ -24,6 +25,7 @@ The service under test is `nrf-frontend` (Hapi.js).
 Before implementing any test, read the relevant `flows/<user-flow>.md` file. These files describe the user journey, screens, data inputs, and expected outcomes. If no flow file exists, ask the user to create one before proceeding.
 
 You also have access to the sibling repository:
+
 - `/home/sinangoktas/VSCodeProjects/nrf-frontend` — the frontend service (Hapi.js)
 
 Read it when you need to understand routes, page titles, form field names, or response structures.
@@ -32,18 +34,18 @@ Read it when you need to understand routes, page titles, form field names, or re
 
 ## 2. Tech Stack & Tools
 
-| Concern | Tool | Version |
-|---|---|---|
-| Language | JavaScript (ESM) | Node ≥ 22.13.1 |
-| Browser automation | Playwright (Chromium) | 1.50.1 |
-| BDD runner (web tests) | @cucumber/cucumber | 11.2.0 |
-| Reporting | allure-cucumberjs + allure-commandline | 3.2.0 / 2.32.0 |
-| Assertions (web) | `node:assert/strict` | built-in |
-| Assertions (API/DB) | TBD | — |
-| CI | GitHub Actions | — |
-| Package manager | npm | — |
-| Linting | ESLint (standard config) | ^8.57.0 |
-| Formatting | Prettier | 3.4.2 |
+| Concern                | Tool                                   | Version        |
+| ---------------------- | -------------------------------------- | -------------- |
+| Language               | JavaScript (ESM)                       | Node ≥ 22.13.1 |
+| Browser automation     | Playwright (Chromium)                  | 1.50.1         |
+| BDD runner (web tests) | @cucumber/cucumber                     | 11.2.0         |
+| Reporting              | allure-cucumberjs + allure-commandline | 3.2.0 / 2.32.0 |
+| Assertions (web)       | `node:assert/strict`                   | built-in       |
+| Assertions (API/DB)    | TBD                                    | —              |
+| CI                     | GitHub Actions                         | —              |
+| Package manager        | npm                                    | —              |
+| Linting                | ESLint (standard config)               | ^8.57.0        |
+| Formatting             | Prettier                               | 3.4.2          |
 
 **ESM is mandatory throughout.** Use `import`/`export` everywhere. Never use `require()`.
 
@@ -164,11 +166,11 @@ When in doubt, check the actual HTML in `nrf-frontend/src`.
 
 Every scenario must have at least one tag:
 
-| Tag | Meaning | CI behaviour |
-|---|---|---|
-| `@smoke` | Critical path — must pass before anything else | Blocks PR merge |
-| `@regression` | Full coverage | Runs in scheduled/nightly suite |
-| `@flaky` | Known intermittent failure | Excluded from blocking suites |
+| Tag           | Meaning                                        | CI behaviour                    |
+| ------------- | ---------------------------------------------- | ------------------------------- |
+| `@smoke`      | Critical path — must pass before anything else | Blocks PR merge                 |
+| `@regression` | Full coverage                                  | Runs in scheduled/nightly suite |
+| `@flaky`      | Known intermittent failure                     | Excluded from blocking suites   |
 
 ```gherkin
 @smoke @regression
@@ -186,7 +188,7 @@ When adding a new page object, register it in `openBrowser()`:
 ```js
 this.pageObjects = {
   homePage: new HomePage(this.page, baseUrl),
-  applyPage: new ApplyPage(this.page, baseUrl)   // add here
+  applyPage: new ApplyPage(this.page, baseUrl) // add here
 }
 ```
 
@@ -296,41 +298,47 @@ There are no shared test data files yet. When test data is needed:
 
 ### Docker infrastructure (localstack mode)
 
-| Service | Image | Purpose |
-|---|---|---|
-| nrf-frontend | defradigital/nrf-frontend | Service under test |
-| mongodb | mongo:6 | Database |
-| redis | redis:7 | Session cache |
-| localstack | localstack/localstack:3.2.0 | AWS (S3, SQS, SNS, DynamoDB) |
+| Service      | Image                       | Purpose                      |
+| ------------ | --------------------------- | ---------------------------- |
+| nrf-frontend | defradigital/nrf-frontend   | Service under test           |
+| mongodb      | mongo:6                     | Database                     |
+| redis        | redis:7                     | Session cache                |
+| localstack   | localstack/localstack:3.2.0 | AWS (S3, SQS, SNS, DynamoDB) |
 
 ---
 
 ## 7. What to Avoid
 
 **Waiting**
+
 - Never use `page.waitForTimeout(ms)` — this is a hard wait and makes tests slow and brittle
 - Use Playwright's built-in auto-waiting, or `locator.waitFor({ state: 'visible' })` for explicit conditions
 
 **Browser state**
+
 - Never reuse browser, context, or page across scenarios
 - Never set cookies or localStorage manually before a test unless that is the explicit test setup
 
 **Selectors**
+
 - Never use XPath
 - Never select by element index (`nth(0)`) unless position is semantically meaningful
 - Never assert on dynamically generated values (UUIDs, timestamps, auto-increment IDs)
 
 **Assertions**
+
 - Never put assertions inside page objects
 - Never assert on environment-specific text that changes between local/dev/prod (exact IDs, server-generated tokens)
 - Never use loose equality — `assert.equal` uses `===`
 
 **Configuration**
+
 - Never wrap `cucumber.js` export in `{ default: { ... } }` — it produces 0 scenarios silently
 - Never use `require()` — this is ESM-only
 - Never add `console.log` — ESLint will reject it; use `this.attach(message, 'text/plain')` in steps
 
 **Test design**
+
 - Never write scenarios that depend on execution order
 - Never share mutable state between step definitions via module-level variables
 - Never test implementation details — test what the user sees and can do
@@ -341,11 +349,11 @@ There are no shared test data files yet. When test data is needed:
 
 ### Workflows
 
-| File | Trigger | What it does |
-|---|---|---|
-| `check-pull-request.yml` | PR opened/updated against `main` | Runs `format:check` + `lint`. |
-| `journey-tests.yml` | `workflow_dispatch` or `workflow_call` | Runs journey tests via `DEFRA/nrf-journey-tests/run-journey-tests@main`. |
-| `publish.yml` | Push to `main` | Builds Docker image and publishes to AWS ECR via `DEFRA/cdp-build-action/build-test@main`. |
+| File                     | Trigger                                | What it does                                                                               |
+| ------------------------ | -------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `check-pull-request.yml` | PR opened/updated against `main`       | Runs `format:check` + `lint`.                                                              |
+| `journey-tests.yml`      | `workflow_dispatch` or `workflow_call` | Runs journey tests via `DEFRA/nrf-journey-tests/run-journey-tests@main`.                   |
+| `publish.yml`            | Push to `main`                         | Builds Docker image and publishes to AWS ECR via `DEFRA/cdp-build-action/build-test@main`. |
 
 ### Reusable action (`run-journey-tests/action.yml`)
 
@@ -384,6 +392,7 @@ Follow these steps in order for every new test.
 ### Implementation steps
 
 4. **Page Object** — create or extend `test/page-objects/<name>.page.js`
+
    - Extend `Page` for standard GOV.UK pages
    - Expose locators as getters, actions as `async` methods
    - No assertions inside the page object
@@ -391,16 +400,19 @@ Follow these steps in order for every new test.
 5. **Register** the page object in `test/support/world.js` under `this.pageObjects`
 
 6. **Feature file** — create `test/features/<journey>.feature`
+
    - Tag every scenario with `@smoke` and/or `@regression`
    - Write scenarios from the user's perspective
    - Use `{string}` / `{int}` parameter types — no hardcoded values in step text
 
 7. **Step definitions** — create `test/step-definitions/<journey>.steps.js`
+
    - Mirror the feature file name
    - Access the page via `this.pageObjects.<name>` and `this.page`
    - Put assertions here, not in page objects
 
 8. **Verify locally in headed mode**
+
    ```sh
    npm run test:e2e:debug
    ```
