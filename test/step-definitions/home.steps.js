@@ -2,10 +2,6 @@ import assert from 'node:assert/strict'
 import { Given, Then } from '@cucumber/cucumber'
 
 Given('I am on the home page', async function () {
-  await this.attach(
-    `Base URL: ${this.pageObjects.homePage.baseUrl}`,
-    'text/plain'
-  )
   await this.pageObjects.homePage.open()
 })
 

@@ -2,11 +2,9 @@ import { setWorldConstructor, World } from '@cucumber/cucumber'
 import { chromium } from 'playwright'
 import { HomePage } from '../page-objects/home.page.js'
 
-const baseUrl =
-  process.env.BASE_URL ||
-  (process.env.ENVIRONMENT
-    ? `https://nrf-frontend.${process.env.ENVIRONMENT}.cdp-int.defra.cloud`
-    : 'http://localhost:3000')
+const baseUrl = process.env.ENVIRONMENT
+  ? `https://nrf-frontend.${process.env.ENVIRONMENT}.cdp-int.defra.cloud`
+  : process.env.BASE_URL || 'http://localhost:3000'
 
 const headless = process.env.E2E_HEADFUL !== 'true'
 

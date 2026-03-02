@@ -278,8 +278,8 @@ cd ../nrf-frontend && NODE_ENV=development ENABLE_DEFRA_ID=false node src/index.
 
 Priority order in `test/support/world.js`:
 
-1. `BASE_URL` env var (explicit, takes precedence over everything)
-2. `ENVIRONMENT` env var → constructs `https://nrf-frontend.<env>.cdp-int.defra.cloud`
+1. `ENVIRONMENT` env var → constructs `https://nrf-frontend.<env>.cdp-int.defra.cloud` (highest priority)
+2. `BASE_URL` env var → explicit URL override
 3. Fallback → `http://localhost:3000`
 
 ### Test data

@@ -136,12 +136,12 @@ cucumber.js           # Cucumber profile configuration
 
 ## Environment variables
 
-| Variable       | Default                                                | Description                                                                            |
-| -------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| `BASE_URL`     | derived from `ENVIRONMENT`, or `http://localhost:3000` | Full base URL for the service under test. Takes precedence over `ENVIRONMENT`.         |
-| `ENVIRONMENT`  | —                                                      | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL automatically. |
-| `E2E_HEADFUL`  | `false`                                                | Set to `true` to run with a visible browser window (local mode only).                  |
-| `NRF_FRONTEND` | `latest`                                               | Docker image tag for nrf-frontend used in localstack mode.                             |
+| Variable       | Default                 | Description                                                                                       |
+| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
+| `ENVIRONMENT`  | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority. |
+| `BASE_URL`     | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                       |
+| `E2E_HEADFUL`  | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
+| `NRF_FRONTEND` | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
 
 ---
 
