@@ -3,6 +3,7 @@ name: Run Journey Tests on GitHub
 permissions:
   checks: write
   pull-requests: write
+  id-token: write
 
 on:
   workflow_dispatch:
