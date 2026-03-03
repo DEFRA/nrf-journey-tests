@@ -42,7 +42,7 @@ runs:
       shell: bash
       run: |
         NRF_FRONTEND=${{ inputs.nrf-frontend }} \
-        docker compose up --wait --wait-timeout 300 -d --quiet-pull
+        docker compose up --wait --wait-timeout 300 -d
 
     - name: Run the tests
       shell: bash
