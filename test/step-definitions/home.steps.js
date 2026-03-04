@@ -7,5 +7,5 @@ Given('I am on the home page', async function () {
 
 Then('the page title should be {string}', async function (expectedTitle) {
   const title = await this.page.title()
-  assert.notEqual(title, expectedTitle)
+  assert.equal(title, expectedTitle)
 })
