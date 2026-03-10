@@ -1,5 +1,5 @@
 import { setWorldConstructor, World } from '@cucumber/cucumber'
-import { chromium } from 'playwright'
+import { chromium, firefox, webkit } from 'playwright'
 import { HomePage } from '../page-objects/home.page.js'
 
 const baseUrl = process.env.ENVIRONMENT
@@ -8,9 +8,13 @@ const baseUrl = process.env.ENVIRONMENT
 
 const headless = process.env.E2E_HEADFUL !== 'true'
 
+const browsers = { chromium, firefox, webkit }
+const browserName = process.env.BROWSER || 'chromium'
+const browserEngine = browsers[browserName] ?? chromium
+
 class PlaywrightWorld extends World {
   async openBrowser() {
-    this.browser = await chromium.launch({ headless })
+    this.browser = await browserEngine.launch({ headless })
     this.context = await this.browser.newContext()
     this.page = await this.context.newPage()
     this.pageObjects = {

@@ -140,8 +140,38 @@ cucumber.js           # Cucumber profile configuration
 | -------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
 | `ENVIRONMENT`  | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority. |
 | `BASE_URL`     | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                       |
+| `BROWSER`      | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.  |
 | `E2E_HEADFUL`  | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
 | `NRF_FRONTEND` | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
+
+---
+
+## Browser compatibility
+
+By default all tests run in **Chromium**. To run against a different browser, set the `BROWSER` env var:
+
+```sh
+# Firefox
+BROWSER=firefox npm run test:e2e:local
+
+# WebKit (Safari engine)
+BROWSER=webkit npm run test:e2e:local
+
+# Chromium (default — explicit)
+BROWSER=chromium npm run test:e2e:local
+```
+
+To run the full suite across all three browsers in sequence:
+
+```sh
+for browser in chromium firefox webkit; do
+  BROWSER=$browser npm run test:e2e:local
+done
+```
+
+> **Note:** `webkit` covers the Safari/WebKit engine. To test against the installed Microsoft Edge browser specifically, that requires Edge to be installed on the machine and is not currently wired up.
+
+All three browser engines ship with the `playwright` package — no additional installation is needed.
 
 ---
 
