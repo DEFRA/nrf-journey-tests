@@ -13,6 +13,12 @@ inputs:
     description: >
       Docker image tag for nrf-frontend (localstack mode only).
       Defaults to latest when omitted.
+  browser:
+    required: false
+    default: chromium
+    description: >
+      Browser engine to run tests against.
+      Accepted values: chromium, firefox, webkit. Defaults to chromium.
 
 runs:
   using: "composite"
@@ -34,7 +40,7 @@ runs:
       shell: bash
 
     - name: Install Playwright browsers
-      run: npx playwright install --with-deps chromium
+      run: npx playwright install --with-deps ${{ inputs.browser || 'chromium' }}
       shell: bash
 
     - name: Start docker compose (localstack mode)
@@ -48,6 +54,7 @@ runs:
       shell: bash
       env:
         ENVIRONMENT: ${{ inputs.environment }}
+        BROWSER: ${{ inputs.browser || 'chromium' }}
       run: |
         npm run test:e2e; TEST_EXIT=$?
         npm run report
