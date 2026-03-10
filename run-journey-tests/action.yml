@@ -1,4 +1,5 @@
 name: Run Journey Tests on GitHub
+description: Runs the NRF end-to-end journey tests in either localstack or CDP cloud mode.
 
 inputs:
   environment:
