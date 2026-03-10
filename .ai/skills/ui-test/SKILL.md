@@ -165,23 +165,6 @@ Always check the actual Nunjucks template in `../nrf-frontend/src/server/<page>/
 
 ---
 
-## What to test
-
-For each page, test in this order:
-
-1. **Happy path** — valid input, correct next page reached
-2. **Validation errors** — submit empty/invalid form, assert error summary and inline error messages appear
-3. **Conditional routing** — where next page depends on input value (e.g. development-types → residential)
-4. **Pre-population** — if the user navigates back, previously entered values are shown
-
-Do **not** test:
-
-- Exact UUIDs, session tokens, or server-generated IDs
-- Environment-specific values that differ between local/dev/prod
-- Implementation details (CSS classes, DOM structure beyond what's semantically meaningful)
-
----
-
 ## Implementation checklist
 
 For every new page under test:

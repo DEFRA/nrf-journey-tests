@@ -2,6 +2,8 @@
 
 Agent instructions for working in this repository.
 
+All project instructions are maintained in [AGENTS.md](../AGENTS.md). Read that file at the start of every conversation.
+
 ---
 
 ## 1. Project Overview
