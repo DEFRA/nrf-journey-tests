@@ -18,18 +18,17 @@
 #
 ################################################################################
 services:
-
-################################################################################
+  ################################################################################
   mongodb:
     image: mongo:6
     volumes:
       - ./docker/scripts/mongodb:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.hello().ok"]
+      test: ['CMD', 'mongosh', '--eval', 'db.hello().ok']
       interval: 5s
       start_period: 5s
       retries: 3
-################################################################################
+  ################################################################################
   localstack:
     image: localstack/localstack:3.2.0
     environment:
@@ -41,27 +40,26 @@ services:
     volumes:
       - ./docker/scripts/localstack:/etc/localstack/init/ready.d
     healthcheck:
-      test: ["CMD", "curl", "localhost:4566"]
+      test: ['CMD', 'curl', 'localhost:4566']
       interval: 5s
       start_period: 5s
       retries: 3
 
-################################################################################
+  ################################################################################
   redis:
     image: redis:7
     restart: always
     healthcheck:
-      test: [ "CMD", "redis-cli", "PING" ]
+      test: ['CMD', 'redis-cli', 'PING']
       interval: 5s
       start_period: 2s
       retries: 5
 
-
-################################################################################
-#
-# Application services under test
-#
-################################################################################
+  ################################################################################
+  #
+  # Application services under test
+  #
+  ################################################################################
   nrf-frontend:
     image: defradigital/nrf-frontend:${NRF_FRONTEND:-latest}
     build:
@@ -72,9 +70,9 @@ services:
       - NODE_ENV=development
       - ENABLE_DEFRA_ID=false
     ports:
-      - "3000:3000"
+      - '3000:3000'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 5s
       start_period: 30s
       retries: 6

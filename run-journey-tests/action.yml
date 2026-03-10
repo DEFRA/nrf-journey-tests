@@ -22,7 +22,7 @@ inputs:
       Accepted values: chromium, firefox, webkit. Defaults to chromium.
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - uses: actions/checkout@v4
       with:
