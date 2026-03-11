@@ -70,6 +70,7 @@ services:
       - NODE_ENV=development
       - ENABLE_DEFRA_ID=false
       - NRF_BACKEND_API_URL=http://nrf-backend:3001
+      - NRF_BACKEND_OPTIONAL=true
     ports:
       - '3000:3000'
     healthcheck:
