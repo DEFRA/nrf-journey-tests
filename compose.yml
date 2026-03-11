@@ -80,13 +80,7 @@ services:
       retries: 6
 
   ################################################################################
-  #
-  # Backend profile — started only when COMPOSE_PROFILES=backend
-  # (i.e. when nrf-backend integration tests are needed)
-  #
-  ################################################################################
   postgres:
-    profiles: [backend]
     image: postgis/postgis:16-3.4
     environment:
       POSTGRES_PASSWORD: password
@@ -100,7 +94,6 @@ services:
 
   ################################################################################
   liquibase:
-    profiles: [backend]
     image: liquibase/liquibase:4.27-alpine
     depends_on:
       postgres:
@@ -116,7 +109,6 @@ services:
 
   ################################################################################
   nrf-backend:
-    profiles: [backend]
     image: defradigital/nrf-backend:${NRF_BACKEND:-latest}
     build:
       context: ${NRF_BACKEND_PATH:-../nrf-backend}
