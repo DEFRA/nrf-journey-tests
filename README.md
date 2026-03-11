@@ -55,7 +55,7 @@ npm run compose:down
 
 What this does:
 
-1. `docker compose up --wait -d` — starts nrf-frontend, nrf-backend, postgres, liquibase, mongodb, redis, and localstack; waits for all healthchecks to pass
+1. `docker compose up --wait -d` — starts nrf-frontend, nrf-backend, postgres, liquibase, redis, and localstack; waits for all healthchecks to pass
 2. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the exposed port)
 
 **With specific image tags:**

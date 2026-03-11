@@ -1,33 +1,20 @@
 ################################################################################
-# Docker Compose file for starting up the service for testing in GitHub workflow
-# This template provides comparable infrastructure to the real environment.
-#   - mongodb
-#   - redis
-#   - localstack (s3, sqs, sns)
+# Docker Compose file for the NRF full stack used in journey tests.
 #
-# Both mongo and localstack have init scripts included for setting up resources
-# on startup. These scripts are in docker/scripts.
+# Services:
+#   - localstack (s3, sqs, sns, dynamodb)
+#   - redis      (nrf-frontend sessions)
+#   - postgres   (nrf-backend database)
+#   - liquibase  (nrf-backend schema migrations)
+#   - nrf-backend
+#   - nrf-frontend
 #
+# Localstack has an init script in docker/scripts/localstack.
 # Playwright manages its own Chromium browser — no separate browser container needed.
-#
-# The services being tested can either be started up here using the latest
-# builds from dockerhub.
-# In the example each service has a .env config file in docker/config/
-# Services can reference each other by their container names.
-# e.g. http://cdp-example-node-backend:3001/
+# Services reference each other by container name, e.g. http://nrf-backend:3001/
 #
 ################################################################################
 services:
-  ################################################################################
-  mongodb:
-    image: mongo:6
-    volumes:
-      - ./docker/scripts/mongodb:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ['CMD', 'mongosh', '--eval', 'db.hello().ok']
-      interval: 5s
-      start_period: 5s
-      retries: 3
   ################################################################################
   localstack:
     image: localstack/localstack:3.2.0
