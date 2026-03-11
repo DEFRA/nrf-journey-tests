@@ -11,12 +11,15 @@ on:
       nrf-frontend:
         description: 'Docker image tag for nrf-frontend. Defaults to latest.'
         required: false
+        type: string
       nrf-backend:
         description: 'Docker image tag for nrf-backend. Defaults to latest.'
         required: false
+        type: string
       browser:
         description: 'Browser engine to use (chromium, firefox, webkit). Defaults to chromium.'
         required: false
+        type: string
         default: chromium
   workflow_call:
     inputs:
