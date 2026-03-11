@@ -43,7 +43,7 @@ jobs:
 
       - uses: ./run-journey-tests
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref || '' }}
           nrf-frontend: ${{ inputs.nrf-frontend }}
           nrf-backend: ${{ inputs.nrf-backend }}
           browser: ${{ inputs.browser }}
