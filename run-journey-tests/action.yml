@@ -19,12 +19,12 @@ inputs:
     required: false
     description: >
       Docker image tag for nrf-frontend (localstack mode only).
-      Defaults to latest when omitted.
+      Defaults to latest when omitted. Overridden by a Depends-On PR dependency.
   nrf-backend:
     required: false
     description: >
       Docker image tag for nrf-backend (localstack mode only).
-      Defaults to latest when omitted.
+      Defaults to latest when omitted. Overridden by a Depends-On PR dependency.
   browser:
     required: false
     default: chromium
@@ -40,7 +40,24 @@ runs:
         repository: DEFRA/nrf-journey-tests
         ref: ${{ inputs.ref }}
 
-    - name: Checkout nrf-backend
+    - name: Extract dependent Pull Requests
+      uses: depends-on/depends-on-action@0.15.0
+      with:
+        token: ${{ github.token }}
+
+    # Detect which repos depends-on-action checked out.
+    # nrf-backend is always needed (Liquibase changelog volume in compose.yml) —
+    # if depends-on did not check it out, we do so explicitly below.
+    - name: Detect depends-on checkouts
+      if: ${{ !inputs.environment }}
+      id: detect
+      shell: bash
+      run: |
+        [ -d "./nrf-frontend" ] && echo "nrf_frontend=true" >> $GITHUB_OUTPUT || echo "nrf_frontend=false" >> $GITHUB_OUTPUT
+        [ -d "./nrf-backend" ]  && echo "nrf_backend=true"  >> $GITHUB_OUTPUT || echo "nrf_backend=false"  >> $GITHUB_OUTPUT
+
+    - name: Checkout nrf-backend (for Liquibase changelog)
+      if: ${{ !inputs.environment && steps.detect.outputs.nrf_backend == 'false' }}
       uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-backend
@@ -48,6 +65,27 @@ runs:
 
     - name: Docker Login
       uses: DEFRA/cdp-build-action/docker-login@main
+
+    # Build PR images from local checkouts if depends-on checked them out.
+    # These take priority over the nrf-frontend / nrf-backend tag inputs.
+    - name: Build nrf-frontend image from PR dependency
+      if: ${{ !inputs.environment && steps.detect.outputs.nrf_frontend == 'true' }}
+      shell: bash
+      run: |
+        echo "✅ Building nrf-frontend from PR dependency"
+        cd ./nrf-frontend
+        docker build -t defradigital/nrf-frontend:pr-build .
+
+    - name: Build nrf-backend image from PR dependency
+      if: ${{ !inputs.environment && steps.detect.outputs.nrf_backend == 'true' }}
+      shell: bash
+      run: |
+        echo "✅ Building nrf-backend from PR dependency"
+        cd ./nrf-backend
+        docker build -t defradigital/nrf-backend:pr-build .
+
+    # TODO: Add nrf-impact-assessor here when it is integrated into the stack.
+    # Pattern: check if ./nrf-impact-assessor exists, build defradigital/nrf-impact-assessor:pr-build
 
     - uses: actions/setup-node@v4
       with:
@@ -66,8 +104,25 @@ runs:
       if: ${{ !inputs.environment }}
       shell: bash
       run: |
-        NRF_FRONTEND=${{ inputs.nrf-frontend }} \
-        NRF_BACKEND=${{ inputs.nrf-backend }} \
+        # PR-built images take priority over tag inputs.
+        if docker image inspect defradigital/nrf-frontend:pr-build >/dev/null 2>&1; then
+          echo "✅ Using PR-built nrf-frontend image"
+          FRONTEND_VERSION="pr-build"
+        else
+          FRONTEND_VERSION="${{ inputs.nrf-frontend }}"
+          echo "ℹ️ Using nrf-frontend version: ${FRONTEND_VERSION:-latest}"
+        fi
+
+        if docker image inspect defradigital/nrf-backend:pr-build >/dev/null 2>&1; then
+          echo "✅ Using PR-built nrf-backend image"
+          BACKEND_VERSION="pr-build"
+        else
+          BACKEND_VERSION="${{ inputs.nrf-backend }}"
+          echo "ℹ️ Using nrf-backend version: ${BACKEND_VERSION:-latest}"
+        fi
+
+        NRF_FRONTEND=$FRONTEND_VERSION \
+        NRF_BACKEND=$BACKEND_VERSION \
         NRF_BACKEND_PATH=./nrf-backend \
         docker compose up --wait --wait-timeout 300 -d
 

@@ -197,6 +197,34 @@ The `run-journey-tests/action.yml` composite action is designed to be called fro
 
 ---
 
+## Cross-repo PR dependencies
+
+When a PR in nrf-frontend or nrf-backend depends on an in-progress PR in another repo, add a `Depends-On` annotation to the PR description. The action will check out the linked PR branch and build a local Docker image from it, which takes priority over the published `latest` image.
+
+**Format — link to the PR:**
+
+```
+Depends-On: https://github.com/DEFRA/nrf-backend/pull/42
+```
+
+**Multiple dependencies:**
+
+```
+Depends-On: https://github.com/DEFRA/nrf-backend/pull/42
+Depends-On: https://github.com/DEFRA/nrf-frontend/pull/17
+```
+
+**How it works:**
+
+1. The [`depends-on-action`](https://github.com/depends-on/depends-on-action) reads the PR description and checks out linked repos as sibling directories on the runner
+2. If `./nrf-frontend` exists → builds `defradigital/nrf-frontend:pr-build`
+3. If `./nrf-backend` exists → builds `defradigital/nrf-backend:pr-build`
+4. Compose uses `pr-build` images instead of `latest` (or the tag inputs)
+
+If no `Depends-On` is present, the action falls back to the tag inputs (`nrf-frontend`, `nrf-backend`) or `latest`.
+
+---
+
 ## Licence
 
 THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
