@@ -11,6 +11,9 @@ on:
       nrf-frontend:
         description: 'Docker image tag for nrf-frontend. Defaults to latest.'
         required: false
+      nrf-backend:
+        description: 'Docker image tag for nrf-backend. When set, spins up nrf-backend and its dependencies.'
+        required: false
       browser:
         description: 'Browser engine to use (chromium, firefox, webkit). Defaults to chromium.'
         required: false
@@ -18,6 +21,9 @@ on:
   workflow_call:
     inputs:
       nrf-frontend:
+        required: false
+        type: string
+      nrf-backend:
         required: false
         type: string
       browser:
@@ -33,4 +39,5 @@ jobs:
       - uses: DEFRA/nrf-journey-tests/run-journey-tests@main
         with:
           nrf-frontend: ${{ inputs.nrf-frontend }}
+          nrf-backend: ${{ inputs.nrf-backend }}
           browser: ${{ inputs.browser }}
