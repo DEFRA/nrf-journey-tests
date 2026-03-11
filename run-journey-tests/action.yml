@@ -2,6 +2,12 @@ name: Run Journey Tests on GitHub
 description: Runs the NRF end-to-end journey tests in either localstack or CDP cloud mode.
 
 inputs:
+  ref:
+    required: false
+    description: >
+      Git ref to checkout nrf-journey-tests at.
+      Defaults to the repository default branch (main) when omitted.
+      Set automatically by journey-tests.yml to test the current branch.
   environment:
     required: false
     description: >
@@ -32,6 +38,7 @@ runs:
     - uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-journey-tests
+        ref: ${{ inputs.ref }}
 
     - name: Checkout nrf-backend
       uses: actions/checkout@v4
@@ -61,7 +68,7 @@ runs:
       run: |
         NRF_FRONTEND=${{ inputs.nrf-frontend }} \
         NRF_BACKEND=${{ inputs.nrf-backend }} \
-        NRF_BACKEND_PATH=nrf-backend \
+        NRF_BACKEND_PATH=./nrf-backend \
         COMPOSE_PROFILES=backend \
         docker compose up --wait --wait-timeout 300 -d
 
