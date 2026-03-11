@@ -69,11 +69,73 @@ services:
       - PORT=3000
       - NODE_ENV=development
       - ENABLE_DEFRA_ID=false
+      - NRF_BACKEND_API_URL=http://nrf-backend:3001
       - NRF_BACKEND_OPTIONAL=true
     ports:
       - '3000:3000'
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 5s
+      start_period: 30s
+      retries: 6
+
+  ################################################################################
+  #
+  # Backend profile — started only when COMPOSE_PROFILES=backend
+  # (i.e. when nrf-backend integration tests are needed)
+  #
+  ################################################################################
+  postgres:
+    profiles: [backend]
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: nrf_backend
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d nrf_backend']
+      interval: 10s
+      start_period: 5s
+      retries: 5
+
+  ################################################################################
+  liquibase:
+    profiles: [backend]
+    image: liquibase/liquibase:4.27-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ${NRF_BACKEND_PATH:-../nrf-backend}/changelog:/liquibase/changelog
+    command:
+      - --url=jdbc:postgresql://postgres:5432/nrf_backend
+      - --username=postgres
+      - --password=password
+      - --changelog-file=changelog/db.changelog.xml
+      - update
+
+  ################################################################################
+  nrf-backend:
+    profiles: [backend]
+    image: defradigital/nrf-backend:${NRF_BACKEND:-latest}
+    build:
+      context: ${NRF_BACKEND_PATH:-../nrf-backend}
+      target: development
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+    env_file:
+      - ./docker/config/defaults.env
+      - ./docker/config/nrf-backend.env
+    ports:
+      - '3001:3001'
+    depends_on:
+      localstack:
+        condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
       interval: 5s
       start_period: 30s
       retries: 6

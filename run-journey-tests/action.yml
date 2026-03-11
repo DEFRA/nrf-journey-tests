@@ -14,6 +14,11 @@ inputs:
     description: >
       Docker image tag for nrf-frontend (localstack mode only).
       Defaults to latest when omitted.
+  nrf-backend:
+    required: false
+    description: >
+      Docker image tag for nrf-backend (localstack mode only).
+      Defaults to latest when omitted.
   browser:
     required: false
     default: chromium
@@ -27,6 +32,12 @@ runs:
     - uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-journey-tests
+
+    - name: Checkout nrf-backend
+      uses: actions/checkout@v4
+      with:
+        repository: DEFRA/nrf-backend
+        path: nrf-backend
 
     - name: Docker Login
       uses: DEFRA/cdp-build-action/docker-login@main
@@ -49,6 +60,9 @@ runs:
       shell: bash
       run: |
         NRF_FRONTEND=${{ inputs.nrf-frontend }} \
+        NRF_BACKEND=${{ inputs.nrf-backend }} \
+        NRF_BACKEND_PATH=nrf-backend \
+        COMPOSE_PROFILES=backend \
         docker compose up --wait --wait-timeout 300 -d
 
     - name: Run the tests
@@ -63,7 +77,7 @@ runs:
 
     - name: Capture docker compose logs
       if: ${{ always() && !inputs.environment }}
-      run: docker compose logs > logs.txt
+      run: COMPOSE_PROFILES=backend docker compose logs > logs.txt
       shell: bash
 
     - name: Show running containers

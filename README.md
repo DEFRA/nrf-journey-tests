@@ -48,22 +48,21 @@ All services start as Docker containers and communicate over Docker's internal n
 The test runner itself runs on the host and reaches the service via the exposed port 3000.
 
 ```sh
-# Build images and start all services, then run tests
+# Start all services, run tests, then tear down
 npm run test:localstack
-
-# Afterwards, tear down the containers
-docker compose down
+npm run compose:down
 ```
 
 What this does:
 
-1. `docker compose up --wait -d` — starts `nrf-frontend` and waits for its `/health` healthcheck to pass
+1. `docker compose up --wait -d` — starts nrf-frontend, nrf-backend, postgres, liquibase, mongodb, redis, and localstack; waits for all healthchecks to pass
 2. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the exposed port)
 
-To pull a specific image version instead of `latest`:
+**With specific image tags:**
 
 ```sh
-NRF_FRONTEND=1.2.3 npm run test:localstack
+NRF_FRONTEND=1.2.3 NRF_BACKEND=2.3.4 npm run test:localstack
+npm run compose:down
 ```
 
 ---
@@ -143,6 +142,7 @@ cucumber.js           # Cucumber profile configuration
 | `BROWSER`      | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.  |
 | `E2E_HEADFUL`  | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
 | `NRF_FRONTEND` | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
+| `NRF_BACKEND`  | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                         |
 
 ---
 
