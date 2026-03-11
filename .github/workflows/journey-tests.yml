@@ -40,6 +40,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: DEFRA/nrf-journey-tests
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref || '' }}
 
       - uses: ./run-journey-tests
         with:
