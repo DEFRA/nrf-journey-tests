@@ -8,11 +8,8 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'CDP environment to test against (e.g. dev, test). Leave blank for localstack mode.'
-        required: false
       nrf-frontend:
-        description: 'Docker image tag for nrf-frontend (localstack mode only). Defaults to latest.'
+        description: 'Docker image tag for nrf-frontend. Defaults to latest.'
         required: false
       browser:
         description: 'Browser engine to use (chromium, firefox, webkit). Defaults to chromium.'
@@ -20,9 +17,6 @@ on:
         default: chromium
   workflow_call:
     inputs:
-      environment:
-        required: false
-        type: string
       nrf-frontend:
         required: false
         type: string
@@ -38,6 +32,5 @@ jobs:
     steps:
       - uses: DEFRA/nrf-journey-tests/run-journey-tests@main
         with:
-          environment: ${{ inputs.environment }}
           nrf-frontend: ${{ inputs.nrf-frontend }}
           browser: ${{ inputs.browser }}
