@@ -18,9 +18,7 @@ inputs:
     required: false
     description: >
       Docker image tag for nrf-backend (localstack mode only).
-      When set, starts nrf-backend and its dependencies (postgres, liquibase)
-      alongside nrf-frontend using the backend Docker Compose profile.
-      When omitted, nrf-backend is not started.
+      Defaults to latest when omitted.
   browser:
     required: false
     default: chromium
@@ -35,8 +33,7 @@ runs:
       with:
         repository: DEFRA/nrf-journey-tests
 
-    - name: Checkout nrf-backend (backend profile)
-      if: ${{ inputs.nrf-backend }}
+    - name: Checkout nrf-backend
       uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-backend
@@ -65,7 +62,7 @@ runs:
         NRF_FRONTEND=${{ inputs.nrf-frontend }} \
         NRF_BACKEND=${{ inputs.nrf-backend }} \
         NRF_BACKEND_PATH=nrf-backend \
-        COMPOSE_PROFILES=${{ inputs.nrf-backend && 'backend' || '' }} \
+        COMPOSE_PROFILES=backend \
         docker compose up --wait --wait-timeout 300 -d
 
     - name: Run the tests
@@ -80,7 +77,7 @@ runs:
 
     - name: Capture docker compose logs
       if: ${{ always() && !inputs.environment }}
-      run: COMPOSE_PROFILES=${{ inputs.nrf-backend && 'backend' || '' }} docker compose logs > logs.txt
+      run: COMPOSE_PROFILES=backend docker compose logs > logs.txt
       shell: bash
 
     - name: Show running containers
