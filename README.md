@@ -48,10 +48,8 @@ All services start as Docker containers and communicate over Docker's internal n
 The test runner itself runs on the host and reaches the service via the exposed port 3000.
 
 ```sh
-# Build images and start all services, then run tests
+# Start all services, run tests, then tear down
 npm run test:localstack
-
-# Afterwards, tear down the containers
 docker compose down
 ```
 
@@ -60,11 +58,26 @@ What this does:
 1. `docker compose up --wait -d` — starts `nrf-frontend` and waits for its `/health` healthcheck to pass
 2. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the exposed port)
 
-To pull a specific image version instead of `latest`:
+**With specific image tags:**
 
 ```sh
 NRF_FRONTEND=1.2.3 npm run test:localstack
+docker compose down
 ```
+
+**With nrf-backend** (adds postgres, liquibase, and nrf-backend to the stack):
+
+```sh
+# Latest backend image
+COMPOSE_PROFILES=backend npm run test:localstack
+COMPOSE_PROFILES=backend docker compose down
+
+# Specific image tags
+NRF_FRONTEND=1.2.3 NRF_BACKEND=2.3.4 COMPOSE_PROFILES=backend npm run test:localstack
+COMPOSE_PROFILES=backend docker compose down
+```
+
+> **Note:** Always use `COMPOSE_PROFILES=backend` on `docker compose down` when the backend profile was active — without it, the postgres and nrf-backend containers are left running.
 
 ---
 
@@ -136,13 +149,14 @@ cucumber.js           # Cucumber profile configuration
 
 ## Environment variables
 
-| Variable       | Default                 | Description                                                                                       |
-| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `ENVIRONMENT`  | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority. |
-| `BASE_URL`     | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                       |
-| `BROWSER`      | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.  |
-| `E2E_HEADFUL`  | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
-| `NRF_FRONTEND` | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
+| Variable       | Default                 | Description                                                                                                          |
+| -------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `ENVIRONMENT`  | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority.                    |
+| `BASE_URL`     | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                                          |
+| `BROWSER`      | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.                     |
+| `E2E_HEADFUL`  | `false`                 | Set to `true` to run with a visible browser window (local mode only).                                                |
+| `NRF_FRONTEND` | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                                           |
+| `NRF_BACKEND`  | —                       | Docker image tag for nrf-backend. When set with `COMPOSE_PROFILES=backend`, starts nrf-backend and its dependencies. |
 
 ---
 
