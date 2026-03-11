@@ -61,7 +61,7 @@ runs:
       run: |
         NRF_FRONTEND=${{ inputs.nrf-frontend }} \
         NRF_BACKEND=${{ inputs.nrf-backend }} \
-        NRF_BACKEND_PATH=nrf-backend \
+        NRF_BACKEND_PATH=./nrf-backend \
         COMPOSE_PROFILES=backend \
         docker compose up --wait --wait-timeout 300 -d
 
