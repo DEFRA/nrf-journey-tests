@@ -84,13 +84,13 @@ A developer completes the quote journey and submits their answers on the Check Y
 
 ### Check Your Answers — `/quote/check-your-answers`
 
-| Property          | Value                                                                              |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| Page heading (h1) | `Check your answers`                                                               |
-| Submit button     | `Submit`                                                                           |
-| Delete button     | `Delete` (warning style, links to `/quote/delete-quote`)                           |
-| Back link         | `/quote/email`                                                                     |
-| On submit         | POST to backend `/quote`, then `clearQuoteDataFromCache`, redirect to confirmation |
+| Property          | Value                                                    |
+| ----------------- | -------------------------------------------------------- |
+| Page heading (h1) | `Check your answers`                                     |
+| Submit button     | `Submit`                                                 |
+| Delete button     | `Delete` (warning style, links to `/quote/delete-quote`) |
+| Back link         | `/quote/email`                                           |
+| On submit         | Navigates to the confirmation page                       |
 
 ### Confirmation — `/quote/confirmation`
 
@@ -129,28 +129,14 @@ A developer completes the quote journey and submits their answers on the Check Y
 
 After landing on `/quote/confirmation`, the user presses the browser back button.
 
-- The browser navigates back to `/quote/check-your-answers` in history
-- The `onPreHandler` middleware (`checkForValidQuoteSession`) runs on the GET
-- Session was cleared by submission → `boundaryEntryType` is undefined
-- Middleware redirects to `startPath` = `/`
 - User lands on the start page (h1: `"Nature Restoration Fund"`)
 
 ### AC 5 — Direct navigation to check-your-answers post-submission redirects to start page
 
 After submission, if the user navigates directly to `/quote/check-your-answers`:
 
-- Same middleware path as AC 4
-- Redirected to `/`
+- User is redirected to the start page
 - No previous answers are shown
-
-Both ACs share the same server-side behaviour — the distinction is how the user arrives at `/quote/check-your-answers` (back button vs direct URL).
-
-**Key implementation details:**
-
-- `checkForValidQuoteSession` in `src/server/quote/helpers/is-quote-session-in-progress/index.js`
-- `clearQuoteDataFromCache` calls `request.yar.clear('quote')` — clears only the quote key
-- `startPath` = `routePath` from `src/server/quote/start/routes.js` = `'/'`
-- `/quote/confirmation` is in `exemptPaths` so the confirmation page itself bypasses the check
 
 ## Acceptance criteria parked
 
@@ -162,5 +148,4 @@ Both ACs share the same server-side behaviour — the distinction is how the use
 
 ## Dependencies
 
-- `nrf-backend` must be running and reachable — the confirmation GET handler calls `GET /quote/{reference}` on the backend
-- `ENABLE_DEFRA_ID=false` — auth disabled for tests
+- `nrf-backend` must be running and reachable — the confirmation page calls the backend to retrieve the generated quote reference
