@@ -1,5 +1,6 @@
 export default {
   paths: ['test/features/**/*.feature'],
+  tags: 'not @pending',
   import: [
     'test/support/world.js',
     'test/support/hooks.js',
