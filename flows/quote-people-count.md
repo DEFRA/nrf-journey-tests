@@ -32,15 +32,6 @@ The people-count page requires a valid quote session. The session is established
 | ------------ | ------------------------ | ------------- | ------ |
 | People count | Maximum number of people | `peopleCount` | number |
 
-## Validation rules (people-count POST)
-
-| Input                  | Error message                                    |
-| ---------------------- | ------------------------------------------------ |
-| Empty / missing        | `Enter the maximum number of people to continue` |
-| Zero (`0`)             | `Enter a whole number greater than zero`         |
-| Negative (e.g. `-100`) | `Enter a whole number greater than zero`         |
-| Decimal (e.g. `90.5`)  | `Enter a whole number greater than zero`         |
-
 ## Back link behaviour
 
 The email page back link resolves dynamically:
