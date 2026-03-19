@@ -50,15 +50,15 @@ The email page back link resolves dynamically:
 
 ## Acceptance criteria in scope
 
-| AC  | Description                                                             |
-| --- | ----------------------------------------------------------------------- |
-| 1   | Selecting Other residential leads to the people-count page              |
-| 2   | Valid entry navigates to email page                                     |
-| 3   | Back link from email page returns to people-count with value pre-filled |
-| 4   | Empty submission shows validation error                                 |
-| 5   | Zero / negative / decimal shows validation error                        |
+| AC  | Description                                                |
+| --- | ---------------------------------------------------------- |
+| 1   | Selecting Other residential leads to the people-count page |
+| 2   | Valid entry navigates to email page                        |
 
 ## Out of scope
 
 - Full journey through to confirmation (covered by NRF2-459)
 - Email page validation (separate ticket)
+- AC 3: Back link value persistence — covered by nrf-frontend integration tests
+- AC 4: Empty submission validation — covered by nrf-frontend integration tests
+- AC 5: Zero / negative / decimal validation — covered by nrf-frontend integration tests

@@ -8,26 +8,12 @@ Branch: feature/NRF2-454
 
 ## Scope
 
-Implement Cucumber BDD scenarios for the `/quote/people-count` page covering:
+Implement one Cucumber BDD scenario for the `/quote/people-count` page covering the forward happy path only:
 
-1. **Happy path + back link value persistence** (`@smoke @regression`)
+1. **Happy path** (`@smoke @regression`)
+   - Select Other residential → people-count → enter 250 → continue → land on email page
 
-   - Select Other residential → people-count → enter 250 → email → click Back link → people-count input shows 250
-
-2. **Validation: empty** (`@regression`)
-
-   - Submit without a value → error: "Enter the maximum number of people to continue"
-
-3. **Validation: zero** (`@regression`)
-
-   - Enter 0 → error: "Enter a whole number greater than zero"
-
-4. **Validation: negative** (`@regression`)
-
-   - Enter -100 → error: "Enter a whole number greater than zero"
-
-5. **Validation: decimal** (`@regression`)
-   - Enter 90.5 → error: "Enter a whole number greater than zero"
+Back link value persistence and all validation scenarios are covered by nrf-frontend integration tests and are out of scope here.
 
 ## Files to create
 
@@ -37,8 +23,8 @@ Implement Cucumber BDD scenarios for the `/quote/people-count` page covering:
 ## Files already available (no changes needed)
 
 - `test/page-objects/development-types.page.js` — `selectDevelopmentType()`, `continue()`
-- `test/page-objects/people-count.page.js` — `fillPeopleCount()`, `continue()`, `peopleCountInput`
-- `test/page-objects/email.page.js` — email input, continue button
+- `test/page-objects/people-count.page.js` — `fillPeopleCount()`, `continue()`
+- `test/page-objects/email.page.js` — `pageHeading`
 - `test/page-objects/boundary-type.page.js` — session setup
 
 ## Steps already defined (do not redefine)
@@ -53,18 +39,11 @@ From `quote-submission-confirmation.steps.js`:
 ## New steps to implement
 
 ```
-Given I am on the people count page for an Other residential development
-When I click the Back link
-Then the people count field should contain {string}
-Then I should see the error {string}
+Then I should be on the email page
 ```
 
 ## Implementation notes
 
-- Session prerequisite: boundary type must be selected before development types. Use the same
-  setup as `Given I am on the development types page` (open boundaryTypePage, select "Draw on a map", continue, then open developmentTypesPage).
-- Error assertion: use `.govuk-error-summary` — wait for visible, then assert textContent includes the expected string.
-- Back link: use `this.page.getByRole('link', { name: 'Back' })` — works on any GOV.UK page.
-- Value persistence: use `this.pageObjects.peopleCountPage.peopleCountInput.inputValue()`.
+- Assert email page by checking `pageHeading` (h1) contains `"Enter your email address"`.
 - Do not add assertions inside page objects.
 - No `page.waitForTimeout()`.
