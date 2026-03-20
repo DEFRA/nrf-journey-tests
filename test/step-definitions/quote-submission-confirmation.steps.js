@@ -37,7 +37,7 @@ When('I submit my answers', async function () {
 
 Then(
   'I should see the confirmation page',
-  { timeout: 30_000 },
+  { timeout: 20_000 },
   async function () {
     const panelTitle = this.pageObjects.confirmationPage.panelTitle
     await panelTitle.waitFor({ state: 'visible' })
