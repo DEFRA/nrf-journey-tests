@@ -49,4 +49,4 @@ A developer with an in-progress quote navigates to the Check Your Answers page a
 
 ## Pending
 
-- Browser back from deletion confirmation → redirects to start page — `checkForValidQuoteSession` middleware exists in nrf-frontend source but is not in the published Docker image (same blocker as NRF2-459 pending scenarios)
+- Browser back from deletion confirmation → redirects to start page — blocked until the published nrf-frontend image includes the session guard on quote routes (same blocker as NRF2-459 pending scenarios)
