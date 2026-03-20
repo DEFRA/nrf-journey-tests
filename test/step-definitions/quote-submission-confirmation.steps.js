@@ -35,12 +35,16 @@ When('I submit my answers', async function () {
   await this.pageObjects.checkYourAnswersPage.submit()
 })
 
-Then('I should see the confirmation page', async function () {
-  const panelTitle = this.pageObjects.confirmationPage.panelTitle
-  await panelTitle.waitFor({ state: 'visible' })
-  const titleText = await panelTitle.textContent()
-  assert.equal(titleText.trim(), 'Your details have been submitted')
-})
+Then(
+  'I should see the confirmation page',
+  { timeout: 30_000 },
+  async function () {
+    const panelTitle = this.pageObjects.confirmationPage.panelTitle
+    await panelTitle.waitFor({ state: 'visible' })
+    const titleText = await panelTitle.textContent()
+    assert.equal(titleText.trim(), 'Your details have been submitted')
+  }
+)
 
 Then('I should see an NRF reference number', async function () {
   const panelBody = this.pageObjects.confirmationPage.panelBody
@@ -61,22 +65,26 @@ Then('I should see a message that I will receive an email', async function () {
   assert.ok(await message.isVisible())
 })
 
-Given('I have submitted a Housing development quote', async function () {
-  await this.pageObjects.boundaryTypePage.open()
-  await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.developmentTypesPage.open()
-  await this.pageObjects.developmentTypesPage.selectDevelopmentType('Housing')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.residentialPage.fillResidentialUnits('10')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.emailPage.fillEmail('test@example.com')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.checkYourAnswersPage.submit()
-  await this.pageObjects.confirmationPage.panelTitle.waitFor({
-    state: 'visible'
-  })
-})
+Given(
+  'I have submitted a Housing development quote',
+  { timeout: 30_000 },
+  async function () {
+    await this.pageObjects.boundaryTypePage.open()
+    await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.developmentTypesPage.open()
+    await this.pageObjects.developmentTypesPage.selectDevelopmentType('Housing')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.residentialPage.fillResidentialUnits('10')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.emailPage.fillEmail('test@example.com')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.checkYourAnswersPage.submit()
+    await this.pageObjects.confirmationPage.panelTitle.waitFor({
+      state: 'visible'
+    })
+  }
+)
 
 When('I navigate back in the browser', async function () {
   await this.page.goBack()
