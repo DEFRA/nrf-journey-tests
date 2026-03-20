@@ -64,7 +64,7 @@ Priority order (in `test/support/world.js`):
 
 ## Before writing any test
 
-1. Read `flows/<user-flow>.md` — if it does not exist, stop and ask the user to create it
+1. Read `flows/<user-flow>.md` — if it does not exist, stop and ask the user to create it. Flow files must describe only what the user sees and does — no implementation details (no middleware names, function names, env vars, internal redirect logic, or source file paths). Blocked or out-of-scope items state the observable reason only.
 2. Check `../nrf-frontend/src` for actual routes, field names, and page titles
 3. Check `../nrf-frontend/src` for `page.test.js` files (the nrf-frontend integration test convention) and `../nrf-backend/src` for `*.test.js` files covering the feature. Any behaviour already tested at the unit or integration level (validation, back-link persistence, session state, etc.) must **not** be duplicated as an E2E scenario — move it to "Out of scope" in the flow doc. Journey tests cover the forward happy path only.
 4. Follow the implementation checklist in `.ai/skills/ui-test/SKILL.md`
