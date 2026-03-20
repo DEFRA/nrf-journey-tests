@@ -29,7 +29,7 @@ Feature: Quote submission confirmation
     And I should see the "What happens next" section
     And I should see a message that I will receive an email
 
-  # Pending: nrf-frontend Docker base image uses Node 22; dev startup script requires Node >= 24.
+  # TODO: nrf-frontend Docker base image uses Node 22; dev startup script requires Node >= 24.
   # Build from local source fails until the Dockerfile base image is updated to Node 24.
   # The redirect logic (checkForValidQuoteSession middleware, PR #94) exists in source but is not in the published image.
   @pending
@@ -38,14 +38,14 @@ Feature: Quote submission confirmation
     When I navigate back in the browser
     Then I should be on the start page
 
-  # Pending: same reason as above.
+  # TODO: same reason as above.
   @pending
   Scenario: Navigating to check your answers after submission redirects to the start page
     Given I have submitted a Housing development quote
     When I navigate to the check your answers page
     Then I should be on the start page
 
-  # Pending: partially blocked by a separate error handling story.
+  # TODO: partially blocked by a separate error handling story.
   # The global Hapi error handler already catches backend failures on the confirmation page
   # and renders the error page, so the first assertion ("I am shown a standard error page")
   # is technically testable. However, the error page template (error/index.njk) does not yet
