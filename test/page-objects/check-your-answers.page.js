@@ -9,8 +9,16 @@ class CheckYourAnswersPage extends Page {
     return this.page.getByRole('button', { name: 'Submit' })
   }
 
+  get deleteLink() {
+    return this.page.getByRole('button', { name: 'Delete' })
+  }
+
   async submit() {
     await this.submitButton.click()
+  }
+
+  async delete() {
+    await this.deleteLink.click()
   }
 }
 
