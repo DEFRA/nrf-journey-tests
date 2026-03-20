@@ -66,6 +66,7 @@ runs:
       if: ${{ !inputs.environment }}
       shell: bash
       run: |
+        chmod +x docker/scripts/localstack/*.sh
         NRF_FRONTEND=${{ inputs.nrf-frontend }} \
         NRF_BACKEND=${{ inputs.nrf-backend }} \
         NRF_BACKEND_PATH=./nrf-backend \

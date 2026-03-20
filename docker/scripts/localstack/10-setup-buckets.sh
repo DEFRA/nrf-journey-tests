@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# This is an example of how to setup localstack resources on startup.
-# Uncomment the below to create a localstack S3 bucket called 'example-bucket'
+# Create LocalStack resources needed by the NRF stack
 
-# aws --endpoint-url=$LOCALSTACK_URL s3 --region $AWS_REGION mb s3://example-bucket
+# SNS topic for quote estimate requests (used by nrf-backend)
+awslocal sns create-topic \
+  --name nrf_quote_estimate_request \
+  --region eu-west-2
