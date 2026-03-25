@@ -49,6 +49,12 @@ Then('I should see an NRF reference number', async function () {
   assert.ok(bodyText.includes('NRF reference:'))
 })
 
+Then('I should see the {string} heading', async function (heading) {
+  const h1 = this.page.locator('h1', { hasText: heading })
+  await h1.waitFor({ state: 'visible' })
+  assert.ok(await h1.isVisible())
+})
+
 Then('I should see the {string} section', async function (heading) {
   const sectionHeading = this.page.locator('h2', { hasText: heading })
   await sectionHeading.waitFor({ state: 'visible' })
