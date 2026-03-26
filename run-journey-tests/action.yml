@@ -40,11 +40,36 @@ runs:
         repository: DEFRA/nrf-journey-tests
         ref: ${{ inputs.ref }}
 
-    - name: Checkout nrf-backend
+    - name: Resolve Depends-On PRs
+      if: ${{ !inputs.environment }}
+      uses: depends-on/depends-on-action@0.15.0
+      with:
+        token: ${{ github.token }}
+
+    - name: Detect depends-on checkouts
+      if: ${{ !inputs.environment }}
+      id: detect
+      shell: bash
+      run: |
+        [ -d "./nrf-frontend" ] && echo "nrf_frontend=true" >> $GITHUB_OUTPUT || echo "nrf_frontend=false" >> $GITHUB_OUTPUT
+        [ -d "./nrf-backend" ]  && echo "nrf_backend=true"  >> $GITHUB_OUTPUT || echo "nrf_backend=false"  >> $GITHUB_OUTPUT
+
+    - name: Checkout nrf-backend (for Liquibase changelog)
+      if: ${{ !inputs.environment && steps.detect.outputs.nrf_backend == 'false' }}
       uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-backend
         path: nrf-backend
+
+    - name: Build nrf-frontend from depends-on checkout
+      if: ${{ !inputs.environment && steps.detect.outputs.nrf_frontend == 'true' }}
+      shell: bash
+      run: docker build -t defradigital/nrf-frontend:pr-build ./nrf-frontend
+
+    - name: Build nrf-backend from depends-on checkout
+      if: ${{ !inputs.environment && steps.detect.outputs.nrf_backend == 'true' }}
+      shell: bash
+      run: docker build -t defradigital/nrf-backend:pr-build ./nrf-backend
 
     - name: Docker Login
       uses: DEFRA/cdp-build-action/docker-login@main
@@ -67,8 +92,8 @@ runs:
       shell: bash
       run: |
         chmod +x docker/scripts/localstack/*.sh
-        NRF_FRONTEND=${{ inputs.nrf-frontend }} \
-        NRF_BACKEND=${{ inputs.nrf-backend }} \
+        NRF_FRONTEND=${{ steps.detect.outputs.nrf_frontend == 'true' && 'pr-build' || inputs.nrf-frontend }} \
+        NRF_BACKEND=${{ steps.detect.outputs.nrf_backend == 'true' && 'pr-build' || inputs.nrf-backend }} \
         NRF_BACKEND_PATH=./nrf-backend \
         docker compose up --wait --wait-timeout 300 -d
 
