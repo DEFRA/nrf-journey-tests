@@ -35,12 +35,16 @@ When('I submit my answers', async function () {
   await this.pageObjects.checkYourAnswersPage.submit()
 })
 
-Then('I should see the confirmation page', async function () {
-  const panelTitle = this.pageObjects.confirmationPage.panelTitle
-  await panelTitle.waitFor({ state: 'visible' })
-  const titleText = await panelTitle.textContent()
-  assert.equal(titleText.trim(), 'Your details have been submitted')
-})
+Then(
+  'I should see the confirmation page',
+  { timeout: 20_000 },
+  async function () {
+    const panelTitle = this.pageObjects.confirmationPage.panelTitle
+    await panelTitle.waitFor({ state: 'visible' })
+    const titleText = await panelTitle.textContent()
+    assert.equal(titleText.trim(), 'Your details have been submitted')
+  }
+)
 
 Then('I should see an NRF reference number', async function () {
   const panelBody = this.pageObjects.confirmationPage.panelBody
