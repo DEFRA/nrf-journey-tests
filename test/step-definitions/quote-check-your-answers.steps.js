@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { Given, When, Then } from '@cucumber/cucumber'
 
 Given(
@@ -9,6 +10,56 @@ Given(
     await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
     await this.page.getByRole('button', { name: 'Continue' }).click()
     await this.pageObjects.developmentTypesPage.open()
+
+    if (devType === 'Housing' || devType === 'Housing and Other residential') {
+      await this.pageObjects.developmentTypesPage.selectDevelopmentType(
+        'Housing'
+      )
+    }
+    if (
+      devType === 'Other residential' ||
+      devType === 'Housing and Other residential'
+    ) {
+      await this.pageObjects.developmentTypesPage.selectDevelopmentType(
+        'Other residential'
+      )
+    }
+    await this.pageObjects.developmentTypesPage.continue()
+
+    if (devType === 'Housing' || devType === 'Housing and Other residential') {
+      await this.pageObjects.residentialPage.fillResidentialUnits('10')
+      await this.page.getByRole('button', { name: 'Continue' }).click()
+    }
+
+    if (
+      devType === 'Other residential' ||
+      devType === 'Housing and Other residential'
+    ) {
+      await this.pageObjects.peopleCountPage.fillPeopleCount('50')
+      await this.page.getByRole('button', { name: 'Continue' }).click()
+    }
+
+    await this.pageObjects.emailPage.fillEmail('test@example.com')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+  }
+)
+
+Given(
+  'I have uploaded a boundary file and completed a {string} quote up to check your answers',
+  { timeout: 90000 },
+  async function (devType) {
+    const geojsonPath = path.resolve('BnW_small_under_1_hectare.geojson')
+
+    await this.pageObjects.boundaryTypePage.open()
+    await this.pageObjects.boundaryTypePage.selectBoundaryType('Upload a file')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.uploadBoundaryPage.uploadFile(geojsonPath)
+
+    // upload-received polls until the mock virus scan completes, then redirects
+    await this.pageObjects.uploadPreviewMapPage.saveAndContinueButton.waitFor({
+      state: 'visible'
+    })
+    await this.pageObjects.uploadPreviewMapPage.saveAndContinue()
 
     if (devType === 'Housing' || devType === 'Housing and Other residential') {
       await this.pageObjects.developmentTypesPage.selectDevelopmentType(

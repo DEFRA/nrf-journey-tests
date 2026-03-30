@@ -14,6 +14,8 @@ import { CheckYourAnswersPage } from '../page-objects/check-your-answers.page.js
 import { ConfirmationPage } from '../page-objects/confirmation.page.js'
 import { DeleteQuotePage } from '../page-objects/delete-quote.page.js'
 import { DeleteQuoteConfirmationPage } from '../page-objects/delete-quote-confirmation.page.js'
+import { UploadBoundaryPage } from '../page-objects/upload-boundary.page.js'
+import { UploadPreviewMapPage } from '../page-objects/upload-preview-map.page.js'
 
 setDefaultTimeout(15000)
 
@@ -45,7 +47,9 @@ class PlaywrightWorld extends World {
       deleteQuoteConfirmationPage: new DeleteQuoteConfirmationPage(
         this.page,
         baseUrl
-      )
+      ),
+      uploadBoundaryPage: new UploadBoundaryPage(this.page, baseUrl),
+      uploadPreviewMapPage: new UploadPreviewMapPage(this.page, baseUrl)
     }
   }
 

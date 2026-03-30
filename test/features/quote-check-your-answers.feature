@@ -59,12 +59,13 @@ Feature: Quote check your answers
     Then I should see the confirmation page
     And I should see an NRF reference number
 
-  # TODO: The file upload boundary path requires the CDP Uploader service, which is not
-  # included in the Docker Compose stack. Add a cdp-uploader service to compose.yml to enable.
-  @pending
+  @regression
   Scenario: Summary shows "Added" for a file upload boundary journey
-    Given I have uploaded a boundary file and completed the quote up to check your answers
+    Given I have uploaded a boundary file and completed a "Housing" quote up to check your answers
     Then the "Red line boundary" row should show "Added"
+    And the "Development types" row should show "Housing"
+    And the "Number of residential units" row should show "10"
+    And the "Email address" row should show "test@example.com"
 
   # TODO: Conditional answer clearing is covered by nrf-frontend integration tests.
   # Not duplicated at E2E level.
