@@ -14,6 +14,7 @@ import { CheckYourAnswersPage } from '../page-objects/check-your-answers.page.js
 import { ConfirmationPage } from '../page-objects/confirmation.page.js'
 import { DeleteQuotePage } from '../page-objects/delete-quote.page.js'
 import { DeleteQuoteConfirmationPage } from '../page-objects/delete-quote-confirmation.page.js'
+import { WasteWaterPage } from '../page-objects/waste-water.page.js'
 
 setDefaultTimeout(15000)
 
@@ -45,7 +46,8 @@ class PlaywrightWorld extends World {
       deleteQuoteConfirmationPage: new DeleteQuoteConfirmationPage(
         this.page,
         baseUrl
-      )
+      ),
+      wasteWaterPage: new WasteWaterPage(this.page, baseUrl)
     }
   }
 

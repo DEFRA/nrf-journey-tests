@@ -27,6 +27,13 @@ When(
   }
 )
 
+When(
+  'I select {string} as the waste water treatment works',
+  async function (option) {
+    await this.pageObjects.wasteWaterPage.selectOption(option)
+  }
+)
+
 When('I enter {string} as my email', async function (email) {
   await this.pageObjects.emailPage.fillEmail(email)
 })
@@ -79,6 +86,10 @@ Given('I have submitted a Housing development quote', async function () {
   await this.pageObjects.developmentTypesPage.selectDevelopmentType('Housing')
   await this.page.getByRole('button', { name: 'Continue' }).click()
   await this.pageObjects.residentialPage.fillResidentialUnits('10')
+  await this.page.getByRole('button', { name: 'Continue' }).click()
+  await this.pageObjects.wasteWaterPage.selectOption(
+    "I don't know the waste water treatment works yet"
+  )
   await this.page.getByRole('button', { name: 'Continue' }).click()
   await this.pageObjects.emailPage.fillEmail('test@example.com')
   await this.page.getByRole('button', { name: 'Continue' }).click()
