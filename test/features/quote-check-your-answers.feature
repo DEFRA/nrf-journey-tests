@@ -49,16 +49,6 @@ Feature: Quote check your answers
     And I continue
     Then the "Email address" row should show "updated@example.com"
 
-  # TODO: Full submission is blocked until the frontend sends boundaryGeojson in the
-  # POST /quotes request. The backend requires this field but the frontend does not yet
-  # include it. Submission scenarios are already tracked in quote-submission-confirmation.feature.
-  @pending
-  Scenario: Submitting a quote navigates to the confirmation page
-    Given I have completed a "Housing" quote up to check your answers
-    When I submit my answers
-    Then I should see the confirmation page
-    And I should see an NRF reference number
-
   @regression
   Scenario: Summary shows "Added" for a file upload boundary journey
     Given I have uploaded a boundary file and completed a "Housing" quote up to check your answers
@@ -67,12 +57,3 @@ Feature: Quote check your answers
     And the "Number of residential units" row should show "10"
     And the "Email address" row should show "test@example.com"
 
-  # TODO: Conditional answer clearing is covered by nrf-frontend integration tests.
-  # Not duplicated at E2E level.
-  @pending
-  Scenario: Removing a development type clears the related answer from the summary
-    Given I have completed a "Housing and Other residential" quote up to check your answers
-    When I click the change link for "Development types"
-    And I deselect "Housing"
-    And I continue
-    Then the "Number of residential units" row should not be shown

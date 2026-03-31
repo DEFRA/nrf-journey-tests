@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { Given, When, Then } from '@cucumber/cucumber'
 
 Given('I am on the development types page', async function () {
@@ -71,22 +72,31 @@ Then('I should see a message that I will receive an email', async function () {
   assert.ok(await message.isVisible())
 })
 
-Given('I have submitted a Housing development quote', async function () {
-  await this.pageObjects.boundaryTypePage.open()
-  await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.developmentTypesPage.open()
-  await this.pageObjects.developmentTypesPage.selectDevelopmentType('Housing')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.residentialPage.fillResidentialUnits('10')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.emailPage.fillEmail('test@example.com')
-  await this.page.getByRole('button', { name: 'Continue' }).click()
-  await this.pageObjects.checkYourAnswersPage.submit()
-  await this.pageObjects.confirmationPage.panelTitle.waitFor({
-    state: 'visible'
-  })
-})
+Given(
+  'I have submitted a Housing development quote',
+  { timeout: 120_000 },
+  async function () {
+    const geojsonPath = path.resolve('test/fixtures/BnW_small_under_1_hectare.geojson')
+    await this.pageObjects.boundaryTypePage.open()
+    await this.pageObjects.boundaryTypePage.selectBoundaryType('Upload a file')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.uploadBoundaryPage.uploadFile(geojsonPath)
+    await this.pageObjects.uploadPreviewMapPage.saveAndContinueButton.waitFor({
+      state: 'visible'
+    })
+    await this.pageObjects.uploadPreviewMapPage.saveAndContinue()
+    await this.pageObjects.developmentTypesPage.selectDevelopmentType('Housing')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.residentialPage.fillResidentialUnits('10')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.emailPage.fillEmail('test@example.com')
+    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.checkYourAnswersPage.submit()
+    await this.pageObjects.confirmationPage.panelTitle.waitFor({
+      state: 'visible'
+    })
+  }
+)
 
 When('I navigate back in the browser', async function () {
   await this.page.goBack()

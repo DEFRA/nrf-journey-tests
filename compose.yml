@@ -2,12 +2,15 @@
 # Docker Compose file for the NRF full stack used in journey tests.
 #
 # Services:
-#   - localstack (s3, sqs, sns, dynamodb)
-#   - redis      (nrf-frontend sessions)
-#   - postgres   (nrf-backend database)
-#   - liquibase  (nrf-backend schema migrations)
-#   - cdp-uploader (file upload service — mock virus scan enabled)
+#   - localstack            (s3, sqs, sns, dynamodb)
+#   - redis                 (nrf-frontend sessions)
+#   - mongodb               (nrf-impact-assessor document store)
+#   - postgres              (nrf-backend + nrf-impact-assessor databases)
+#   - liquibase             (nrf-backend schema migrations)
+#   - impact-assessor-migration (nrf-impact-assessor alembic migrations)
+#   - cdp-uploader          (file upload service — mock virus scan enabled)
 #   - nrf-backend
+#   - nrf-impact-assessor
 #   - nrf-frontend
 #   - proxy (nginx — routes uploads to cdp-uploader, everything else to nrf-frontend)
 #
@@ -25,13 +28,27 @@ services:
   localstack:
     image: localstack/localstack:3.2.0
     environment:
-      - LOCALSTACK_HOST=127.0.0.1
+      # Use the Docker service name as the host so bucket/topic URLs in localstack
+      # responses are reachable from other containers via Docker DNS.
+      - LOCALSTACK_HOST=localstack
+      # Use path-style SQS URLs (http://localstack:4566/000000000000/queue-name)
+      # so GetQueueUrl responses return a URL resolvable from any container,
+      # without requiring region-subdomain DNS aliases like sqs.eu-west-2.localstack.
+      - SQS_ENDPOINT_STRATEGY=path
       - SERVICES=s3,sqs,sns,dynamodb
       - LS_LOG=WARN
     env_file:
       - ./docker/config/defaults.env
     volumes:
       - ./docker/scripts/localstack:/etc/localstack/init/ready.d
+    networks:
+      default:
+        aliases:
+          # SQS queue URLs returned by localstack use sqs.<region>.<LOCALSTACK_HOST>
+          - sqs.eu-west-2.localstack
+          # S3 virtual-hosted-style bucket URLs: <bucket>.<LOCALSTACK_HOST>
+          - boundaries.localstack
+          - cdp-uploader-quarantine.localstack
     healthcheck:
       test: ['CMD', 'curl', '-f', 'localhost:4566/_localstack/health']
       interval: 5s
@@ -56,6 +73,9 @@ services:
       - MOCK_VIRUS_SCAN_ENABLED=true
       - MOCK_VIRUS_RESULT_DELAY=3
       - CONSUMER_BUCKETS=boundaries
+      # NODE_ENV=development enables forcePathStyle on the S3 client so bucket URLs
+      # resolve via the localstack endpoint instead of virtual-hosted DNS subdomains.
+      - NODE_ENV=development
     env_file:
       - ./docker/config/defaults.env
     depends_on:
@@ -79,9 +99,6 @@ services:
     build:
       context: ../nrf-frontend
       target: development
-    # Override the default docker:dev entrypoint which requires Node >= 24.
-    # The published image runs on Node 22 — run the watchers directly instead.
-    command: npx cross-env USE_SWAGGER=true run-p frontend:watch server:watch
     environment:
       - PORT=3000
       - NODE_ENV=development
@@ -115,11 +132,6 @@ services:
         condition: service_healthy
       cdp-uploader:
         condition: service_healthy
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/health']
-      interval: 5s
-      start_period: 5s
-      retries: 6
 
   ################################################################################
   postgres:
@@ -128,6 +140,8 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
       POSTGRES_DB: nrf_backend
+    volumes:
+      - ./docker/scripts/postgres/01-create-impact-db.sql:/docker-entrypoint-initdb.d/01-create-impact-db.sql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d nrf_backend']
       interval: 10s
@@ -170,8 +184,78 @@ services:
         condition: service_completed_successfully
       cdp-uploader:
         condition: service_healthy
+      nrf-impact-assessor:
+        condition: service_healthy
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
+      interval: 5s
+      start_period: 30s
+      retries: 6
+
+  ################################################################################
+  mongodb:
+    image: mongo:7
+    restart: always
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 5s
+      start_period: 10s
+      retries: 5
+
+  ################################################################################
+  impact-assessor-migration:
+    image: defradigital/nrf-impact-assessor:${NRF_IMPACT_ASSESSOR:-latest}
+    build:
+      context: ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}
+      target: development
+    volumes:
+      - ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}/alembic:/home/nonroot/alembic
+      - ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}/alembic.ini:/home/nonroot/alembic.ini
+    environment:
+      - DB_HOST=postgres
+      - DB_DATABASE=nrf_impact
+      - DB_IAM_AUTHENTICATION=false
+      - DB_LOCAL_PASSWORD=password
+    command: ['-m', 'alembic', 'upgrade', 'head']
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ################################################################################
+  # Inserts a test EDP boundary that intersects the BnW_small_under_1_hectare
+  # fixture, so the upload flow routes to /quote/development-types.
+  edp-seed:
+    image: postgis/postgis:16-3.4
+    volumes:
+      - ./docker/scripts/postgres/02-seed-test-edp.sql:/seed.sql
+    environment:
+      PGPASSWORD: password
+    command: >
+      psql -h postgres -U postgres -d nrf_impact -f /seed.sql
+    depends_on:
+      impact-assessor-migration:
+        condition: service_completed_successfully
+
+  ################################################################################
+  nrf-impact-assessor:
+    image: defradigital/nrf-impact-assessor:${NRF_IMPACT_ASSESSOR:-latest}
+    build:
+      context: ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}
+      target: development
+    environment:
+      - HOST=0.0.0.0
+      - DB_HOST=postgres
+      - DB_DATABASE=nrf_impact
+      - DB_IAM_AUTHENTICATION=false
+      - DB_LOCAL_PASSWORD=password
+      - MONGO_URI=mongodb://mongodb:27017
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      edp-seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8085/health']
       interval: 5s
       start_period: 30s
       retries: 6
