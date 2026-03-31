@@ -36,10 +36,7 @@ Polling page. Waits until the upload is processed by the CDP Uploader (virus sca
 
 Displays the uploaded boundary on a map. User clicks "Save and continue".
 
-On POST, the controller calls the impact assessor to check EDP intersection:
-
-- `intersectingEdps.length > 0` → redirects to `/quote/development-types`
-- `intersectingEdps.length === 0` → redirects to `/quote/no-edp`
+If the boundary intersects EDP coverage the user continues to `/quote/development-types`. Otherwise they are routed to `/quote/no-edp`.
 
 ---
 
