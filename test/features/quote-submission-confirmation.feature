@@ -11,6 +11,8 @@ Feature: Quote submission confirmation
     And I continue
     And I enter "10" residential units
     And I continue
+    And I select "I don't know the waste water treatment works yet" as the waste water treatment works
+    And I continue
     And I enter "test@example.com" as my email
     And I continue
     Then I should see the "Check your answers" heading
@@ -20,12 +22,13 @@ Feature: Quote submission confirmation
     # And I should see the "What happens next" section
     # And I should see a message that I will receive an email
 
-  # TODO: same reason as above.
   Scenario: Developer submits a quote for an Other residential development
     Given I am on the development types page
     When I select "Other residential"
     And I continue
     And I enter "50" as the maximum number of people
+    And I continue
+    And I select "I don't know the waste water treatment works yet" as the waste water treatment works
     And I continue
     And I enter "test@example.com" as my email
     And I continue
