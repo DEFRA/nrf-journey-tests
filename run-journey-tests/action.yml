@@ -35,16 +35,39 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/checkout@v4
-      with:
-        repository: DEFRA/nrf-journey-tests
-        ref: ${{ inputs.ref }}
-
+    # Resolve depends-on BEFORE checking out nrf-journey-tests so that a
+    # "Depends on: DEFRA/nrf-journey-tests#<N>" in the calling PR is honoured.
+    # The action checks out dependent repos into subdirectories (e.g. ./nrf-journey-tests/).
     - name: Resolve Depends-On PRs
       if: ${{ !inputs.environment }}
       uses: depends-on/depends-on-action@0.15.0
       with:
         token: ${{ github.token }}
+
+    # If depends-on checked out nrf-journey-tests, capture its commit SHA so we
+    # can use it as the ref for the main checkout below.
+    - name: Detect nrf-journey-tests depends-on checkout
+      if: ${{ !inputs.environment }}
+      id: detect-jt
+      shell: bash
+      run: |
+        [ -d "./nrf-journey-tests" ] && echo "ref=$(git -C ./nrf-journey-tests rev-parse HEAD)" >> $GITHUB_OUTPUT || true
+
+    # Check out the test code. clean: false preserves the subdirectories that
+    # depends-on checked out (nrf-frontend, nrf-backend, nrf-impact-assessor).
+    # Uses the depends-on SHA when present, otherwise falls back to inputs.ref (or main).
+    - uses: actions/checkout@v4
+      with:
+        repository: DEFRA/nrf-journey-tests
+        ref: ${{ steps.detect-jt.outputs.ref || inputs.ref }}
+        clean: false
+
+    # The depends-on nrf-journey-tests subdirectory is now redundant — the repo
+    # has been checked out to the workspace root above.
+    - name: Remove nrf-journey-tests depends-on subdirectory
+      if: ${{ !inputs.environment && steps.detect-jt.outputs.ref != '' }}
+      shell: bash
+      run: rm -rf ./nrf-journey-tests
 
     - name: Detect depends-on checkouts
       if: ${{ !inputs.environment }}
