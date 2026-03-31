@@ -5,8 +5,6 @@ Feature: Quote submission confirmation
   # The backend now requires boundaryGeojson in POST /quotes but the frontend does not yet
   # include it (map drawing / file upload boundary flow not yet wired to the quote submission).
   # Re-enable the commented steps once the frontend sends boundaryGeojson.
-  # TODO: pending until nrf-frontend waste-water page is merged and published
-  @pending
   Scenario: Developer submits a quote for a Housing development
     Given I am on the development types page
     When I select "Housing"
@@ -24,8 +22,6 @@ Feature: Quote submission confirmation
     # And I should see the "What happens next" section
     # And I should see a message that I will receive an email
 
-  # TODO: pending until nrf-frontend waste-water page is merged and published
-  @pending
   Scenario: Developer submits a quote for an Other residential development
     Given I am on the development types page
     When I select "Other residential"

@@ -1,7 +1,5 @@
 Feature: Other residential - people count
 
-  # TODO: pending until nrf-frontend waste-water page is merged and published
-  @pending
   Scenario: Developer navigates from people count to email for an Other residential development
     Given I am on the development types page
     When I select "Other residential"
