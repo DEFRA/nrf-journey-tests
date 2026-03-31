@@ -76,7 +76,9 @@ Given(
   'I have submitted a Housing development quote',
   { timeout: 120_000 },
   async function () {
-    const geojsonPath = path.resolve('test/fixtures/BnW_small_under_1_hectare.geojson')
+    const geojsonPath = path.resolve(
+      'test/fixtures/BnW_small_under_1_hectare.geojson'
+    )
     await this.pageObjects.boundaryTypePage.open()
     await this.pageObjects.boundaryTypePage.selectBoundaryType('Upload a file')
     await this.page.getByRole('button', { name: 'Continue' }).click()

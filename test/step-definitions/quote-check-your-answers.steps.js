@@ -48,7 +48,9 @@ Given(
   'I have uploaded a boundary file and completed a {string} quote up to check your answers',
   { timeout: 90000 },
   async function (devType) {
-    const geojsonPath = path.resolve('test/fixtures/BnW_small_under_1_hectare.geojson')
+    const geojsonPath = path.resolve(
+      'test/fixtures/BnW_small_under_1_hectare.geojson'
+    )
 
     await this.pageObjects.boundaryTypePage.open()
     await this.pageObjects.boundaryTypePage.selectBoundaryType('Upload a file')
