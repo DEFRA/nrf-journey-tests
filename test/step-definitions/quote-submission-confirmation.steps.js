@@ -28,6 +28,13 @@ When(
   }
 )
 
+When(
+  'I select {string} as the waste water treatment works',
+  async function (option) {
+    await this.pageObjects.wasteWaterPage.selectOption(option)
+  }
+)
+
 When('I enter {string} as my email', async function (email) {
   await this.pageObjects.emailPage.fillEmail(email)
 })
