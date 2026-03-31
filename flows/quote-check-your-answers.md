@@ -37,7 +37,7 @@ Rows for "Number of residential units" and "Maximum number of people" are shown 
 
 `/quote/boundary-type` → select "Draw on a map" → Continue → `/quote/development-types` → ... → `/quote/check-your-answers`
 
-### Upload file (not testable in Docker Compose)
+### Upload file
 
 `/quote/boundary-type` → select "Upload a file" → Continue → `/quote/upload-boundary` → submit file to external uploader → `/quote/upload-received` (polls until upload processed) → `/quote/upload-preview-map` → Save and continue → `/quote/development-types` → ... → `/quote/check-your-answers`
 
@@ -59,6 +59,5 @@ Clicking a Change link navigates to the relevant page with the previously entere
 
 ## Pending / blocked
 
-- **Submit → Confirmation**: The frontend does not yet send `boundaryGeojson` in the POST /quotes request. The backend requires this field, so submission currently fails. Covered by existing scenarios in `quote-submission-confirmation.feature` once unblocked.
-- **File upload boundary summary**: Requires the CDP Uploader service, which is not included in the Docker Compose stack. Testable in CDP cloud environments only.
+- **File upload boundary summary**: The upload path (`/quote/upload-boundary`) is testable in Docker Compose (cdp-uploader is included in the stack) but no E2E scenarios cover it yet.
 - **Conditional answer clearing**: When a development type is removed, its related answer is cleared from the summary. Covered by nrf-frontend integration tests; not duplicated at E2E level.
