@@ -51,23 +51,31 @@ runs:
       id: detect
       shell: bash
       run: |
-        [ -d "./nrf-frontend" ] && echo "nrf_frontend=true" >> $GITHUB_OUTPUT || echo "nrf_frontend=false" >> $GITHUB_OUTPUT
-        [ -d "./nrf-backend" ]  && echo "nrf_backend=true"  >> $GITHUB_OUTPUT || echo "nrf_backend=false"  >> $GITHUB_OUTPUT
+        [ -d "./nrf-frontend" ]        && echo "nrf_frontend=true"        >> $GITHUB_OUTPUT || echo "nrf_frontend=false"        >> $GITHUB_OUTPUT
+        [ -d "./nrf-backend" ]         && echo "nrf_backend=true"         >> $GITHUB_OUTPUT || echo "nrf_backend=false"         >> $GITHUB_OUTPUT
+        [ -d "./nrf-impact-assessor" ] && echo "nrf_impact_assessor=true" >> $GITHUB_OUTPUT || echo "nrf_impact_assessor=false" >> $GITHUB_OUTPUT
 
-    - name: Checkout nrf-backend (for Liquibase changelog)
+    - name: Checkout nrf-backend (for Liquibase changelog and source build)
       if: ${{ !inputs.environment && steps.detect.outputs.nrf_backend == 'false' }}
       uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-backend
         path: nrf-backend
 
+    - name: Checkout nrf-impact-assessor (for Alembic migrations)
+      if: ${{ !inputs.environment && steps.detect.outputs.nrf_impact_assessor == 'false' }}
+      uses: actions/checkout@v4
+      with:
+        repository: DEFRA/nrf-impact-assessor
+        path: nrf-impact-assessor
+
     - name: Build nrf-frontend from depends-on checkout
       if: ${{ !inputs.environment && steps.detect.outputs.nrf_frontend == 'true' }}
       shell: bash
       run: docker build -t defradigital/nrf-frontend:pr-build ./nrf-frontend
 
-    - name: Build nrf-backend from depends-on checkout
-      if: ${{ !inputs.environment && steps.detect.outputs.nrf_backend == 'true' }}
+    - name: Build nrf-backend from source
+      if: ${{ !inputs.environment }}
       shell: bash
       run: docker build -t defradigital/nrf-backend:pr-build ./nrf-backend
 
@@ -93,8 +101,9 @@ runs:
       run: |
         chmod +x docker/scripts/localstack/*.sh
         NRF_FRONTEND=${{ steps.detect.outputs.nrf_frontend == 'true' && 'pr-build' || inputs.nrf-frontend }} \
-        NRF_BACKEND=${{ steps.detect.outputs.nrf_backend == 'true' && 'pr-build' || inputs.nrf-backend }} \
+        NRF_BACKEND=pr-build \
         NRF_BACKEND_PATH=./nrf-backend \
+        NRF_IMPACT_ASSESSOR_PATH=./nrf-impact-assessor \
         docker compose up --wait --wait-timeout 300 -d
 
     - name: Run the tests

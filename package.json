@@ -13,7 +13,7 @@
     "test:e2e": "npm run clean && cucumber-js",
     "test:e2e:local": "npm run clean && BASE_URL=http://localhost:3000 cucumber-js",
     "test:e2e:debug": "npm run clean && E2E_HEADFUL=true BASE_URL=http://localhost:3000 cucumber-js",
-    "test:localstack": "docker compose up --wait --quiet-pull -d && npm run test:e2e",
+    "test:localstack": "docker compose build nrf-backend && docker compose up --wait --quiet-pull -d && npm run test:e2e",
     "compose:down": "docker compose down --remove-orphans",
     "format": "prettier --write 'test/**/*.js' '**/*.{js,md,json,config.js}'",
     "format:check": "prettier --check 'test/**/*.js' '**/*.{js,md,json,config.js}'",

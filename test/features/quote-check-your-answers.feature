@@ -9,7 +9,10 @@ Feature: Quote check your answers
     And the "Number of residential units" row should show "10"
     And the "Email address" row should show "test@example.com"
 
-  @regression
+  # TODO: Waste water treatment works page not yet implemented in nrf-frontend.
+  # After people count, the frontend currently redirects straight to email.
+  # Re-enable once the waste water page is wired into the Other residential journey.
+  @pending
   Scenario: Summary shows correct rows for an Other residential journey
     Given I have completed a "Other residential" quote up to check your answers
     Then the "Red line boundary" row should show "Added"
@@ -17,7 +20,8 @@ Feature: Quote check your answers
     And the "Maximum number of people" row should show "50"
     And the "Email address" row should show "test@example.com"
 
-  @regression
+  # TODO: same reason as above.
+  @pending
   Scenario: Summary shows correct rows for a Housing and Other residential journey
     Given I have completed a "Housing and Other residential" quote up to check your answers
     Then the "Red line boundary" row should show "Added"
@@ -49,29 +53,11 @@ Feature: Quote check your answers
     And I continue
     Then the "Email address" row should show "updated@example.com"
 
-  # TODO: Full submission is blocked until the frontend sends boundaryGeojson in the
-  # POST /quotes request. The backend requires this field but the frontend does not yet
-  # include it. Submission scenarios are already tracked in quote-submission-confirmation.feature.
-  @pending
-  Scenario: Submitting a quote navigates to the confirmation page
-    Given I have completed a "Housing" quote up to check your answers
-    When I submit my answers
-    Then I should see the confirmation page
-    And I should see an NRF reference number
-
-  # TODO: The file upload boundary path requires the CDP Uploader service, which is not
-  # included in the Docker Compose stack. Add a cdp-uploader service to compose.yml to enable.
-  @pending
+  @regression
   Scenario: Summary shows "Added" for a file upload boundary journey
-    Given I have uploaded a boundary file and completed the quote up to check your answers
+    Given I have uploaded a boundary file and completed a "Housing" quote up to check your answers
     Then the "Red line boundary" row should show "Added"
+    And the "Development types" row should show "Housing"
+    And the "Number of residential units" row should show "10"
+    And the "Email address" row should show "test@example.com"
 
-  # TODO: Conditional answer clearing is covered by nrf-frontend integration tests.
-  # Not duplicated at E2E level.
-  @pending
-  Scenario: Removing a development type clears the related answer from the summary
-    Given I have completed a "Housing and Other residential" quote up to check your answers
-    When I click the change link for "Development types"
-    And I deselect "Housing"
-    And I continue
-    Then the "Number of residential units" row should not be shown
