@@ -57,18 +57,37 @@ runs:
     # and cannot be fetched by actions/checkout.
     # depends-on names the local branch 'pr/<branch>' — strip the prefix to get
     # the actual remote branch name.
+    #
+    # We use symbolic-ref rather than rev-parse --abbrev-ref because depends-on
+    # sometimes leaves the checkout in detached HEAD state (no branch). rev-parse
+    # would return the literal string "HEAD" in that case, which is not a valid
+    # remote branch and would cause actions/checkout to fail. symbolic-ref errors
+    # out on detached HEAD instead, so we cleanly fall through to inputs.ref.
     - name: Detect nrf-journey-tests depends-on checkout
       if: ${{ !inputs.environment }}
       id: detect-jt
       shell: bash
       run: |
+        echo "::group::Checking if depends-on checked out nrf-journey-tests"
+        found=false
         for dir in "./nrf-journey-tests" "../nrf-journey-tests"; do
           if [ -d "$dir" ]; then
-            local_branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD)
-            echo "ref=${local_branch#pr/}" >> $GITHUB_OUTPUT
+            found=true
+            echo "depends-on created a checkout at $dir"
+            if local_branch=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null); then
+              echo "It is on branch '${local_branch}', will checkout '${local_branch#pr/}'"
+              echo "ref=${local_branch#pr/}" >> $GITHUB_OUTPUT
+            else
+              echo "It is in detached HEAD state (no branch), so ignoring it"
+              echo "Will fall back to inputs.ref instead"
+            fi
             break
           fi
         done
+        if [ "$found" = false ]; then
+          echo "No nrf-journey-tests checkout found, will use inputs.ref"
+        fi
+        echo "::endgroup::"
 
     # Check out the test code. clean: false preserves any subdirectories that
     # depends-on checked out inside the workspace (e.g. nrf-backend, nrf-frontend).
@@ -99,18 +118,47 @@ runs:
         # resolves back to the workspace directory. Without this guard we would
         # incorrectly report a depends-on checkout that does not exist.
         ws=$(realpath "$GITHUB_WORKSPACE")
+        echo "::group::Looking for repos that depends-on checked out"
+        echo "Workspace is: $ws"
+        echo "Working directory is: $(pwd)"
+        echo ""
+        echo "Directories in workspace:"
+        ls -d ./*/ 2>/dev/null || echo "  (none)"
+        echo ""
+        echo "Sibling directories of workspace:"
+        ls -d ../*/ 2>/dev/null || echo "  (none)"
+        echo ""
         for dir in "./nrf-frontend" "../nrf-frontend"; do
           real=$(realpath "$dir" 2>/dev/null) || continue
-          [ -d "$real" ] && [ "$real" != "$ws" ] && { echo "nrf_frontend_path=$dir" >> $GITHUB_OUTPUT; break; }
+          echo "Found $dir (resolves to $real)"
+          if [ -d "$real" ] && [ "$real" != "$ws" ]; then
+            echo "  -> Using as nrf-frontend depends-on checkout"
+            echo "nrf_frontend_path=$dir" >> $GITHUB_OUTPUT; break
+          else
+            echo "  -> Skipping (same as workspace directory)"
+          fi
         done
         for dir in "./nrf-backend" "../nrf-backend"; do
           real=$(realpath "$dir" 2>/dev/null) || continue
-          [ -d "$real" ] && [ "$real" != "$ws" ] && { echo "nrf_backend_path=$dir" >> $GITHUB_OUTPUT; break; }
+          echo "Found $dir (resolves to $real)"
+          if [ -d "$real" ] && [ "$real" != "$ws" ]; then
+            echo "  -> Using as nrf-backend depends-on checkout"
+            echo "nrf_backend_path=$dir" >> $GITHUB_OUTPUT; break
+          else
+            echo "  -> Skipping (same as workspace directory)"
+          fi
         done
         for dir in "./nrf-impact-assessor" "../nrf-impact-assessor"; do
           real=$(realpath "$dir" 2>/dev/null) || continue
-          [ -d "$real" ] && [ "$real" != "$ws" ] && { echo "nrf_impact_assessor_path=$dir" >> $GITHUB_OUTPUT; break; }
+          echo "Found $dir (resolves to $real)"
+          if [ -d "$real" ] && [ "$real" != "$ws" ]; then
+            echo "  -> Using as nrf-impact-assessor depends-on checkout"
+            echo "nrf_impact_assessor_path=$dir" >> $GITHUB_OUTPUT; break
+          else
+            echo "  -> Skipping (same as workspace directory)"
+          fi
         done
+        echo "::endgroup::"
 
     - name: Checkout nrf-backend (for Liquibase changelog and source build)
       if: ${{ !inputs.environment && steps.detect.outputs.nrf_backend_path == '' }}
@@ -161,7 +209,7 @@ runs:
         NRF_BACKEND=pr-build \
         NRF_BACKEND_PATH=${{ steps.detect.outputs.nrf_backend_path || './nrf-backend' }} \
         NRF_IMPACT_ASSESSOR_PATH=${{ steps.detect.outputs.nrf_impact_assessor_path || './nrf-impact-assessor' }} \
-        docker compose up --wait --wait-timeout 300 -d --no-build
+        docker compose up --wait --wait-timeout 300 -d
 
     - name: Run the tests
       shell: bash
