@@ -57,6 +57,12 @@ runs:
     # and cannot be fetched by actions/checkout.
     # depends-on names the local branch 'pr/<branch>' — strip the prefix to get
     # the actual remote branch name.
+    #
+    # We use symbolic-ref rather than rev-parse --abbrev-ref because depends-on
+    # sometimes leaves the checkout in detached HEAD state (no branch). rev-parse
+    # would return the literal string "HEAD" in that case, which is not a valid
+    # remote branch and would cause actions/checkout to fail. symbolic-ref errors
+    # out on detached HEAD instead, so we cleanly fall through to inputs.ref.
     - name: Detect nrf-journey-tests depends-on checkout
       if: ${{ !inputs.environment }}
       id: detect-jt
@@ -64,8 +70,9 @@ runs:
       run: |
         for dir in "./nrf-journey-tests" "../nrf-journey-tests"; do
           if [ -d "$dir" ]; then
-            local_branch=$(git -C "$dir" rev-parse --abbrev-ref HEAD)
-            echo "ref=${local_branch#pr/}" >> $GITHUB_OUTPUT
+            if local_branch=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null); then
+              echo "ref=${local_branch#pr/}" >> $GITHUB_OUTPUT
+            fi
             break
           fi
         done
