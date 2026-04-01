@@ -13,6 +13,8 @@ Feature: Quote housing journey
     And I continue
     And I enter "10" residential units
     And I continue
+    And I select "I don't know the waste water treatment works yet" as the waste water treatment works
+    And I continue
     And I enter "test@example.com" as my email
     And I continue
     Then I should see the "Check your answers" heading
