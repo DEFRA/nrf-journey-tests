@@ -98,6 +98,10 @@ Given(
     await this.page.getByRole('button', { name: 'Continue' }).click()
     await this.pageObjects.residentialPage.fillResidentialUnits('10')
     await this.page.getByRole('button', { name: 'Continue' }).click()
+    await this.pageObjects.wasteWaterPage.selectOption(
+      "I don't know the waste water treatment works yet"
+    )
+    await this.page.getByRole('button', { name: 'Continue' }).click()
     await this.pageObjects.emailPage.fillEmail('test@example.com')
     await this.page.getByRole('button', { name: 'Continue' }).click()
     await this.pageObjects.checkYourAnswersPage.submit()
