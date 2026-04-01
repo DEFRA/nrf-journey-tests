@@ -44,6 +44,17 @@ runs:
       with:
         token: ${{ github.token }}
 
+    # Diagnostic: show exactly what depends-on placed in the workspace and parent dir.
+    # This runs BEFORE the nrf-journey-tests checkout so we see the raw depends-on output.
+    - name: Show depends-on checkout results
+      if: ${{ !inputs.environment }}
+      shell: bash
+      run: |
+        echo "=== workspace ($GITHUB_WORKSPACE) ==="
+        ls -d ./*/ 2>/dev/null || echo "  (empty)"
+        echo "=== parent dir ($(realpath ..)) ==="
+        ls -d ../*/ 2>/dev/null || echo "  (empty)"
+
     # If depends-on checked out nrf-journey-tests, capture the branch name so we
     # can use it as the ref for the main checkout below.
     #
