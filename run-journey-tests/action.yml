@@ -161,7 +161,7 @@ runs:
         NRF_BACKEND=pr-build \
         NRF_BACKEND_PATH=${{ steps.detect.outputs.nrf_backend_path || './nrf-backend' }} \
         NRF_IMPACT_ASSESSOR_PATH=${{ steps.detect.outputs.nrf_impact_assessor_path || './nrf-impact-assessor' }} \
-        docker compose up --wait --wait-timeout 300 -d
+        docker compose up --wait --wait-timeout 300 -d --no-build
 
     - name: Run the tests
       shell: bash
