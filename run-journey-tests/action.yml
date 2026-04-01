@@ -94,14 +94,22 @@ runs:
       id: detect
       shell: bash
       run: |
+        # Exclude $GITHUB_WORKSPACE itself from sibling detection — in the nrf-frontend
+        # CI the workspace path is .../nrf-frontend/nrf-frontend, so ../nrf-frontend
+        # resolves back to the workspace directory. Without this guard we would
+        # incorrectly report a depends-on checkout that does not exist.
+        ws=$(realpath "$GITHUB_WORKSPACE")
         for dir in "./nrf-frontend" "../nrf-frontend"; do
-          if [ -d "$dir" ]; then echo "nrf_frontend_path=$dir" >> $GITHUB_OUTPUT; break; fi
+          real=$(realpath "$dir" 2>/dev/null) || continue
+          [ -d "$real" ] && [ "$real" != "$ws" ] && { echo "nrf_frontend_path=$dir" >> $GITHUB_OUTPUT; break; }
         done
         for dir in "./nrf-backend" "../nrf-backend"; do
-          if [ -d "$dir" ]; then echo "nrf_backend_path=$dir" >> $GITHUB_OUTPUT; break; fi
+          real=$(realpath "$dir" 2>/dev/null) || continue
+          [ -d "$real" ] && [ "$real" != "$ws" ] && { echo "nrf_backend_path=$dir" >> $GITHUB_OUTPUT; break; }
         done
         for dir in "./nrf-impact-assessor" "../nrf-impact-assessor"; do
-          if [ -d "$dir" ]; then echo "nrf_impact_assessor_path=$dir" >> $GITHUB_OUTPUT; break; fi
+          real=$(realpath "$dir" 2>/dev/null) || continue
+          [ -d "$real" ] && [ "$real" != "$ws" ] && { echo "nrf_impact_assessor_path=$dir" >> $GITHUB_OUTPUT; break; }
         done
 
     - name: Checkout nrf-backend (for Liquibase changelog and source build)
