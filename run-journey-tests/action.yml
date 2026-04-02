@@ -80,9 +80,11 @@ runs:
       shell: bash
       run: |
         echo "::group::Checking if depends-on checked out nrf-journey-tests"
+        ws=$(realpath "$GITHUB_WORKSPACE")
         found=false
         for dir in "./nrf-journey-tests" "../nrf-journey-tests"; do
-          if [ -d "$dir" ]; then
+          real=$(realpath "$dir" 2>/dev/null) || continue
+          if [ -d "$real" ] && [ "$real" != "$ws" ]; then
             found=true
             echo "depends-on created a checkout at $dir"
             if local_branch=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null); then
