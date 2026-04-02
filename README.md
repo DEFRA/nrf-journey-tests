@@ -13,8 +13,15 @@ End-to-end tests using [Playwright](https://playwright.dev/) (browser library) a
 
 ## Prerequisites
 
-- Node.js ≥ 22.13.1
-- `npm ci` (also installs the Chromium browser via `postinstall`)
+- **Node.js ≥ 22.13.1** — if your system default is older, activate Node 22 via nvm first:
+  ```sh
+  export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 22
+  ```
+- **Docker** — required for localstack mode
+- **Dependencies** — installs npm packages and the Chromium browser:
+  ```sh
+  npm ci
+  ```
 
 ---
 
@@ -22,52 +29,92 @@ End-to-end tests using [Playwright](https://playwright.dev/) (browser library) a
 
 There are three ways to run the tests, depending on what you are testing against.
 
-### Mode 1 — Local (developer machine)
+### Mode 1 — Localstack (Docker Compose)
 
-Use this when you have the frontend service running locally on your machine.
-
-```sh
-# Start the service in a separate terminal
-cd ../nrf-frontend && NODE_ENV=development ENABLE_DEFRA_ID=false node src/index.js
-
-# Run the tests against it
-npm run test:e2e:local
-
-# Headed mode — opens a visible browser window (useful for debugging)
-npm run test:e2e:debug
-```
-
-The `BASE_URL` is hardcoded to `http://localhost:3000` by these scripts.
-
----
-
-### Mode 2 — Localstack (Docker Compose)
-
-Use this to run the full stack in Docker locally, or to replicate what GitHub Actions does.
-All services start as Docker containers and communicate over Docker's internal network.
-The test runner itself runs on the host and reaches the service via the exposed port 3000.
+**Recommended for most developers.** Starts the full stack in Docker containers, runs the tests, then you tear down.
+No manual service setup required.
 
 ```sh
-# Start all services, run tests, then tear down
+# Build images from source and start all services, then run the tests
 npm run test:localstack
+
+# Tear down afterwards
 npm run compose:down
 ```
 
-What this does:
+**Sibling repositories required.** The build step compiles nrf-backend and nrf-impact-assessor from source.
+Clone them as siblings of this repo before running:
 
-1. `docker compose up --wait -d` — starts nrf-frontend, nrf-backend, postgres, liquibase, redis, and localstack; waits for all healthchecks to pass
-2. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the exposed port)
+```sh
+git clone git@github.com:DEFRA/nrf-backend.git ../nrf-backend
+git clone git@github.com:DEFRA/nrf-impact-assessor.git ../nrf-impact-assessor
+```
 
-**With specific image tags:**
+Your directory layout should look like this:
+
+```
+parent-directory/
+  nrf-journey-tests/   ← this repo
+  nrf-backend/         ← required
+  nrf-impact-assessor/ ← required
+```
+
+What the script does:
+
+1. Builds `nrf-backend` and `nrf-impact-assessor` Docker images from `../nrf-backend` and `../nrf-impact-assessor`
+2. `docker compose up --wait -d` — starts all services and waits for healthchecks to pass
+3. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the nginx proxy)
+
+Services started: nrf-frontend, nrf-backend, nrf-impact-assessor, postgres (+ liquibase migrations), mongodb (+ EDP seed), redis, localstack (AWS mock: S3, SQS, SNS), and cdp-uploader.
+
+**With specific image tags** (uses pre-built images instead of building from source):
 
 ```sh
 NRF_FRONTEND=1.2.3 NRF_BACKEND=2.3.4 npm run test:localstack
 npm run compose:down
 ```
 
+**Headed mode** (opens a visible browser while tests run):
+
+```sh
+docker compose up --wait -d
+E2E_HEADFUL=true npm run test:e2e
+npm run compose:down
+```
+
 ---
 
-### Mode 3 — CDP cloud environment (GitHub Actions)
+### Mode 2 — Local services
+
+Use this when you have all services already running on your machine (e.g. during active development of nrf-frontend or nrf-backend).
+
+The full test suite requires nrf-frontend, nrf-backend, nrf-impact-assessor, postgres, mongodb, redis, and localstack to all be available. The easiest way to have all of those running is to start the Docker Compose stack (Mode 1) and only run nrf-frontend outside of Docker if you need to edit it without rebuilding.
+
+You will need nrf-frontend cloned as a sibling if it is not already:
+
+```sh
+git clone git@github.com:DEFRA/nrf-frontend.git ../nrf-frontend
+```
+
+```sh
+# Start everything except nrf-frontend via Docker
+docker compose up --wait -d
+
+# Start nrf-frontend on port 3000 in a separate terminal
+cd ../nrf-frontend && NODE_ENV=development ENABLE_DEFRA_ID=false node src/index.js
+
+# Run the tests (pointing at localhost:3000)
+npm run test:e2e:local
+
+# Headed mode — opens a visible browser window
+npm run test:e2e:debug
+```
+
+> **Note:** `test:e2e:local` hardcodes `BASE_URL=http://localhost:3000`. If your frontend runs on a different port, use `BASE_URL=http://localhost:<port> npm run test:e2e` instead.
+
+---
+
+### Mode 3 — CDP cloud environment
 
 Use this to run tests against a service already deployed on the CDP platform (AWS).
 No Docker Compose is needed — the service is already running in the cloud.
