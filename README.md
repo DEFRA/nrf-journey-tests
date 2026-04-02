@@ -20,7 +20,7 @@ End-to-end tests using [Playwright](https://playwright.dev/) (browser library) a
 - **Docker** — required for localstack mode
 - **Dependencies** — installs npm packages and the Chromium browser:
   ```sh
-  npm install
+  npm ci
   ```
 
 ---
