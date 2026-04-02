@@ -7,9 +7,18 @@ Given(
   { timeout: 60000 },
   async function (devType) {
     await this.pageObjects.boundaryTypePage.open()
-    await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
+    await this.pageObjects.boundaryTypePage.selectBoundaryType('Upload a file')
     await this.page.getByRole('button', { name: 'Continue' }).click()
-    await this.pageObjects.developmentTypesPage.open()
+
+    const filePath = path.resolve(
+      'test/fixtures/BnW_small_under_1_hectare.geojson'
+    )
+    await this.pageObjects.uploadBoundaryPage.uploadFile(filePath)
+
+    await this.pageObjects.uploadPreviewMapPage.saveAndContinueButton.waitFor({
+      state: 'visible'
+    })
+    await this.pageObjects.uploadPreviewMapPage.saveAndContinue()
 
     if (devType === 'Housing' || devType === 'Housing and Other residential') {
       await this.pageObjects.developmentTypesPage.selectDevelopmentType(
