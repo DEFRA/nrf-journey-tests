@@ -14,7 +14,7 @@ End-to-end tests using [Playwright](https://playwright.dev/) (browser library) a
 ## Prerequisites
 
 - Node.js ≥ 22.13.1
-- `npm install` (also installs the Chromium browser via `postinstall`)
+- `npm ci` (also installs the Chromium browser via `postinstall`)
 
 ---
 
