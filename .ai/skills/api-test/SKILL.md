@@ -18,10 +18,10 @@ API tests live in `test/api/` and database tests in `test/db/`. These are **plai
 nrf-frontend (port 3000)
        │
        ▼
-nrf-backend (port 3001)  ←──── Hapi.js REST API, MongoDB, Redis
+nrf-backend (port 3001)  ←──── Hapi.js REST API, PostGIS (primary DB), MongoDB, Redis
        │
        ▼
-nrf-impact-assessor (port 8085)  ←──── Python FastAPI, SQS trigger, MongoDB/PostGIS
+nrf-impact-assessor (port 8085)  ←──── Python FastAPI, SQS trigger, PostGIS
        │
        ▼
 AWS services (LocalStack in dev): S3, SQS, SNS, DynamoDB
@@ -29,7 +29,7 @@ AWS services (LocalStack in dev): S3, SQS, SNS, DynamoDB
 
 - Frontend calls backend for data persistence and business logic
 - Impact assessor is a long-running background worker triggered via SQS
-- MongoDB is the primary store; Redis handles sessions
+- **PostGIS** (postgis/postgis:16-3.4) is the primary relational store; MongoDB is the document store; Redis handles sessions
 - All inter-service communication is HTTP
 
 ---
@@ -219,44 +219,57 @@ Only write database tests when:
 - You need to assert state that is not visible via the API
 - You are testing data integrity or migration correctness
 
-Connect via the same `MONGODB_URI` env var the app uses. Never connect to a production database.
+Connect using the same env vars the app uses. Never connect to a production database. Before writing any DB test, check `../nrf-backend/src` to confirm which store (PostGIS or MongoDB) holds the data you need to assert on.
+
+**PostGIS (primary relational store)** — use the `pg` client:
 
 ```js
 // test/db/quote-repository.test.js
-import { MongoClient } from 'mongodb'
+import pg from 'pg'
 import assert from 'node:assert/strict'
 import { test, before, after } from 'node:test'
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nrf'
+const POSTGRES_URI =
+  process.env.POSTGRES_URI ||
+  'postgresql://postgres:password@localhost:5432/nrf'
 let client
 
 before(async () => {
-  client = new MongoClient(MONGODB_URI)
+  client = new pg.Client(POSTGRES_URI)
   await client.connect()
 })
 
 after(async () => {
-  await client.close()
+  await client.end()
 })
 
 test('quote is persisted with correct status', async () => {
-  const db = client.db()
-  const quote = await db.collection('quotes').findOne({ status: 'submitted' })
-  assert.ok(quote)
-  assert.equal(quote.status, 'submitted')
+  const result = await client.query(
+    "SELECT * FROM quotes WHERE status = 'submitted' LIMIT 1"
+  )
+  assert.ok(result.rows.length > 0)
+  assert.equal(result.rows[0].status, 'submitted')
 })
+```
+
+**MongoDB (document store)** — use the `mongodb` client if the backend stores data there:
+
+```js
+import { MongoClient } from 'mongodb'
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nrf'
 ```
 
 ---
 
 ## Environment variables
 
-| Variable       | Default                         | Description                  |
-| -------------- | ------------------------------- | ---------------------------- |
-| `BACKEND_URL`  | `http://localhost:3001`         | nrf-backend base URL         |
-| `IMPACT_URL`   | `http://localhost:8085`         | nrf-impact-assessor base URL |
-| `MONGODB_URI`  | `mongodb://localhost:27017/nrf` | MongoDB connection string    |
-| `AWS_ENDPOINT` | `http://localhost:4566`         | LocalStack endpoint          |
+| Variable       | Default                                             | Description                  |
+| -------------- | --------------------------------------------------- | ---------------------------- |
+| `BACKEND_URL`  | `http://localhost:3001`                             | nrf-backend base URL         |
+| `IMPACT_URL`   | `http://localhost:8085`                             | nrf-impact-assessor base URL |
+| `POSTGRES_URI` | `postgresql://postgres:password@localhost:5432/nrf` | PostGIS connection string    |
+| `MONGODB_URI`  | `mongodb://localhost:27017/nrf`                     | MongoDB connection string    |
+| `AWS_ENDPOINT` | `http://localhost:4566`                             | LocalStack endpoint          |
 
 ---
 

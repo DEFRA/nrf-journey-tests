@@ -186,12 +186,13 @@ For every new page under test:
 
 1. Check `flows/<journey>.md` — if it does not exist, stop and ask the user to create it
 2. Read the Nunjucks template and controller in `../nrf-frontend/src/server/<page>/` for exact field names and label text
-3. Create `test/page-objects/<name>.page.js` — extend `Page`, expose locators as getters and actions as async methods, no assertions
-4. Register the page object in `test/support/world.js` under `this.pageObjects`
-5. Create `test/features/<journey>.feature` — tag every scenario `@smoke` and/or `@regression`
-6. Create `test/step-definitions/<journey>.steps.js` — assertions go here, not in page objects
-7. Run headed: `npm run test:e2e:debug`
-8. Lint and format: `npm run lint && npm run format:check`
+3. Check `../nrf-frontend/src` for `page.test.js` files **and** `../nrf-backend/src` for `*.test.js` files covering this feature. Any behaviour already tested at unit or integration level (validation, back-link persistence, session state, error messages) must **not** be duplicated as an E2E scenario. Journey tests cover the **forward happy path only**.
+4. Create `test/page-objects/<name>.page.js` — extend `Page`, expose locators as getters and actions as async methods, no assertions
+5. Register the page object in `test/support/world.js` under `this.pageObjects`
+6. Create `test/features/<journey>.feature` — tag every scenario `@smoke` and/or `@regression`
+7. Create `test/step-definitions/<journey>.steps.js` — assertions go here, not in page objects
+8. Run headed: `npm run test:e2e:debug`
+9. Lint and format: `npm run lint && npm run format:check`
 
 ---
 
@@ -250,11 +251,14 @@ Feature: Boundary type selection
     And I continue
     Then I should be on the upload boundary page
 
-  Scenario: Developer submits without selecting a boundary type
+  Scenario: Developer selects draw boundary type and continues
     Given I am on the boundary type page
-    When I continue without selecting a boundary type
-    Then I should see a validation error
+    When I select "draw"
+    And I continue
+    Then I should be on the draw boundary page
 ```
+
+Validation errors (empty submission, invalid input, error messages) are tested at the nrf-frontend unit/integration level — do not duplicate them as E2E scenarios.
 
 ---
 
@@ -276,13 +280,11 @@ When('I continue', async function () {
   await this.pageObjects.boundaryTypePage.continue()
 })
 
-When('I continue without selecting a boundary type', async function () {
-  await this.pageObjects.boundaryTypePage.continue()
-})
-
-Then('I should see a validation error', async function () {
-  const errorSummary = this.pageObjects.boundaryTypePage.errorSummary
-  await errorSummary.waitFor({ state: 'visible' })
-  assert.ok(await errorSummary.isVisible())
+Then('I should be on the upload boundary page', async function () {
+  await this.pageObjects.uploadBoundaryPage.waitFor()
+  assert.equal(
+    await this.page.title(),
+    'Upload boundary - Nature Restoration Fund - Gov.uk'
+  )
 })
 ```
