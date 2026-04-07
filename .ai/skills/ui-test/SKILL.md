@@ -182,11 +182,20 @@ Do **not** test:
 
 ## Implementation checklist
 
-For every new page under test:
+### Before writing any code
 
-1. Check `flows/<journey>.md` — if it does not exist, stop and ask the user to create it
-2. Read the Nunjucks template and controller in `../nrf-frontend/src/server/<page>/` for exact field names and label text
-3. Check `../nrf-frontend/src` for `page.test.js` files **and** `../nrf-backend/src` for `*.test.js` files covering this feature. Any behaviour already tested at unit or integration level (validation, back-link persistence, session state, error messages) must **not** be duplicated as an E2E scenario. Journey tests cover the **forward happy path only**.
+1. Check `flows/<journey>.md` — if it does not exist, stop and ask the user to create it.
+2. Read the Nunjucks template and controller in `../nrf-frontend/src/server/<page>/` for exact field names and label text. Always read the current source — never assume from memory.
+3. **Coverage gap analysis — mandatory, must be presented to the user before writing any test code:**
+   - Read the latest `../nrf-frontend/src` `page.test.js` files and `../nrf-backend/src` `*.test.js` files for every AC in scope.
+   - For each AC produce one of these three recommendations:
+     - **Write E2E** — only verifiable end-to-end (cross-service routing, full journey flow, confirmation content)
+     - **Descope from E2E** — already covered at unit or integration level; note in flow doc "Out of scope" section
+     - **Enhance integration test instead** — name the specific test file in nrf-frontend or nrf-backend to extend; do not write an E2E scenario
+   - Present the analysis and revised AC scope to the user. Wait for approval before proceeding.
+
+### Implementation
+
 4. Create `test/page-objects/<name>.page.js` — extend `Page`, expose locators as getters and actions as async methods, no assertions
 5. Register the page object in `test/support/world.js` under `this.pageObjects`
 6. Create `test/features/<journey>.feature` — tag every scenario `@smoke` and/or `@regression`

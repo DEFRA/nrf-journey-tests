@@ -287,8 +287,14 @@ Follow these steps in order for every new test.
 ### Before writing any code
 
 1. Read `flows/<user-flow>.md` — understand the journey, screens, inputs, and expected outcomes. If the file does not exist, **stop and ask the user to create it**.
-2. Check `../nrf-frontend/src` for actual route paths, form field names, and page titles.
-3. Check `../nrf-frontend/src` for `page.test.js` files (nrf-frontend integration test convention) **and** `../nrf-backend/src` for `*.test.js` files covering the feature. Any behaviour already tested at unit or integration level (validation, back-link persistence, session state, etc.) must **not** be duplicated as an E2E scenario — move it to "Out of scope" in the flow doc. Journey tests cover the **forward happy path only**.
+2. Check `../nrf-frontend/src` for actual route paths, form field names, and page titles. Always read the current source — never assume routes or field names from memory.
+3. **Coverage gap analysis — mandatory before writing a single line of test code:**
+   - Read the latest `../nrf-frontend/src` `page.test.js` files and `../nrf-backend/src` `*.test.js` files for every AC in scope.
+   - For each AC, produce a recommendation using one of these three outcomes:
+     - **Write E2E** — behaviour is only verifiable end-to-end (cross-service routing, full journey flow, confirmation page content)
+     - **Descope from E2E** — behaviour is already covered at unit or integration level; move it to "Out of scope" in the flow doc
+     - **Enhance integration test instead** — behaviour could be covered more cheaply and reliably at the integration level; recommend the specific test file to extend rather than writing an E2E scenario
+   - Present this analysis to the user and get approval before proceeding. Do not start implementation until the scope is agreed.
 4. Follow the implementation checklist in `.ai/skills/ui-test/SKILL.md`.
 
 ### Implementation steps
