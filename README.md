@@ -159,6 +159,10 @@ Screenshots of failed scenarios are automatically attached to the report.
 ## Folder structure
 
 ```
+flows/                # End-to-end user journey descriptions — read before writing tests
+  README.md           # Journey map: all journeys, statuses, entry points
+  quote-journey.md    # Full quote journey — all branches with status markers
+feature-input.md      # Entry point for introducing a new feature to the test suite
 test/
   features/           # Gherkin .feature files
   step-definitions/   # Cucumber step implementations
@@ -170,13 +174,18 @@ test/
     world.js          # Cucumber World: launches browser, exposes this.page + this.pageObjects
     hooks.js          # Before/After lifecycle; screenshot on failure; FAILED file on suite failure
 cucumber.js           # Cucumber profile configuration
+.ai/
+  coding-rules.md     # Coding standards and patterns
+  skills/             # AI skill definitions for test generation (ui-test, api-test)
 ```
 
-## Adding a new Page Object
+## Adding new tests
 
-1. Create `test/page-objects/my.page.js` extending `BasePage` (or `Page`).
-2. Register an instance in `test/support/world.js` under `this.pageObjects`.
-3. Reference it in step definitions as `this.pageObjects.myPage`.
+Fill in `feature-input.md` with the feature title, journey, description, and ACs, then tell the agent **"New feature input given"**.
+
+The agent will analyse each AC against the latest nrf-frontend and nrf-backend integration tests, propose a revised scope (Write E2E / Descope / Enhance integration test), and wait for your approval before writing any code.
+
+For full agent workflow and conventions see `AGENTS.md`.
 
 ---
 
