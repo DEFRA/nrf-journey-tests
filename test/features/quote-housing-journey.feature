@@ -13,7 +13,11 @@ Feature: Quote housing journey
     And I continue
     And I enter "10" residential units
     And I continue
-    And I select "I don't know the waste water treatment works yet" as the waste water treatment works
+    Then I should see the "Confirm which waste water treatment works will be used for this development" heading
+    And I should see more than 1 waste water treatment works option
+    And each waste water treatment works option should show the distance from the development boundary
+    And I should see the "I don't know the waste water treatment works yet" option
+    When I select "East Rudham WRC" as the waste water treatment works
     And I continue
     And I enter "test@example.com" as my email
     And I continue

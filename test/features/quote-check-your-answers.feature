@@ -7,20 +7,18 @@ Feature: Quote check your answers
     Then the "Red line boundary" row should show "Uploaded"
     And the "Development types" row should show "Housing"
     And the "Number of residential units" row should show "10"
+    And the "Waste water treatment works" row should show "I don't know yet"
     And the "Email address" row should show "test@example.com"
 
-  # TODO: Waste water treatment works page not yet implemented in nrf-frontend.
-  # After people count, the frontend currently redirects straight to email.
-  # Re-enable once the waste water page is wired into the Other residential journey.
   @pending
   Scenario: Summary shows correct rows for an Other residential journey
     Given I have completed a "Other residential" quote up to check your answers
     Then the "Red line boundary" row should show "Uploaded"
     And the "Development types" row should show "Other residential"
     And the "Maximum number of people" row should show "50"
+    And the "Waste water treatment works" row should show "I don't know yet"
     And the "Email address" row should show "test@example.com"
 
-  # TODO: same reason as above.
   @pending
   Scenario: Summary shows correct rows for a Housing and Other residential journey
     Given I have completed a "Housing and Other residential" quote up to check your answers
@@ -29,6 +27,7 @@ Feature: Quote check your answers
     And the "Development types" row should show "Other residential"
     And the "Number of residential units" row should show "10"
     And the "Maximum number of people" row should show "50"
+    And the "Waste water treatment works" row should show "I don't know yet"
     And the "Email address" row should show "test@example.com"
 
   @regression
@@ -59,5 +58,6 @@ Feature: Quote check your answers
     Then the "Red line boundary" row should show "Uploaded"
     And the "Development types" row should show "Housing"
     And the "Number of residential units" row should show "10"
+    And the "Waste water treatment works" row should show "I don't know yet"
     And the "Email address" row should show "test@example.com"
 

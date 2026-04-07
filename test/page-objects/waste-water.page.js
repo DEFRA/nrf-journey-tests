@@ -8,6 +8,16 @@ class WasteWaterPage extends Page {
   async selectOption(label) {
     await this.page.getByLabel(label).check()
   }
+
+  async getOptionLabels() {
+    const items = this.page.locator('.govuk-radios__label')
+    return items.allTextContents()
+  }
+
+  async getOptionHints() {
+    const hints = this.page.locator('.govuk-radios__hint')
+    return hints.allTextContents()
+  }
 }
 
 export { WasteWaterPage }

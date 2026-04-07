@@ -143,10 +143,10 @@ services:
     volumes:
       - ./docker/scripts/postgres/01-create-impact-db.sql:/docker-entrypoint-initdb.d/01-create-impact-db.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d nrf_backend']
-      interval: 10s
-      start_period: 5s
-      retries: 5
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d nrf_backend && psql -U postgres -d nrf_impact -c "SELECT 1" -q -t']
+      interval: 5s
+      start_period: 10s
+      retries: 10
 
   ################################################################################
   liquibase:
@@ -243,6 +243,21 @@ services:
         condition: service_completed_successfully
 
   ################################################################################
+  # Inserts test WWTW catchments and lookup data so the waste water treatment
+  # works page displays selectable options.
+  wwtw-seed:
+    image: postgis/postgis:16-3.4
+    volumes:
+      - ./docker/scripts/postgres/03-seed-test-wwtw.sql:/seed.sql
+    environment:
+      PGPASSWORD: password
+    command: >
+      psql -h postgres -U postgres -d nrf_impact -f /seed.sql
+    depends_on:
+      impact-assessor-migration:
+        condition: service_completed_successfully
+
+  ################################################################################
   nrf-impact-assessor:
     image: defradigital/nrf-impact-assessor:${NRF_IMPACT_ASSESSOR:-latest}
     build:
@@ -259,6 +274,8 @@ services:
       mongodb:
         condition: service_healthy
       edp-seed:
+        condition: service_completed_successfully
+      wwtw-seed:
         condition: service_completed_successfully
     healthcheck:
       test:
