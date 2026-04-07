@@ -143,7 +143,11 @@ services:
     volumes:
       - ./docker/scripts/postgres/01-create-impact-db.sql:/docker-entrypoint-initdb.d/01-create-impact-db.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d nrf_backend && psql -U postgres -d nrf_impact -c "SELECT 1" -q -t']
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U postgres -d nrf_backend && psql -U postgres -d nrf_impact -c "SELECT 1" -q -t'
+        ]
       interval: 5s
       start_period: 10s
       retries: 10
