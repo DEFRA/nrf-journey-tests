@@ -4,6 +4,8 @@ This file provides guidance to AI coding agents when working with code in this r
 
 **IMPORTANT:** Before making any code changes, read `.ai/coding-rules.md` for coding standards and patterns.
 
+**IMPORTANT:** At the start of every session, read `flows/README.md` and the relevant journey file(s) in `flows/`. Cross-reference them against `../nrf-frontend/src` routes and templates. If a route exists in the source but its branch is still marked `[BLOCKED]` or `[PLANNED]` in the flow file, flag it to the user and ask whether to update the flow and write the test. Update flow files whenever the application changes — before touching test code.
+
 ---
 
 ## 1. Project Overview
