@@ -84,33 +84,58 @@ npm run compose:down
 
 ---
 
-### Mode 2 — Local services
+### Mode 2 — Hybrid (local nrf-frontend, Docker infrastructure)
 
-Use this when you have all services already running on your machine (e.g. during active development of nrf-frontend or nrf-backend).
+Use this when you are actively developing nrf-frontend and want to run the full test suite against your local source without rebuilding a Docker image each time.
 
-The full test suite requires nrf-frontend, nrf-backend, nrf-impact-assessor, postgres, mongodb, redis, and localstack to all be available. The easiest way to have all of those running is to start the Docker Compose stack (Mode 1) and only run nrf-frontend outside of Docker if you need to edit it without rebuilding.
+Infrastructure (postgres, redis, localstack, cdp-uploader, nrf-backend, etc.) runs in Docker. Only nrf-frontend runs directly on the host.
 
-You will need nrf-frontend cloned as a sibling if it is not already:
+**Prerequisites** — clone nrf-frontend as a sibling if not already:
 
 ```sh
 git clone git@github.com:DEFRA/nrf-frontend.git ../nrf-frontend
 ```
 
+**Step 1 — start infrastructure and backend in Docker** (in one terminal):
+
 ```sh
-# Start everything except nrf-frontend via Docker
-docker compose up --wait -d
+docker compose build nrf-backend
+docker compose up -d \
+  localstack redis postgres mongodb \
+  cdp-uploader liquibase impact-assessor-migration \
+  edp-seed wwtw-seed nrf-impact-assessor nrf-backend
+```
 
-# Start nrf-frontend on port 3000 in a separate terminal
-cd ../nrf-frontend && NODE_ENV=development ENABLE_DEFRA_ID=false node src/index.js
+Wait for the stack to be healthy (check with `docker ps`).
 
-# Run the tests (pointing at localhost:3000)
+**Step 2 — start nrf-frontend locally** (in a separate terminal):
+
+```sh
+cd ../nrf-frontend
+NODE_ENV=development \
+ENABLE_DEFRA_ID=false \
+NRF_BACKEND_API_URL=http://localhost:3001 \
+CDP_UPLOADER_URL=http://localhost:7337 \
+REDIS_HOST=localhost \
+node src/index.js
+```
+
+**Step 3 — run the tests**:
+
+```sh
 npm run test:e2e:local
 
 # Headed mode — opens a visible browser window
 npm run test:e2e:debug
 ```
 
-> **Note:** `test:e2e:local` hardcodes `BASE_URL=http://localhost:3000`. If your frontend runs on a different port, use `BASE_URL=http://localhost:<port> npm run test:e2e` instead.
+**Tear down** when done:
+
+```sh
+docker compose down
+```
+
+> **Why these env vars?** nrf-backend is exposed on host port 3001 and cdp-uploader on 7337. Without `NRF_BACKEND_API_URL` and `CDP_UPLOADER_URL` the frontend defaults to localhost:4001 and relative upload URLs respectively, which do not work outside the Docker proxy. `REDIS_HOST=localhost` tells the frontend to use the Redis instance exposed on host port 6379.
 
 ---
 
