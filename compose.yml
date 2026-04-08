@@ -59,6 +59,8 @@ services:
   redis:
     image: redis:7
     restart: always
+    ports:
+      - '6379:6379'
     healthcheck:
       test: ['CMD', 'redis-cli', 'PING']
       interval: 5s
@@ -68,6 +70,8 @@ services:
   ################################################################################
   cdp-uploader:
     image: defradigital/cdp-uploader:latest
+    ports:
+      - '7337:7337'
     environment:
       - PORT=7337
       - MOCK_VIRUS_SCAN_ENABLED=true
