@@ -18,6 +18,20 @@ class WasteWaterPage extends Page {
     const hints = this.page.locator('.govuk-radios__hint')
     return hints.allTextContents()
   }
+
+  async selectFirstAvailableOption() {
+    const labels = await this.getOptionLabels()
+    const firstOption = labels
+      .map((label) => label.trim())
+      .find((label) => label && !label.includes("I don't know"))
+    if (!firstOption) {
+      throw new Error(
+        'No waste water treatment works options available to select'
+      )
+    }
+    await this.selectOption(firstOption)
+    return firstOption
+  }
 }
 
 export { WasteWaterPage }
