@@ -4,7 +4,7 @@ Feature: Quote check your answers
   @smoke @regression
   Scenario: Summary shows correct rows for a Housing journey
     Given I have completed a "Housing" quote up to check your answers
-    Then the "Red line boundary" row should show "Uploaded"
+    Then the "Red line boundary" row should show "BnW_small_under_1_hectare.geojson"
     And the "Development types" row should show "Housing"
     And the "Number of residential units" row should show "10"
     And the "Waste water treatment works" row should show "I don't know yet"
@@ -13,7 +13,7 @@ Feature: Quote check your answers
   @pending
   Scenario: Summary shows correct rows for an Other residential journey
     Given I have completed a "Other residential" quote up to check your answers
-    Then the "Red line boundary" row should show "Uploaded"
+    Then the "Red line boundary" row should show "BnW_small_under_1_hectare.geojson"
     And the "Development types" row should show "Other residential"
     And the "Maximum number of people" row should show "50"
     And the "Waste water treatment works" row should show "I don't know yet"
@@ -22,7 +22,7 @@ Feature: Quote check your answers
   @pending
   Scenario: Summary shows correct rows for a Housing and Other residential journey
     Given I have completed a "Housing and Other residential" quote up to check your answers
-    Then the "Red line boundary" row should show "Uploaded"
+    Then the "Red line boundary" row should show "BnW_small_under_1_hectare.geojson"
     And the "Development types" row should show "Housing"
     And the "Development types" row should show "Other residential"
     And the "Number of residential units" row should show "10"
@@ -55,7 +55,7 @@ Feature: Quote check your answers
   @regression
   Scenario: Summary shows "Added" for a file upload boundary journey
     Given I have uploaded a boundary file and completed a "Housing" quote up to check your answers
-    Then the "Red line boundary" row should show "Uploaded"
+    Then the "Red line boundary" row should show "BnW_small_under_1_hectare.geojson"
     And the "Development types" row should show "Housing"
     And the "Number of residential units" row should show "10"
     And the "Waste water treatment works" row should show "I don't know yet"
