@@ -17,11 +17,12 @@ Feature: Quote housing journey
     And I should see more than 1 waste water treatment works option
     And each waste water treatment works option should show the distance from the development boundary
     And I should see the "I don't know the waste water treatment works yet" option
-    When I select "East Rudham WRC" as the waste water treatment works
+    When I select the first available waste water treatment works
     And I continue
     And I enter "test@example.com" as my email
     And I continue
     Then I should see the "Check your answers" heading
+    And the waste water treatment works row should show the previously selected option
     When I submit my answers
     Then I should see the confirmation page
     And I should see an NRF reference number

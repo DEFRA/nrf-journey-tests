@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict'
-import { Then } from '@cucumber/cucumber'
+import { Then, When } from '@cucumber/cucumber'
+
+When(
+  'I select the first available waste water treatment works',
+  async function () {
+    this.selectedWasteWaterTreatmentWorks =
+      await this.pageObjects.wasteWaterPage.selectFirstAvailableOption()
+  }
+)
 
 Then(
   'I should see more than {int} waste water treatment works option',

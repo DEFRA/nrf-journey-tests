@@ -133,6 +133,26 @@ Then(
 )
 
 Then(
+  'the waste water treatment works row should show the previously selected option',
+  async function () {
+    const expected = this.selectedWasteWaterTreatmentWorks
+    assert.ok(
+      expected,
+      'No waste water treatment works was previously selected in this scenario'
+    )
+    const rowValue = this.pageObjects.checkYourAnswersPage.summaryRowValue(
+      'Waste water treatment works'
+    )
+    await rowValue.waitFor({ state: 'visible' })
+    const text = await rowValue.textContent()
+    assert.ok(
+      text.includes(expected),
+      `Expected "Waste water treatment works" row to contain "${expected}" but got "${text.trim()}"`
+    )
+  }
+)
+
+Then(
   'the email field should be pre-filled with {string}',
   async function (expectedEmail) {
     const input = this.pageObjects.emailPage.emailInput
