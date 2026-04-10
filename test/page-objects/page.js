@@ -5,6 +5,10 @@ class Page extends BasePage {
     return this.page.locator('h1')
   }
 
+  get phaseBanner() {
+    return this.page.getByRole('region', { name: 'Service phase' })
+  }
+
   async open(path) {
     return this.goto(path)
   }
