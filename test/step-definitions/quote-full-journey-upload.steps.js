@@ -122,7 +122,11 @@ Then(
       )
     }
 
-    await assertSummaryRow(this.page, 'Red line boundary', 'Uploaded')
+    await assertSummaryRow(
+      this.page,
+      'Red line boundary',
+      'BnW_small_under_1_hectare.geojson'
+    )
     await assertSummaryRow(this.page, 'Development type', 'Housing')
     await assertSummaryRow(this.page, 'Development type', 'Other residential')
     await assertSummaryRow(this.page, 'Number of residential units', '10')
