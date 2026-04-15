@@ -11,6 +11,7 @@ class WasteWaterPage extends Page {
 
   async getOptionLabels() {
     const items = this.page.locator('.govuk-radios__label')
+    await items.first().waitFor({ state: 'visible' })
     return items.allTextContents()
   }
 

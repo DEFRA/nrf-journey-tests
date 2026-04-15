@@ -1,6 +1,6 @@
 export default {
   paths: ['test/features/**/*.feature'],
-  tags: 'not @pending',
+  tags: process.env.FOCUS ? '@focus and not @pending' : 'not @pending',
   import: [
     'test/support/world.js',
     'test/support/hooks.js',
