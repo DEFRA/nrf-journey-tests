@@ -1,9 +1,6 @@
 -- Seed WWTW catchment polygons near the test boundary centroid (582819, 328198).
 -- Two catchments at different distances so we can test the multi-option UI.
 
-DELETE FROM nrf_reference.lookup_table WHERE name = 'wwtw_lookup';
-DELETE FROM nrf_reference.spatial_layer WHERE layer_type = 'WWTW_CATCHMENTS';
-
 -- WWTW catchment 1: ~1 km east of the test boundary
 INSERT INTO nrf_reference.spatial_layer (id, version, geometry, name, attributes, layer_type, created_at)
 VALUES (
