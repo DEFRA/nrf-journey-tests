@@ -110,6 +110,9 @@ services:
       - NRF_BACKEND_API_URL=http://nrf-backend:3001
       - NRF_BACKEND_OPTIONAL=true
       - REDIS_HOST=redis
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
       test:
         [
