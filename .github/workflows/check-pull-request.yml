@@ -35,6 +35,8 @@ jobs:
       checks: write
       pull-requests: write
       id-token: write
+    env:
+      MAILINATOR_API_KEY: ${{ secrets.MAILINATOR_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 

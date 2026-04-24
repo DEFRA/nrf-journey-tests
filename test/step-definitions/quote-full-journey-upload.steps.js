@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
 import { Given, When, Then } from '@cucumber/cucumber'
+import {
+  MailinatorClient,
+  GetInboxRequest,
+  GetMessageRequest,
+  DeleteMessageRequest
+} from 'mailinator-client'
 
 Given('I am on the start page', async function () {
   await this.pageObjects.homePage.open()
@@ -54,6 +60,7 @@ When(
 )
 
 When('I enter {string} as my email', async function (email) {
+  this.submittedEmail = email
   await this.pageObjects.emailPage.fillEmail(email)
 })
 
@@ -131,7 +138,11 @@ Then(
     await assertSummaryRow(this.page, 'Development type', 'Other residential')
     await assertSummaryRow(this.page, 'Number of residential units', '10')
     await assertSummaryRow(this.page, 'Waste water treatment works', wwtw)
-    await assertSummaryRow(this.page, 'Email address', 'test@example.com')
+    await assertSummaryRow(
+      this.page,
+      'Email address',
+      'test@team84618.testinator.email'
+    )
   }
 )
 
@@ -150,7 +161,12 @@ Then('I should see an NRF reference number', async function () {
   const panelBody = this.pageObjects.confirmationPage.panelBody
   await panelBody.waitFor({ state: 'visible' })
   const bodyText = await panelBody.textContent()
-  assert.ok(bodyText.includes('NRF reference:'))
+  const match = bodyText.match(/NRF-\d+/)
+  assert.ok(
+    match,
+    `Expected panel body to contain an NRF-<number> reference but got "${bodyText.trim()}"`
+  )
+  this.nrfReference = match[0]
 })
 
 Then('I should be on the start page', async function () {
@@ -158,3 +174,55 @@ Then('I should be on the start page', async function () {
   await heading.waitFor({ state: 'visible' })
   assert.equal((await heading.textContent()).trim(), 'Nature Restoration Fund')
 })
+
+Then(
+  'I have been sent a confirmation email',
+  { timeout: 60_000 },
+  async function () {
+    const [inbox, domain] = this.submittedEmail.split('@')
+    const nrfReference = this.nrfReference
+    assert.ok(
+      nrfReference,
+      'No NRF reference was captured earlier in this scenario'
+    )
+
+    const apiKey = process.env.MAILINATOR_API_KEY
+    assert.ok(apiKey, 'MAILINATOR_API_KEY env var is required')
+    const client = new MailinatorClient(apiKey)
+
+    const expectedText = `NRF reference: ${nrfReference}`
+    const retryDelayMs = 5_000
+    const maxAttempts = 3
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      await sleep(retryDelayMs)
+
+      const inboxResp = await client.request(
+        new GetInboxRequest(domain, inbox, 0, 50, 'descending')
+      )
+      assert.equal(
+        inboxResp.statusCode,
+        200,
+        `Mailinator API returned status ${inboxResp.statusCode}`
+      )
+      const messages = inboxResp.result?.msgs ?? []
+
+      for (const { id } of messages) {
+        const msgResp = await client.request(new GetMessageRequest(domain, id))
+        if (msgResp.statusCode !== 200) continue
+        const body = (msgResp.result?.parts ?? [])
+          .map((part) => part.body ?? '')
+          .join('\n')
+        if (body.includes(expectedText)) {
+          await client.request(new DeleteMessageRequest(domain, inbox, id))
+          return
+        }
+      }
+    }
+
+    assert.fail(
+      `No message in ${this.submittedEmail} contained "${expectedText}" after ${maxAttempts} attempts`
+    )
+  }
+)
