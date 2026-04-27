@@ -6,7 +6,7 @@ class WasteWaterPage extends Page {
   }
 
   async selectOption(label) {
-    await this.page.getByLabel(label).check()
+    await this.page.getByLabel(label).first().check()
   }
 
   async getOptionLabels() {

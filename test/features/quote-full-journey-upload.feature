@@ -20,11 +20,12 @@ Feature: NRF Quote full journey (file upload)
     And each waste water treatment works option should show the distance from the development boundary
     When I select the first available waste water treatment works
     And I continue
-    And I enter "test@example.com" as my email
+    And I enter "test@team84618.testinator.email" as my email
     And I continue
     Then I should see my responses on the Check Your Answers page
     When I submit my answers
     Then I should see the confirmation page
     And I should see an NRF reference number
+    And I have been sent a confirmation email
     When I navigate back in the browser
     Then I should be on the start page

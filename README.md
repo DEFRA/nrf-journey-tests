@@ -216,16 +216,23 @@ For full agent workflow and conventions see `AGENTS.md`.
 
 ## Environment variables
 
-| Variable       | Default                 | Description                                                                                       |
-| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `ENVIRONMENT`  | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority. |
-| `BASE_URL`     | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                       |
-| `BROWSER`      | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.  |
-| `E2E_HEADFUL`  | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
-| `NRF_FRONTEND` | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
-| `NRF_BACKEND`  | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                         |
+| Variable             | Default                 | Description                                                                                       |
+| -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
+| `ENVIRONMENT`        | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority. |
+| `BASE_URL`           | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                       |
+| `BROWSER`            | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.  |
+| `E2E_HEADFUL`        | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
+| `NRF_FRONTEND`       | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
+| `NRF_BACKEND`        | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                         |
+| `MAILINATOR_API_KEY` | <secret>                | API key for test to access Mailinator inbox. Get from another team dev, or CDP secrets            |
 
 ---
+
+### Mailinator API key
+
+A .env.template file is provided for local development. Obtain the Mailinator API key from another team dev, and rename the file to .env.local
+For pull requests, the secret is set in github - https://github.com/DEFRA/nrf-journey-tests/settings/secrets/actions
+For journey tests running against CDP environments the secret is set in [CDP secrets](https://portal.cdp-int.defra.cloud/test-suites/nrf-journey-tests/secrets)
 
 ## Browser compatibility
 
