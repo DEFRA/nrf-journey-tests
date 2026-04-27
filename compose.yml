@@ -100,7 +100,9 @@ services:
   ################################################################################
   nrf-frontend:
     image: defradigital/nrf-frontend:${NRF_FRONTEND:-latest}
-    pull_policy: build
+    # No pull_policy: build here — CI only checks out ../nrf-frontend when a
+    # depends-on PR provides it, otherwise this service falls back to the
+    # registry image. Forcing a build would fail on CI without the source.
     build:
       context: ../nrf-frontend
       target: development
