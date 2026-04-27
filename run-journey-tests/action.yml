@@ -216,8 +216,15 @@ runs:
     - name: Start docker compose (localstack mode)
       if: ${{ !inputs.environment }}
       shell: bash
+      env:
+        NOTIFY_API_KEY: ${{ env.NOTIFY_API_KEY }}
       run: |
         chmod +x docker/scripts/localstack/*.sh
+        # Write CI-provided secrets into .env.local so the compose env_file picks
+        # them up. .env.local is gitignored and used the same way for local dev.
+        if [ -n "${NOTIFY_API_KEY:-}" ]; then
+          printf 'NOTIFY_API_KEY=%s\n' "$NOTIFY_API_KEY" >> .env.local
+        fi
         NRF_FRONTEND=${{ steps.detect.outputs.nrf_frontend_path != '' && 'pr-build' || inputs.nrf-frontend }} \
         NRF_BACKEND=pr-build \
         NRF_BACKEND_PATH=${{ steps.detect.outputs.nrf_backend_path || './nrf-backend' }} \

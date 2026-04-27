@@ -100,6 +100,7 @@ services:
   ################################################################################
   nrf-frontend:
     image: defradigital/nrf-frontend:${NRF_FRONTEND:-latest}
+    pull_policy: build
     build:
       context: ../nrf-frontend
       target: development
@@ -177,6 +178,7 @@ services:
   ################################################################################
   nrf-backend:
     image: defradigital/nrf-backend:${NRF_BACKEND:-latest}
+    pull_policy: build
     build:
       context: ${NRF_BACKEND_PATH:-../nrf-backend}
       target: development
@@ -186,6 +188,10 @@ services:
     env_file:
       - ./docker/config/defaults.env
       - ./docker/config/nrf-backend.env
+      # Local-only secrets (gitignored). Optional so CI works without it —
+      # secrets there should come via the workflow's `env:` block.
+      - path: ./.env.local
+        required: false
     ports:
       - '3001:3001'
     depends_on:
@@ -220,73 +226,71 @@ services:
       retries: 5
 
   ################################################################################
+  # Runs alembic migrations and loads the full reference data fixtures
+  # (EDP boundaries, WWTW catchments, coefficient layers, lookup tables, etc.).
+  # The nutrient assessment runner queries these layers directly — without them
+  # it fails with "list index out of range".
   impact-assessor-migration:
     image: defradigital/nrf-impact-assessor:${NRF_IMPACT_ASSESSOR:-latest}
+    pull_policy: build
     build:
       context: ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}
       target: development
     volumes:
       - ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}/alembic:/home/nonroot/alembic
       - ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}/alembic.ini:/home/nonroot/alembic.ini
+      - ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}/scripts:/home/nonroot/scripts
+      - ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}/tests/data/fixtures:/home/nonroot/tests/data/fixtures
     environment:
       - DB_HOST=postgres
       - DB_DATABASE=nrf_impact
       - DB_IAM_AUTHENTICATION=false
       - DB_LOCAL_PASSWORD=password
-    command: ['-m', 'alembic', 'upgrade', 'head']
+      - PYTHONPATH=/home/nonroot
+    entrypoint: ['sh', '-c']
+    command:
+      - >-
+        python3 -m alembic upgrade head &&
+        python3 scripts/load_data.py --fixtures-dir tests/data/fixtures
     depends_on:
       postgres:
         condition: service_healthy
 
   ################################################################################
-  # Inserts a test EDP boundary that intersects the BnW_small_under_1_hectare
-  # fixture, so the upload flow routes to /quote/development-types.
-  edp-seed:
-    image: postgis/postgis:16-3.4
-    volumes:
-      - ./docker/scripts/postgres/02-seed-test-edp.sql:/seed.sql
-    environment:
-      PGPASSWORD: password
-    command: >
-      psql -h postgres -U postgres -d nrf_impact -f /seed.sql
-    depends_on:
-      impact-assessor-migration:
-        condition: service_completed_successfully
-
-  ################################################################################
-  # Inserts test WWTW catchments and lookup data so the waste water treatment
-  # works page displays selectable options.
-  wwtw-seed:
-    image: postgis/postgis:16-3.4
-    volumes:
-      - ./docker/scripts/postgres/03-seed-test-wwtw.sql:/seed.sql
-    environment:
-      PGPASSWORD: password
-    command: >
-      psql -h postgres -U postgres -d nrf_impact -f /seed.sql
-    depends_on:
-      impact-assessor-migration:
-        condition: service_completed_successfully
-
-  ################################################################################
   nrf-impact-assessor:
     image: defradigital/nrf-impact-assessor:${NRF_IMPACT_ASSESSOR:-latest}
+    pull_policy: build
     build:
       context: ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}
       target: development
+    # Start the SQS consumer (which also boots the API server in a child
+    # process). The image's default CMD may point at app.main only, so be
+    # explicit here to guarantee the queue is polled.
+    command: ['-m', 'app.consumer']
     environment:
       - HOST=0.0.0.0
+      # The consumer entrypoint boots the HTTP API server in a child process via
+      # uvicorn. ApiServerConfig reads API_-prefixed env vars — bind to all
+      # interfaces so nrf-backend can reach /check-boundary from its container.
+      - API_HOST=0.0.0.0
       - DB_HOST=postgres
       - DB_DATABASE=nrf_impact
       - DB_IAM_AUTHENTICATION=false
       - DB_LOCAL_PASSWORD=password
       - MONGO_URI=mongodb://mongodb:27017
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_REGION=eu-west-2
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_SQS_QUEUE_URL=http://localstack:4566/000000000000/nrf-impact-assessment-jobs
+      # Used by the assessor to PATCH results back to nrf-backend after a job completes
+      - BACKEND_BASE_URL=http://nrf-backend:3001
     depends_on:
+      localstack:
+        condition: service_healthy
       mongodb:
         condition: service_healthy
-      edp-seed:
-        condition: service_completed_successfully
-      wwtw-seed:
+      impact-assessor-migration:
         condition: service_completed_successfully
     healthcheck:
       test:

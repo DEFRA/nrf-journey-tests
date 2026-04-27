@@ -38,6 +38,9 @@ jobs:
   build:
     name: Run Journey Tests
     runs-on: ubuntu-latest
+    env:
+      MAILINATOR_API_KEY: ${{ secrets.MAILINATOR_API_KEY }}
+      NOTIFY_API_KEY: ${{ secrets.NOTIFY_API_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
