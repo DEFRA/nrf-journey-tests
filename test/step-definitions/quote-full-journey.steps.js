@@ -1,12 +1,7 @@
 import assert from 'node:assert/strict'
 import path from 'node:path'
 import { Given, When, Then } from '@cucumber/cucumber'
-import {
-  MailinatorClient,
-  GetInboxRequest,
-  GetMessageRequest,
-  DeleteMessageRequest
-} from 'mailinator-client'
+import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
 
 Given('I am on the start page', async function () {
@@ -185,50 +180,25 @@ Then(
   'I have been sent a confirmation email',
   { timeout: 60_000 },
   async function () {
-    const [inbox, domain] = this.submittedEmail.split('@')
     const nrfReference = this.nrfReference
     assert.ok(
       nrfReference,
       'No NRF reference was captured earlier in this scenario'
     )
 
-    const apiKey = process.env.MAILINATOR_API_KEY
-    assert.ok(apiKey, 'MAILINATOR_API_KEY env var is required')
-    const client = new MailinatorClient(apiKey)
+    const apiKey = process.env.NOTIFY_API_KEY
+    assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
 
     const expectedText = `NRF reference: ${nrfReference}`
-    const retryDelayMs = 5_000
-    const maxAttempts = 3
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+    const match = await findNotifyEmail(
+      apiKey,
+      this.submittedEmail,
+      expectedText
+    )
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      await sleep(retryDelayMs)
-
-      const inboxResp = await client.request(
-        new GetInboxRequest(domain, inbox, 0, 50, 'descending')
-      )
-      assert.equal(
-        inboxResp.statusCode,
-        200,
-        `Mailinator API returned status ${inboxResp.statusCode}`
-      )
-      const messages = inboxResp.result?.msgs ?? []
-
-      for (const { id } of messages) {
-        const msgResp = await client.request(new GetMessageRequest(domain, id))
-        if (msgResp.statusCode !== 200) continue
-        const body = (msgResp.result?.parts ?? [])
-          .map((part) => part.body ?? '')
-          .join('\n')
-        if (body.includes(expectedText)) {
-          await client.request(new DeleteMessageRequest(domain, inbox, id))
-          return
-        }
-      }
-    }
-
-    assert.fail(
-      `No message in ${this.submittedEmail} contained "${expectedText}" after ${maxAttempts} attempts`
+    assert.ok(
+      match,
+      `No delivered email to ${this.submittedEmail} contained "${expectedText}"`
     )
   }
 )

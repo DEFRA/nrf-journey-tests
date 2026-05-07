@@ -236,7 +236,7 @@ runs:
       env:
         ENVIRONMENT: ${{ inputs.environment }}
         BROWSER: ${{ inputs.browser || 'chromium' }}
-        MAILINATOR_API_KEY: ${{ env.MAILINATOR_API_KEY }}
+        NOTIFY_API_KEY: ${{ env.NOTIFY_API_KEY }}
       run: |
         npm run test:e2e; TEST_EXIT=$?
         npm run report
