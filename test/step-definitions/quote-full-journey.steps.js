@@ -7,9 +7,14 @@ import {
   GetMessageRequest,
   DeleteMessageRequest
 } from 'mailinator-client'
+import { assertSummaryRow } from '../support/assert-summary-row.js'
 
 Given('I am on the start page', async function () {
   await this.pageObjects.homePage.open()
+})
+
+When('I reject analytics cookies', async function () {
+  await this.pageObjects.homePage.rejectCookies()
 })
 
 When('I start a new quote', async function () {
@@ -39,6 +44,11 @@ When(
     await this.pageObjects.uploadPreviewMapPage.saveAndContinue()
   }
 )
+
+When('I draw a boundary on the map', { timeout: 60_000 }, async function () {
+  await this.pageObjects.drawBoundaryPage.searchLocation('Norwich Airport')
+  await this.pageObjects.drawBoundaryPage.drawTriangleOnMap()
+})
 
 When('I select {string}', async function (type) {
   await this.pageObjects.developmentTypesPage.selectDevelopmentType(type)
@@ -110,6 +120,17 @@ Then(
 )
 
 Then(
+  'I should see {string} as the red line boundary on the Check Your Answers page',
+  async function (string) {
+    await assertSummaryRow(
+      this.pageObjects.checkYourAnswersPage,
+      'Red line boundary',
+      string
+    )
+  }
+)
+
+Then(
   'I should see my responses on the Check Your Answers page',
   async function () {
     const wwtw = this.selectedWasteWaterTreatmentWorks
@@ -119,27 +140,12 @@ Then(
     )
     const cya = this.pageObjects.checkYourAnswersPage
 
-    async function assertSummaryRow(page, key, expectedValue) {
-      const rowValue = cya.summaryRowValue(key)
-      await rowValue.waitFor({ state: 'visible' })
-      const text = await rowValue.textContent()
-      assert.ok(
-        text.includes(expectedValue),
-        `Expected "${key}" row to contain "${expectedValue}" but got "${text.trim()}"`
-      )
-    }
-
+    await assertSummaryRow(cya, 'Development type', 'Housing')
+    await assertSummaryRow(cya, 'Development type', 'Other residential')
+    await assertSummaryRow(cya, 'Number of residential units', '10')
+    await assertSummaryRow(cya, 'Waste water treatment works', wwtw)
     await assertSummaryRow(
-      this.page,
-      'Red line boundary',
-      'BnW_small_under_1_hectare.geojson'
-    )
-    await assertSummaryRow(this.page, 'Development type', 'Housing')
-    await assertSummaryRow(this.page, 'Development type', 'Other residential')
-    await assertSummaryRow(this.page, 'Number of residential units', '10')
-    await assertSummaryRow(this.page, 'Waste water treatment works', wwtw)
-    await assertSummaryRow(
-      this.page,
+      cya,
       'Email address',
       'test@team84618.testinator.email'
     )
