@@ -63,6 +63,10 @@ class DrawBoundaryPage extends Page {
     }
   }
 
+  get mapDrawContainer() {
+    return this.page.locator('.maplibregl-map.mode-draw_polygon')
+  }
+
   async drawTriangleOnMap() {
     const drawButton = this.page.getByRole('button', { name: 'Draw' })
     await drawButton.waitFor({ state: 'visible' })
@@ -72,6 +76,8 @@ class DrawBoundaryPage extends Page {
     await this.page
       .getByRole('button', { name: 'Cancel' })
       .waitFor({ state: 'visible' })
+
+    await this.mapDrawContainer.waitFor({ state: 'visible', timeout: 10_000 })
 
     const box = await this.mapContainer.boundingBox()
     const cx = box.x + box.width / 2
