@@ -35,38 +35,6 @@ class DrawBoundaryPage extends Page {
     await this.searchInput.press('Enter')
   }
 
-  async #clickUntilDoneEnabled(cx, cy) {
-    const maxAttempts = 5
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      await this.page.mouse.click(cx, cy - 100)
-      await this.page.mouse.click(cx + 100, cy + 100)
-      await this.page.mouse.click(cx - 100, cy + 100)
-
-      const enabled = await this.doneButton
-        .waitFor({ state: 'visible', timeout: 3_000 })
-        .then(() => true)
-        .catch(() => false)
-
-      if (enabled) return
-
-      await this.page.keyboard.press('Escape')
-      await this.page
-        .getByRole('button', { name: 'Cancel' })
-        .waitFor({ state: 'hidden' })
-      const drawButton = this.page.getByRole('button', { name: 'Draw' })
-      await drawButton.waitFor({ state: 'visible' })
-      await drawButton.focus()
-      await this.page.keyboard.press('Enter')
-      await this.page
-        .getByRole('button', { name: 'Cancel' })
-        .waitFor({ state: 'visible' })
-    }
-  }
-
-  get mapDrawContainer() {
-    return this.page.locator('.maplibregl-map.mode-draw_polygon')
-  }
-
   async drawTriangleOnMap() {
     const drawButton = this.page.getByRole('button', { name: 'Draw' })
     await drawButton.waitFor({ state: 'visible' })
@@ -76,14 +44,19 @@ class DrawBoundaryPage extends Page {
     await this.page
       .getByRole('button', { name: 'Cancel' })
       .waitFor({ state: 'visible' })
+    await this.page
+      .locator('#draw-boundary-map-viewport')
+      .waitFor({ state: 'visible' })
+    await this.page.evaluate(() =>
+      document.getElementById('draw-boundary-map-viewport').focus()
+    )
 
-    await this.mapDrawContainer.waitFor({ state: 'visible', timeout: 10_000 })
-
-    const box = await this.mapContainer.boundingBox()
-    const cx = box.x + box.width / 2
-    const cy = box.y + box.height / 2
-
-    await this.#clickUntilDoneEnabled(cx, cy)
+    // Place 3 points at map centre using Enter, panning between each with arrow keys
+    await this.page.keyboard.press('Enter')
+    for (let i = 0; i < 10; i++) await this.page.keyboard.press('ArrowRight')
+    await this.page.keyboard.press('Enter')
+    for (let i = 0; i < 10; i++) await this.page.keyboard.press('ArrowDown')
+    await this.page.keyboard.press('Enter')
 
     await this.doneButton.waitFor({ state: 'visible', timeout: 10_000 })
     await this.doneButton.click()
