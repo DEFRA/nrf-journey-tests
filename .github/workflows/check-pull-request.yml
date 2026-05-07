@@ -37,7 +37,6 @@ jobs:
       id-token: write
     env:
       NOTIFY_API_KEY: ${{ secrets.NOTIFY_API_KEY }}
-      NOTIFY_API_KEY: ${{ secrets.NOTIFY_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
