@@ -224,7 +224,7 @@ For full agent workflow and conventions see `AGENTS.md`.
 | `E2E_HEADFUL`    | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
 | `NRF_FRONTEND`   | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
 | `NRF_BACKEND`    | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                         |
-| `NOTIFY_API_KEY` | <secret>                | API key for test to access Mailinator inbox. Get from another team dev, or CDP secrets            |
+| `NOTIFY_API_KEY` | <secret>                | API key for test to access Notify sent emails. Get from another team dev, or CDP secrets          |
 
 ---
 
