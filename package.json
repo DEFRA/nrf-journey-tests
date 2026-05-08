@@ -30,6 +30,7 @@
     "@cucumber/cucumber": "11.3.0",
     "allure-commandline": "2.32.0",
     "allure-cucumberjs": "3.2.0",
+    "global-agent": "3.0.0",
     "notifications-node-client": "8.3.2",
     "playwright": "1.58.2",
     "undici": "7.24.6"
