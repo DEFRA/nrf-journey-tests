@@ -1,7 +1,7 @@
 import { NotifyClient } from './notify-client.js'
 import { bootstrap } from 'global-agent'
 
-const retryDelayMs = 2_000
+const retryDelayMs = 5_000
 const maxAttempts = 3
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
