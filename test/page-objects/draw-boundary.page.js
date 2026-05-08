@@ -44,14 +44,11 @@ class DrawBoundaryPage extends Page {
     await this.page
       .getByRole('button', { name: 'Cancel' })
       .waitFor({ state: 'visible' })
-    await this.page
-      .locator('#draw-boundary-map-viewport')
-      .waitFor({ state: 'visible' })
+    const mapViewport = this.page.locator('#draw-boundary-map-viewport')
+    await mapViewport.waitFor({ state: 'visible' })
     // this is necessary as after Draw is pressed with a key, the map isn't
     // automatically focussed, so the keyboard plotting crosshair doesn't appear
-    await this.page.evaluate(() =>
-      document.getElementById('draw-boundary-map-viewport').focus()
-    )
+    await mapViewport.focus()
 
     // Place 3 points at map centre using Enter, panning between each with arrow keys
     await this.page.keyboard.press('Enter')
