@@ -9,6 +9,15 @@ class HomePage extends Page {
     return this.page.getByRole('button', { name: 'Start now' })
   }
 
+  get rejectCookiesButton() {
+    return this.page.getByRole('button', { name: 'Reject analytics cookies' })
+  }
+
+  async rejectCookies() {
+    await this.rejectCookiesButton.waitFor({ state: 'visible' })
+    await this.rejectCookiesButton.click()
+  }
+
   async startNow() {
     await this.startNowButton.click()
   }
