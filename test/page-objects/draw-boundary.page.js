@@ -47,6 +47,8 @@ class DrawBoundaryPage extends Page {
     await this.page
       .locator('#draw-boundary-map-viewport')
       .waitFor({ state: 'visible' })
+    // this is necessary as after Draw is pressed with a key, the map isn't
+    // automatically focussed, so the keyboard plotting crosshair doesn't appear
     await this.page.evaluate(() =>
       document.getElementById('draw-boundary-map-viewport').focus()
     )
