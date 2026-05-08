@@ -1,11 +1,11 @@
 import { NotifyClient } from './notify-client.js'
 import { bootstrap } from 'global-agent'
 
-const retryDelayMs = 2_000
+const retryDelayMs = 5_000
 const maxAttempts = 3
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-async function findNotifyEmail(apiKey, emailAddress, reference, expectedText) {
+async function findNotifyEmail(apiKey, emailAddress, expectedText) {
   if (process.env.HTTP_PROXY) {
     bootstrap()
     global.GLOBAL_AGENT.HTTP_PROXY = process.env.HTTP_PROXY
@@ -14,11 +14,7 @@ async function findNotifyEmail(apiKey, emailAddress, reference, expectedText) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     await sleep(retryDelayMs)
 
-    const response = await client.getNotifications(
-      'email',
-      'delivered',
-      reference
-    )
+    const response = await client.getNotifications('email', 'delivered')
     const notifications = response.data?.notifications ?? []
 
     const match = notifications.find(
