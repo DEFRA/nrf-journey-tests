@@ -193,7 +193,6 @@ Then(
     const match = await findNotifyEmail(
       apiKey,
       this.submittedEmail,
-      nrfReference,
       expectedText
     )
 
