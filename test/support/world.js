@@ -36,6 +36,13 @@ class PlaywrightWorld extends World {
   async openBrowser() {
     this.browser = await browserEngine.launch({ headless })
     this.context = await this.browser.newContext()
+
+    if (process.env.PROFILE === 'prod') {
+      await this.context.setExtraHTTPHeaders({
+        'x-nrf-profile': 'prod'
+      })
+    }
+
     this.page = await this.context.newPage()
     this.pageObjects = {
       homePage: new HomePage(this.page, baseUrl),
