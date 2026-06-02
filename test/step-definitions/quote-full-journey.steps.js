@@ -190,15 +190,17 @@ Then(
     assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
 
     const expectedText = `NRF reference: ${nrfReference}`
+    const log = (message) => this.attach(message, 'text/plain')
     const match = await findNotifyEmail(
       apiKey,
       this.submittedEmail,
-      expectedText
+      expectedText,
+      log
     )
 
     assert.ok(
       match,
-      `No delivered email to ${this.submittedEmail} contained "${expectedText}"`
+      `No email (status sending or delivered) to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
     )
   }
 )
