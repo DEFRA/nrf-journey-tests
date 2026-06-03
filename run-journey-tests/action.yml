@@ -205,8 +205,12 @@ runs:
         node-version: 22
         cache: npm
 
+    # --ignore-scripts skips the postinstall browser download; the browser is
+    # installed explicitly in the next step. PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+    # does not work here because postinstall calls `playwright install`
+    # directly, which ignores that env var.
     - name: Setup the tests
-      run: npm ci
+      run: npm ci --ignore-scripts
       shell: bash
 
     - name: Install Playwright browsers

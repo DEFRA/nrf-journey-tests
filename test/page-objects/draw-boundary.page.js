@@ -33,6 +33,10 @@ class DrawBoundaryPage extends Page {
     await this.searchInput.pressSequentially(query)
     await this.searchInput.press('ArrowDown')
     await this.searchInput.press('Enter')
+
+    // Wait for the map to finish panning/zooming to the selected location
+    // before drawing, otherwise the polygon is placed at the old centre.
+    await this.page.waitForTimeout(1_500)
   }
 
   async drawTriangleOnMap() {
