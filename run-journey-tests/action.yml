@@ -208,6 +208,10 @@ runs:
     - name: Setup the tests
       run: npm ci
       shell: bash
+      env:
+        # The browser is installed explicitly in the next step, so skip the
+        # redundant download triggered by the postinstall script.
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
     - name: Install Playwright browsers
       run: npx playwright install --with-deps ${{ inputs.browser || 'chromium' }}
