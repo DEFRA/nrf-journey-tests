@@ -202,5 +202,49 @@ Then(
       match,
       `No email (status sending or delivered) to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
     )
+
+    this.confirmationEmailBody = match.body
+  }
+)
+
+When('I follow the quote link in the email', async function () {
+  assert.ok(
+    this.confirmationEmailBody,
+    'No confirmation email body was captured earlier in this scenario'
+  )
+
+  // The access token charset is [A-Za-z0-9_-]; bounding the match to it stops a
+  // trailing markdown bracket or punctuation being captured as part of the URL.
+  const linkMatch = this.confirmationEmailBody.match(
+    /https?:\/\/\S+?\/quote\/NRF-\d+\/[A-Za-z0-9_-]+/
+  )
+  assert.ok(
+    linkMatch,
+    `Expected the email body to contain a quote access link but found none:\n${this.confirmationEmailBody}`
+  )
+
+  await this.pageObjects.quoteDetailsPage.visit(linkMatch[0])
+})
+
+Then(
+  'I should see the quote details page with my NRF reference',
+  async function () {
+    const nrfReference = this.nrfReference
+    assert.ok(
+      nrfReference,
+      'No NRF reference was captured earlier in this scenario'
+    )
+
+    const heading = this.pageObjects.quoteDetailsPage.pageHeading
+    await heading.waitFor({ state: 'visible' })
+    assert.equal(
+      (await heading.textContent()).trim(),
+      'Your Nature Restoration Fund levy quote'
+    )
+
+    await this.page
+      .getByText(nrfReference)
+      .first()
+      .waitFor({ state: 'visible' })
   }
 )

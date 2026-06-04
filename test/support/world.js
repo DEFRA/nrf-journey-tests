@@ -19,6 +19,7 @@ import { UploadPreviewMapPage } from '../page-objects/upload-preview-map.page.js
 import { WasteWaterPage } from '../page-objects/waste-water.page.js'
 import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
+import { QuoteDetailsPage } from '../page-objects/quote-details.page.js'
 
 setDefaultTimeout(15000)
 
@@ -70,7 +71,8 @@ class PlaywrightWorld extends World {
       uploadPreviewMapPage: new UploadPreviewMapPage(this.page, baseUrl),
       wasteWaterPage: new WasteWaterPage(this.page, baseUrl),
       noEdpPage: new NoEdpPage(this.page, baseUrl),
-      drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl)
+      drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl),
+      quoteDetailsPage: new QuoteDetailsPage(this.page, baseUrl)
     }
   }
 

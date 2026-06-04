@@ -28,5 +28,5 @@ Feature: NRF Quote full journey (file upload)
     Then I should see the confirmation page
     And I should see an NRF reference number
     And I have been sent a confirmation email
-    When I navigate back in the browser
-    Then I should be on the start page
+    When I follow the quote link in the email
+    Then I should see the quote details page with my NRF reference
