@@ -4,6 +4,9 @@ import { Before, After, AfterAll, Status } from '@cucumber/cucumber'
 let failedCount = 0
 
 Before(async function () {
+  // Recorded before any quote email is sent, so the email lookup can ignore
+  // older emails (reused NRF references across runs share the Notify account).
+  this.scenarioStartedAt = new Date().toISOString()
   await this.openBrowser()
 })
 

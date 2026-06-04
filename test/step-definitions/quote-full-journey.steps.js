@@ -195,7 +195,8 @@ Then(
       apiKey,
       this.submittedEmail,
       expectedText,
-      log
+      log,
+      this.scenarioStartedAt
     )
 
     assert.ok(

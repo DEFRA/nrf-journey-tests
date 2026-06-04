@@ -6,19 +6,37 @@ const maxAttempts = 10
 const acceptedStatuses = ['sending', 'delivered']
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-async function findNotifyEmail(apiKey, emailAddress, expectedText, log) {
+async function findNotifyEmail(
+  apiKey,
+  emailAddress,
+  expectedText,
+  log,
+  sentAfter
+) {
   if (process.env.HTTP_PROXY) {
     bootstrap()
     global.GLOBAL_AGENT.HTTP_PROXY = process.env.HTTP_PROXY
   }
   const client = new NotifyClient(apiKey)
+  // NRF references are short and hash-derived, so they can repeat across runs
+  // against the shared Notify account. Only accept an email created during this
+  // run, otherwise a previous run's email with the same reference (whose token
+  // is invalid against the current database) could be matched. A small buffer
+  // absorbs clock skew between the runner and Notify without re-admitting an
+  // earlier run's emails (which are minutes or more older).
+  const clockSkewBufferMs = 2 * 60 * 1000
+  const afterTime = sentAfter
+    ? new Date(sentAfter).getTime() - clockSkewBufferMs
+    : 0
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const response = await client.getNotifications('email')
     const notifications = response.data?.notifications ?? []
 
     const recipientEmails = notifications.filter(
-      (n) => n.email_address === emailAddress
+      (n) =>
+        n.email_address === emailAddress &&
+        new Date(n.created_at).getTime() >= afterTime
     )
     const match = recipientEmails.find(
       (n) =>
