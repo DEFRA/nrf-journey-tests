@@ -195,12 +195,59 @@ Then(
       apiKey,
       this.submittedEmail,
       expectedText,
-      log
+      log,
+      this.scenarioStartedAt
     )
 
     assert.ok(
       match,
       `No email (status sending or delivered) to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
     )
+
+    this.confirmationEmailBody = match.body
+  }
+)
+
+When('I follow the quote link in the email', async function () {
+  assert.ok(
+    this.confirmationEmailBody,
+    'No confirmation email body was captured earlier in this scenario'
+  )
+
+  // The email contains several links, so anchor on the access link's text
+  // rather than a bare URL pattern. It is a markdown link of the form
+  // [Commit to using Nature Restoration Fund](<url>); capture the url in the
+  // parentheses.
+  const linkMatch = this.confirmationEmailBody.match(
+    /\[Commit to using Nature Restoration Fund\]\((https?:\/\/[^)]+)\)/
+  )
+  assert.ok(
+    linkMatch,
+    `Expected the email body to contain a "Commit to using Nature Restoration Fund" link but found none:\n${this.confirmationEmailBody}`
+  )
+
+  await this.pageObjects.quoteDetailsPage.visit(linkMatch[1])
+})
+
+Then(
+  'I should see the quote details page with my NRF reference',
+  async function () {
+    const nrfReference = this.nrfReference
+    assert.ok(
+      nrfReference,
+      'No NRF reference was captured earlier in this scenario'
+    )
+
+    const heading = this.pageObjects.quoteDetailsPage.pageHeading
+    await heading.waitFor({ state: 'visible' })
+    assert.equal(
+      (await heading.textContent()).trim(),
+      'Your Nature Restoration Fund levy quote'
+    )
+
+    await this.page
+      .getByText(nrfReference)
+      .first()
+      .waitFor({ state: 'visible' })
   }
 )

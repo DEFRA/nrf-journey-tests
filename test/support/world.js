@@ -19,6 +19,7 @@ import { UploadPreviewMapPage } from '../page-objects/upload-preview-map.page.js
 import { WasteWaterPage } from '../page-objects/waste-water.page.js'
 import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
+import { QuoteDetailsPage } from '../page-objects/quote-details.page.js'
 
 setDefaultTimeout(15000)
 
@@ -32,10 +33,18 @@ const browsers = { chromium, firefox, webkit }
 const browserName = process.env.BROWSER || 'chromium'
 const browserEngine = browsers[browserName] ?? chromium
 
+// Headless Chromium's default UA contains "HeadlessChrome", which the quote
+// access link treats as a bot/previewer and serves a dataless stub. Present a
+// real Chrome UA so journeys that follow a quote link see the actual page.
+const realChromeUserAgent =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+
 class PlaywrightWorld extends World {
   async openBrowser() {
     this.browser = await browserEngine.launch({ headless })
-    this.context = await this.browser.newContext()
+    this.context = await this.browser.newContext(
+      browserName === 'chromium' ? { userAgent: realChromeUserAgent } : {}
+    )
 
     if (process.env.PROFILE === 'prod') {
       await this.context.setExtraHTTPHeaders({
@@ -62,7 +71,8 @@ class PlaywrightWorld extends World {
       uploadPreviewMapPage: new UploadPreviewMapPage(this.page, baseUrl),
       wasteWaterPage: new WasteWaterPage(this.page, baseUrl),
       noEdpPage: new NoEdpPage(this.page, baseUrl),
-      drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl)
+      drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl),
+      quoteDetailsPage: new QuoteDetailsPage(this.page, baseUrl)
     }
   }
 
