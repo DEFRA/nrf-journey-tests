@@ -70,6 +70,11 @@ When('I enter {string} as my email', async function (email) {
 })
 
 When('I submit my answers', async function () {
+  // The confirmation email is sent on submission. Record the moment just before
+  // submitting so the Notify lookup only matches an email from this run — quote
+  // creation can take a minute, so the scenario-start time is too early and
+  // would let a stale email with a colliding NRF reference through.
+  this.quoteSubmittedAt = new Date().toISOString()
   await this.pageObjects.checkYourAnswersPage.submit()
 })
 
@@ -196,7 +201,7 @@ Then(
       this.submittedEmail,
       expectedText,
       log,
-      this.scenarioStartedAt
+      this.quoteSubmittedAt ?? this.scenarioStartedAt
     )
 
     assert.ok(
