@@ -226,7 +226,8 @@ When('I follow the quote link in the email', async function () {
     `Expected the email body to contain a "Commit to using Nature Restoration Fund" link but found none:\n${this.confirmationEmailBody}`
   )
 
-  await this.pageObjects.quoteDetailsPage.visit(linkMatch[1])
+  this.quoteLinkUrl = linkMatch[1]
+  await this.pageObjects.quoteDetailsPage.visit(this.quoteLinkUrl)
 })
 
 Then(
@@ -249,5 +250,82 @@ Then(
       .getByText(nrfReference)
       .first()
       .waitFor({ state: 'visible' })
+  }
+)
+
+When('I open the quote link in {int} fresh sessions', async function (count) {
+  assert.ok(
+    this.quoteLinkUrl,
+    'No quote link was captured earlier in this scenario'
+  )
+
+  for (let session = 1; session <= count; session++) {
+    await this.pageObjects.quoteDetailsPage.visitInFreshSession(
+      this.quoteLinkUrl
+    )
+  }
+})
+
+Then('I should see that the link is no longer active', async function () {
+  const heading = this.pageObjects.quoteDetailsPage.pageHeading
+  await heading.waitFor({ state: 'visible' })
+  assert.equal(
+    (await heading.textContent()).trim(),
+    'This link is no longer active'
+  )
+})
+
+When('I request a new link', async function () {
+  // Record the time so a later Notify lookup only matches an email sent by this
+  // resend, not the original confirmation email.
+  this.resendRequestedAt = new Date().toISOString()
+  await this.pageObjects.quoteDetailsPage.requestNewLink()
+})
+
+When('I enter my email to receive a new link', async function () {
+  assert.ok(
+    this.submittedEmail,
+    'No email was captured earlier in this scenario'
+  )
+  await this.pageObjects.quoteDetailsPage.requestNewLinkForEmail(
+    this.submittedEmail
+  )
+})
+
+Then('I should see that a new link has been sent', async function () {
+  const heading = this.pageObjects.quoteDetailsPage.pageHeading
+  await heading.waitFor({ state: 'visible' })
+  assert.equal((await heading.textContent()).trim(), 'Check your email')
+})
+
+Then(
+  'I should receive a new quote link by email',
+  { timeout: 60_000 },
+  async function () {
+    const apiKey = process.env.NOTIFY_API_KEY
+    assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
+
+    const expectedText = `NRF reference: ${this.nrfReference}`
+    const log = (message) => this.attach(message, 'text/plain')
+    const match = await findNotifyEmail(
+      apiKey,
+      this.submittedEmail,
+      expectedText,
+      log,
+      this.resendRequestedAt
+    )
+
+    assert.ok(
+      match,
+      `No resent email to ${this.submittedEmail} containing "${expectedText}" after all retries — see attached attempt log`
+    )
+
+    const linkMatch = match.body.match(
+      /\[Commit to using Nature Restoration Fund\]\((https?:\/\/[^)]+)\)/
+    )
+    assert.ok(
+      linkMatch,
+      `Expected the resent email to contain a "Commit to using Nature Restoration Fund" link but found none:\n${match.body}`
+    )
   }
 )
