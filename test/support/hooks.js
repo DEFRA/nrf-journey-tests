@@ -10,11 +10,15 @@ Before(async function () {
   await this.openBrowser()
 })
 
-After(async function (scenario) {
+After({ timeout: 30_000 }, async function (scenario) {
   if (scenario.result?.status === Status.FAILED) {
     failedCount++
-    const screenshot = await this.page.screenshot({ fullPage: true })
-    this.attach(screenshot, 'image/png')
+    try {
+      const screenshot = await this.page.screenshot({ fullPage: true })
+      this.attach(screenshot, 'image/png')
+    } catch {
+      // Screenshot failed (page already closed or unresponsive) — not critical
+    }
   }
   await this.closeBrowser()
 })

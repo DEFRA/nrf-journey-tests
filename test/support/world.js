@@ -33,6 +33,14 @@ const browsers = { chromium, firefox, webkit }
 const browserName = process.env.BROWSER || 'chromium'
 const browserEngine = browsers[browserName] ?? chromium
 
+// Set BROWSER_CHANNEL=chrome locally to use the system Chrome installation,
+// which supports WebGL in headless mode. The Playwright-bundled headless shell
+// has no GPU and the interactive map's WebGL check shows a fallback message,
+// preventing the draw boundary journey from running. CI uses the full Playwright
+// Chromium (installed with --with-deps) which has SwiftShader and does not need
+// this override.
+const browserChannel = process.env.BROWSER_CHANNEL || undefined
+
 // Headless Chromium's default UA contains "HeadlessChrome", which the quote
 // access link treats as a bot/previewer and serves a dataless stub. Present a
 // real Chrome UA so journeys that follow a quote link see the actual page.
@@ -41,7 +49,10 @@ const realChromeUserAgent =
 
 class PlaywrightWorld extends World {
   async openBrowser() {
-    this.browser = await browserEngine.launch({ headless })
+    this.browser = await browserEngine.launch({
+      headless,
+      ...(browserChannel ? { channel: browserChannel } : {})
+    })
     this.context = await this.browser.newContext(
       browserName === 'chromium' ? { userAgent: realChromeUserAgent } : {}
     )
