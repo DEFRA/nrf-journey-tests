@@ -7,7 +7,7 @@ export default {
     'test/step-definitions/**/*.js'
   ],
   format: [
-    'progress',
+    'summary',
     ['allure-cucumberjs/reporter', 'allure-results/.allure-stream']
   ],
   formatOptions: {
