@@ -28,6 +28,7 @@ jobs:
       # lint/format job does not need. PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD does
       # not work here because postinstall calls `playwright install` directly.
       - run: npm ci --ignore-scripts
+      - run: npm run security-audit
       - run: npm run format:check
       - run: npm run lint
 
