@@ -30,3 +30,9 @@ Feature: NRF Quote full journey (file upload)
     And I have been sent a confirmation email
     When I follow the quote link in the email
     Then I should see the quote details page with my NRF reference
+    When I open the quote link in 5 fresh sessions
+    Then I should see that the link is no longer active
+    When I request a new link
+    And I enter my email to receive a new link
+    Then I should see that a new link has been sent
+    And I should receive a new quote link by email

@@ -21,10 +21,11 @@ async function findNotifyEmail(
   // NRF references are short and hash-derived, so they can repeat across runs
   // against the shared Notify account. Only accept an email created during this
   // run, otherwise a previous run's email with the same reference (whose token
-  // is invalid against the current database) could be matched. A small buffer
-  // absorbs clock skew between the runner and Notify without re-admitting an
+  // is invalid against the current database) could be matched. The caller passes
+  // the moment just before the email is triggered, so a small buffer is enough
+  // to absorb clock skew between the runner and Notify without re-admitting an
   // earlier run's emails (which are minutes or more older).
-  const clockSkewBufferMs = 2 * 60 * 1000
+  const clockSkewBufferMs = 30 * 1000
   const afterTime = sentAfter
     ? new Date(sentAfter).getTime() - clockSkewBufferMs
     : 0
