@@ -17,7 +17,10 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 WORKDIR /app
 
 COPY . .
-RUN npm ci
+# --ignore-scripts skips the postinstall browser download; the browser is
+# installed explicitly in the next step.
+RUN npm ci --ignore-scripts
+RUN npm run security-audit
 RUN npx playwright install --with-deps chromium
 
 ENTRYPOINT [ "./entrypoint.sh" ]
