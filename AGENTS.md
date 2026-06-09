@@ -300,7 +300,6 @@ Follow these steps in order for every new test.
 ### Implementation steps
 
 5. **Page Object** — create or extend `test/page-objects/<name>.page.js`
-
    - Extend `Page` for standard GOV.UK pages
    - Expose locators as getters, actions as `async` methods
    - No assertions inside the page object
@@ -308,13 +307,11 @@ Follow these steps in order for every new test.
 6. **Register** the page object in `test/support/world.js` under `this.pageObjects`
 
 7. **Feature file** — create `test/features/<journey>.feature`
-
    - Tag every scenario with `@smoke` and/or `@regression`
    - Write scenarios from the user's perspective
    - Use `{string}` / `{int}` parameter types — no hardcoded values in step text
 
 8. **Step definitions** — create `test/step-definitions/<journey>.steps.js`
-
    - Mirror the feature file name
    - Access the page via `this.pageObjects.<name>` and `this.page`
    - Put assertions here, not in page objects
