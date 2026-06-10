@@ -271,20 +271,10 @@ When('I open the quote link in {int} fresh sessions', async function (count) {
   }
 })
 
-Then('I should see that the link is no longer active', async function () {
+Then('I should see that the link is invalid', async function () {
   const heading = this.pageObjects.quoteDetailsPage.pageHeading
   await heading.waitFor({ state: 'visible' })
-  assert.equal(
-    (await heading.textContent()).trim(),
-    'This link is no longer active'
-  )
-})
-
-When('I request a new link', async function () {
-  // Record the time so a later Notify lookup only matches an email sent by this
-  // resend, not the original confirmation email.
-  this.resendRequestedAt = new Date().toISOString()
-  await this.pageObjects.quoteDetailsPage.requestNewLink()
+  assert.equal((await heading.textContent()).trim(), 'The link is invalid')
 })
 
 When('I enter my email to receive a new link', async function () {
@@ -292,6 +282,9 @@ When('I enter my email to receive a new link', async function () {
     this.submittedEmail,
     'No email was captured earlier in this scenario'
   )
+  // Record the time so a later Notify lookup only matches an email sent by this
+  // resend, not the original confirmation email.
+  this.resendRequestedAt = new Date().toISOString()
   await this.pageObjects.quoteDetailsPage.requestNewLinkForEmail(
     this.submittedEmail
   )
