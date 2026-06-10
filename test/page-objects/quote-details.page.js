@@ -13,10 +13,6 @@ class QuoteDetailsPage extends Page {
     await this.page.goto(url)
   }
 
-  async requestNewLink() {
-    await this.page.getByRole('button', { name: 'Send me a new link' }).click()
-  }
-
   async requestNewLinkForEmail(email) {
     await this.page
       .getByLabel('Enter the email address you used for the quote')
