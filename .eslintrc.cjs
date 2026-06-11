@@ -13,9 +13,10 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest'
   },
-  plugins: ['prettier'],
+  plugins: ['prettier', 'no-secrets'],
   rules: {
     'prettier/prettier': 'error',
-    'no-console': 'error'
+    'no-console': 'error',
+    'no-secrets/no-secrets': ['error', { tolerance: 4.5 }]
   }
 }
