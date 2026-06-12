@@ -20,7 +20,7 @@ Feature: NRF Quote full journey (drawn boundary on map)
     And each waste water treatment works option should show the distance from the development boundary
     When I select the first available waste water treatment works
     And I continue
-    And I enter "test@team84618.testinator.email" as my email
+    And I enter "nrfjourneytests@gmail.com" as my email
     And I continue
     Then I should see "Drawn" as the red line boundary on the Check Your Answers page
     Then I should see my responses on the Check Your Answers page
