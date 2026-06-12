@@ -144,11 +144,7 @@ Then(
     await assertSummaryRow(cya, 'Development type', 'Other residential')
     await assertSummaryRow(cya, 'Number of residential units', '10')
     await assertSummaryRow(cya, 'Waste water treatment works', wwtw)
-    await assertSummaryRow(
-      cya,
-      'Email address',
-      'test@team84618.testinator.email'
-    )
+    await assertSummaryRow(cya, 'Email address', 'nrfjourneytests@gmail.com')
   }
 )
 
