@@ -9,10 +9,14 @@ class DrawBoundaryPage extends Page {
     return this.page.getByRole('combobox', { name: 'Search' })
   }
 
-  get doneButton() {
+  // The library sets aria-disabled="true" on the Done button until the drawn
+  // polygon is valid (>= 3 distinct vertices forming a positive-area ring), and
+  // removes the attribute entirely once valid. This is the app's own signal
+  // that enough points have registered.
+  get doneButtonEnabled() {
     return this.page
       .getByRole('button', { name: 'Done' })
-      .and(this.page.locator(':not([disabled])'))
+      .and(this.page.locator(':not([aria-disabled="true"])'))
   }
 
   get saveAndContinueButton() {
@@ -33,10 +37,6 @@ class DrawBoundaryPage extends Page {
     await this.searchInput.pressSequentially(query)
     await this.searchInput.press('ArrowDown')
     await this.searchInput.press('Enter')
-
-    // Wait for the map to finish panning/zooming to the selected location
-    // before drawing, otherwise the polygon is placed at the old centre.
-    await this.page.waitForTimeout(1_500)
   }
 
   async drawTriangleOnMap() {
@@ -49,21 +49,42 @@ class DrawBoundaryPage extends Page {
       .getByRole('button', { name: 'Cancel' })
       .waitFor({ state: 'visible' })
 
-    // Place 3 points at map centre using Enter, panning between each with arrow keys
-    await this.page.keyboard.press('Enter')
-    for (let i = 0; i < 10; i++) await this.page.keyboard.press('ArrowRight')
-    await this.page.keyboard.press('Enter')
-    for (let i = 0; i < 10; i++) await this.page.keyboard.press('ArrowDown')
-    await this.page.keyboard.press('Enter')
+    // Place a triangle by pressing Enter at the map centre and panning between
+    // points with arrow keys. A vertex is only accepted if it lands a minimum
+    // distance from existing vertices; if the map is still settling after the
+    // location search, a pan can be too small and the vertex is silently
+    // dropped, leaving the Done button disabled. Pan generously and confirm the
+    // Done button enables, adding extra spaced points if it hasn't.
+    await this.placePoint()
+    await this.panAndPlacePoint('ArrowRight')
+    await this.panAndPlacePoint('ArrowDown')
 
-    await this.doneButton.waitFor({ state: 'visible', timeout: 10_000 })
-    await this.doneButton.click()
+    for (let attempt = 0; attempt < 5; attempt++) {
+      if (await this.isDoneEnabled()) break
+      await this.panAndPlacePoint(attempt % 2 === 0 ? 'ArrowLeft' : 'ArrowUp')
+    }
+
+    await this.doneButtonEnabled.waitFor({ state: 'visible', timeout: 10_000 })
+    await this.doneButtonEnabled.click()
 
     await this.saveAndContinueButton.waitFor({
       state: 'visible',
       timeout: 20_000
     })
     await this.saveAndContinueButton.click()
+  }
+
+  async placePoint() {
+    await this.page.keyboard.press('Enter')
+  }
+
+  async panAndPlacePoint(direction) {
+    for (let i = 0; i < 20; i++) await this.page.keyboard.press(direction)
+    await this.placePoint()
+  }
+
+  async isDoneEnabled() {
+    return (await this.doneButtonEnabled.count()) > 0
   }
 }
 
