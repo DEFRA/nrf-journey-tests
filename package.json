@@ -29,12 +29,12 @@
   },
   "dependencies": {
     "@cucumber/cucumber": "11.3.0",
-    "allure-commandline": "2.42.1",
+    "allure-commandline": "2.43.0",
     "allure-cucumberjs": "3.10.0",
     "global-agent": "3.0.0",
     "notifications-node-client": "8.4.0",
-    "playwright": "1.60.0",
-    "undici": "7.27.2"
+    "playwright": "1.61.0",
+    "undici": "7.28.0"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
