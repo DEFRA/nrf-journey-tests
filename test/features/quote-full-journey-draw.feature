@@ -16,10 +16,6 @@ Feature: NRF Quote full journey (drawn boundary on map)
     And I continue
     And I enter "250" as the maximum number of people
     And I continue
-    Then I should see more than 1 waste water treatment works option
-    And each waste water treatment works option should show the distance from the development boundary
-    When I select the first available waste water treatment works
-    And I continue
     And I enter "nrfjourneytests@gmail.com" as my email
     And I continue
     Then I should see "Drawn" as the red line boundary on the Check Your Answers page
