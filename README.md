@@ -184,10 +184,6 @@ Screenshots of failed scenarios are automatically attached to the report.
 ## Folder structure
 
 ```
-flows/                # End-to-end user journey descriptions — read before writing tests
-  README.md           # Journey map: all journeys, statuses, entry points
-  quote-journey.md    # Full quote journey — all branches with status markers
-feature-input.md      # Entry point for introducing a new feature to the test suite
 test/
   features/           # Gherkin .feature files
   step-definitions/   # Cucumber step implementations
@@ -199,20 +195,7 @@ test/
     world.js          # Cucumber World: launches browser, exposes this.page + this.pageObjects
     hooks.js          # Before/After lifecycle; screenshot on failure; FAILED file on suite failure
 cucumber.js           # Cucumber profile configuration
-.ai/
-  coding-rules.md     # Coding standards and patterns
-  skills/             # AI skill definitions for test generation (ui-test, api-test)
 ```
-
-## Adding new tests
-
-Fill in `feature-input.md` with the feature title, journey, description, and ACs, then tell the agent **"New feature input given"**.
-
-The agent will analyse each AC against the latest nrf-frontend and nrf-backend integration tests, propose a revised scope (Write E2E / Descope / Enhance integration test), and wait for your approval before writing any code.
-
-For full agent workflow and conventions see `AGENTS.md`.
-
----
 
 ## Environment variables
 
@@ -228,9 +211,9 @@ For full agent workflow and conventions see `AGENTS.md`.
 
 ---
 
-### Mailinator API key
+### NOTIFY_API_KEY API key
 
-A .env.template file is provided for local development. Obtain the Mailinator API key from another team dev, and rename the file to .env.local
+A .env.template file is provided for local development. Obtain the NOTIFY_API_KEY value from another team dev, and rename the file to .env.local
 For pull requests, the secret is set in github - https://github.com/DEFRA/nrf-journey-tests/settings/secrets/actions
 For journey tests running against CDP environments the secret is set in [CDP secrets](https://portal.cdp-int.defra.cloud/test-suites/nrf-journey-tests/secrets)
 

@@ -20,9 +20,7 @@ class DrawBoundaryPage extends Page {
   }
 
   get saveAndContinueButton() {
-    return this.page
-      .getByRole('button', { name: 'Save and continue' })
-      .and(this.page.locator(':not([disabled])'))
+    return this.page.getByRole('button', { name: 'Save and continue' })
   }
 
   get mapContainer() {
@@ -37,6 +35,14 @@ class DrawBoundaryPage extends Page {
     await this.searchInput.pressSequentially(query)
     await this.searchInput.press('ArrowDown')
     await this.searchInput.press('Enter')
+
+    // Wait for the map to finish flying to the searched location before drawing.
+    // Without this the triangle can be placed while the map is still at its
+    // previous centre — which varies with test order — occasionally landing
+    // outside any EDP and routing to the "levy not available" page. Waiting for
+    // the tile requests triggered by the fly-to to settle anchors the draw to
+    // the searched EDP location deterministically.
+    await this.page.waitForLoadState('networkidle')
   }
 
   async drawTriangleOnMap() {
@@ -67,11 +73,13 @@ class DrawBoundaryPage extends Page {
     await this.doneButtonEnabled.waitFor({ state: 'visible', timeout: 10_000 })
     await this.doneButtonEnabled.click()
 
-    await this.saveAndContinueButton.waitFor({
-      state: 'visible',
-      timeout: 20_000
-    })
-    await this.saveAndContinueButton.click()
+    // The Save button is hidden until the drawn boundary is valid and stays
+    // disabled (native .disabled property) until the async EDP/boundary-info
+    // calculation finishes and sets canContinue. Playwright's click waits for
+    // the enabled state, so the button's own actionability gate is enough — no
+    // attribute-selector filter (which the property-based disable does not
+    // reliably reflect and can slip past).
+    await this.saveAndContinueButton.click({ timeout: 30_000 })
   }
 
   async placePoint() {
