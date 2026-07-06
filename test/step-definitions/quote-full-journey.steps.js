@@ -131,7 +131,7 @@ Then('I should see an NRF reference number', async function () {
 Then('I should be on the start page', async function () {
   const heading = this.pageObjects.homePage.pageHeading
   await heading.waitFor({ state: 'visible' })
-  assert.equal((await heading.textContent()).trim(), 'Nature Restoration Fund')
+  assert.equal((await heading.textContent()).trim(), 'Nature restoration levy')
 })
 
 Then(
@@ -201,7 +201,7 @@ Then(
     await heading.waitFor({ state: 'visible' })
     assert.equal(
       (await heading.textContent()).trim(),
-      'Your Nature Restoration Fund levy quote'
+      'Your Nature restoration levy quote'
     )
 
     await this.page
