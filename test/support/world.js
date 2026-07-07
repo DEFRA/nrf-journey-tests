@@ -5,7 +5,6 @@ import {
 } from '@cucumber/cucumber'
 import { chromium, firefox, webkit } from 'playwright'
 import { HomePage } from '../page-objects/home.page.js'
-import { PlanningTypePage } from '../page-objects/planning-type.page.js'
 import { BoundaryTypePage } from '../page-objects/boundary-type.page.js'
 import { DevelopmentTypesPage } from '../page-objects/development-types.page.js'
 import { ResidentialPage } from '../page-objects/residential.page.js'
@@ -66,7 +65,6 @@ class PlaywrightWorld extends World {
     this.page = await this.context.newPage()
     this.pageObjects = {
       homePage: new HomePage(this.page, baseUrl),
-      planningTypePage: new PlanningTypePage(this.page, baseUrl),
       boundaryTypePage: new BoundaryTypePage(this.page, baseUrl),
       developmentTypesPage: new DevelopmentTypesPage(this.page, baseUrl),
       residentialPage: new ResidentialPage(this.page, baseUrl),
