@@ -16,6 +16,10 @@ When('I start a new quote', async function () {
   await this.pageObjects.homePage.startNow()
 })
 
+When('I select {string} as my planning type', async function (planningType) {
+  await this.pageObjects.planningTypePage.selectPlanningType(planningType)
+})
+
 When('I select {string} as my boundary type', async function (boundaryType) {
   await this.pageObjects.boundaryTypePage.selectBoundaryType(boundaryType)
 })
@@ -98,6 +102,11 @@ Then(
   async function () {
     const cya = this.pageObjects.checkYourAnswersPage
 
+    await assertSummaryRow(
+      cya,
+      'Planning application type',
+      'Full planning permission'
+    )
     await assertSummaryRow(cya, 'Development type', 'Housing')
     await assertSummaryRow(cya, 'Development type', 'Other residential')
     await assertSummaryRow(cya, 'Number of residential units', '10')

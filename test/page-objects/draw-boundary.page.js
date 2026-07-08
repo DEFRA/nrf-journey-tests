@@ -72,6 +72,9 @@ class DrawBoundaryPage extends Page {
       timeout: 20_000
     })
     await this.saveAndContinueButton.click()
+    await this.page.waitForURL(/\/quote\/(development-types|no-edp)/, {
+      timeout: 30_000
+    })
   }
 
   async placePoint() {

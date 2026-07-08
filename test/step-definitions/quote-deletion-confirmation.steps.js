@@ -2,7 +2,12 @@ import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
 
 Given('I have a quote ready to submit', async function () {
-  await this.pageObjects.boundaryTypePage.open()
+  await this.pageObjects.planningTypePage.open()
+  await this.pageObjects.planningTypePage.selectPlanningType(
+    'Full planning permission'
+  )
+  await this.page.getByRole('button', { name: 'Continue' }).click()
+  await this.page.waitForURL('**/quote/boundary-type')
   await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
   await this.page.getByRole('button', { name: 'Continue' }).click()
   await this.pageObjects.developmentTypesPage.open()

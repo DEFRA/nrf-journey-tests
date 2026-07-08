@@ -5,6 +5,8 @@ Feature: NRF Quote full journey (file upload)
   Scenario: Complete full quote journey via file upload
     Given I am on the start page
     When I start a new quote
+    And I select "Full planning permission" as my planning type
+    And I continue
     And I select "Upload a file" as my boundary type
     And I continue
     And I upload "test/fixtures/BnW_small_under_1_hectare.geojson" as my boundary file
