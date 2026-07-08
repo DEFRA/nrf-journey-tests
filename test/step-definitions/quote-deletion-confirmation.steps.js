@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
 
 Given('I have a quote ready to submit', async function () {
-  await this.pageObjects.planningTypePage.open()
+  await this.pageObjects.homePage.open()
+  await this.pageObjects.homePage.startNow()
   await this.pageObjects.planningTypePage.selectPlanningType(
     'Full planning permission'
   )
