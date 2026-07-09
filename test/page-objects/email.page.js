@@ -14,6 +14,7 @@ class EmailPage extends Page {
   }
 
   async fillEmail(email) {
+    await this.emailInput.waitFor({ state: 'visible' })
     await this.emailInput.fill(email)
   }
 

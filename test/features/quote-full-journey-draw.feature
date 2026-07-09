@@ -8,16 +8,13 @@ Feature: NRF Quote full journey (drawn boundary on map)
     And I start a new quote
     And I select "Full planning permission" as my planning type
     And I continue
-    And I select "Draw on a map" as my boundary type
-    And I continue
-    And I draw a boundary on the map
-    And I select "Housing"
-    And I select "Other residential"
+    And I confirm I am developing housing
     And I continue
     And I enter "10" residential units
     And I continue
-    And I enter "250" as the maximum number of people
+    And I select "Draw on a map" as my boundary type
     And I continue
+    And I draw a boundary on the map
     And I enter "nrfjourneytests@gmail.com" as my email
     And I continue
     Then I should see "Drawn" as the red line boundary on the Check Your Answers page

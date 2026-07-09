@@ -49,8 +49,8 @@ When('I draw a boundary on the map', { timeout: 60_000 }, async function () {
   await this.pageObjects.drawBoundaryPage.drawTriangleOnMap()
 })
 
-When('I select {string}', async function (type) {
-  await this.pageObjects.developmentTypesPage.selectDevelopmentType(type)
+When('I confirm I am developing housing', async function () {
+  await this.pageObjects.confirmHousingPage.selectYes()
 })
 
 When('I continue', async function () {
@@ -60,13 +60,6 @@ When('I continue', async function () {
 When('I enter {string} residential units', async function (count) {
   await this.pageObjects.residentialPage.fillResidentialUnits(count)
 })
-
-When(
-  'I enter {string} as the maximum number of people',
-  async function (count) {
-    await this.pageObjects.peopleCountPage.fillPeopleCount(count)
-  }
-)
 
 When('I enter {string} as my email', async function (email) {
   this.submittedEmail = email
@@ -107,8 +100,6 @@ Then(
       'Planning application type',
       'Full planning permission'
     )
-    await assertSummaryRow(cya, 'Development type', 'Housing')
-    await assertSummaryRow(cya, 'Development type', 'Other residential')
     await assertSummaryRow(cya, 'Number of residential units', '10')
     await assertSummaryRow(cya, 'Email address', 'nrfjourneytests@gmail.com')
   }
