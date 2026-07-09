@@ -7,9 +7,8 @@ import { chromium, firefox, webkit } from 'playwright'
 import { HomePage } from '../page-objects/home.page.js'
 import { PlanningTypePage } from '../page-objects/planning-type.page.js'
 import { BoundaryTypePage } from '../page-objects/boundary-type.page.js'
-import { DevelopmentTypesPage } from '../page-objects/development-types.page.js'
+import { ConfirmHousingPage } from '../page-objects/confirm-housing.page.js'
 import { ResidentialPage } from '../page-objects/residential.page.js'
-import { PeopleCountPage } from '../page-objects/people-count.page.js'
 import { EmailPage } from '../page-objects/email.page.js'
 import { CheckYourAnswersPage } from '../page-objects/check-your-answers.page.js'
 import { ConfirmationPage } from '../page-objects/confirmation.page.js'
@@ -68,9 +67,8 @@ class PlaywrightWorld extends World {
       homePage: new HomePage(this.page, baseUrl),
       planningTypePage: new PlanningTypePage(this.page, baseUrl),
       boundaryTypePage: new BoundaryTypePage(this.page, baseUrl),
-      developmentTypesPage: new DevelopmentTypesPage(this.page, baseUrl),
+      confirmHousingPage: new ConfirmHousingPage(this.page, baseUrl),
       residentialPage: new ResidentialPage(this.page, baseUrl),
-      peopleCountPage: new PeopleCountPage(this.page, baseUrl),
       emailPage: new EmailPage(this.page, baseUrl),
       checkYourAnswersPage: new CheckYourAnswersPage(this.page, baseUrl),
       confirmationPage: new ConfirmationPage(this.page, baseUrl),
