@@ -8,6 +8,8 @@ Before(async function () {
   // older emails (reused NRF references across runs share the Notify account).
   this.scenarioStartedAt = new Date().toISOString()
   await this.openBrowser()
+  await this.pageObjects.analyticsInternalPage.open()
+  await this.pageObjects.analyticsInternalPage.disableAnalytics()
 })
 
 After({ timeout: 30_000 }, async function (scenario) {

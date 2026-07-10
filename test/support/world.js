@@ -19,6 +19,7 @@ import { UploadPreviewMapPage } from '../page-objects/upload-preview-map.page.js
 import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
 import { QuoteDetailsPage } from '../page-objects/quote-details.page.js'
+import { AnalyticsInternalPage } from '../page-objects/analytics-internal.page.js'
 
 setDefaultTimeout(15000)
 
@@ -56,12 +57,6 @@ class PlaywrightWorld extends World {
       browserName === 'chromium' ? { userAgent: realChromeUserAgent } : {}
     )
 
-    if (process.env.PROFILE === 'prod') {
-      await this.context.setExtraHTTPHeaders({
-        'x-nrf-profile': 'prod'
-      })
-    }
-
     this.page = await this.context.newPage()
     this.pageObjects = {
       homePage: new HomePage(this.page, baseUrl),
@@ -81,7 +76,8 @@ class PlaywrightWorld extends World {
       uploadPreviewMapPage: new UploadPreviewMapPage(this.page, baseUrl),
       noEdpPage: new NoEdpPage(this.page, baseUrl),
       drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl),
-      quoteDetailsPage: new QuoteDetailsPage(this.page, baseUrl)
+      quoteDetailsPage: new QuoteDetailsPage(this.page, baseUrl),
+      analyticsInternalPage: new AnalyticsInternalPage(this.page, baseUrl)
     }
   }
 

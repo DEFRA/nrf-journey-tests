@@ -5,9 +5,7 @@ export class BasePage {
   }
 
   async goto(path) {
-    await this.page.goto(`${this.baseUrl}${path}`, {
-      waitUntil: 'domcontentloaded'
-    })
+    await this.page.goto(`${this.baseUrl}${path}`)
   }
 
   async click(selector) {
