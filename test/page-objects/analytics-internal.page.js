@@ -2,7 +2,9 @@ import { Page } from './page.js'
 
 class AnalyticsInternalPage extends Page {
   open() {
-    return super.open('/analytics-internal')
+    return this.page.goto(`${this.baseUrl}/analytics-internal`, {
+      waitUntil: 'domcontentloaded'
+    })
   }
 
   async disableAnalytics() {
