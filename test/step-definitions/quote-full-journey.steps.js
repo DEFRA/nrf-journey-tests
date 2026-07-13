@@ -57,7 +57,7 @@ When('I continue', async function () {
   await this.page.getByRole('button', { name: 'Continue' }).click()
 })
 
-When('I enter {string} residential units', async function (count) {
+When('I enter {string} units', async function (count) {
   await this.pageObjects.residentialPage.fillResidentialUnits(count)
 })
 
@@ -100,7 +100,7 @@ Then(
       'Planning application type',
       'Full planning permission'
     )
-    await assertSummaryRow(cya, 'Number of residential units', '10')
+    await assertSummaryRow(cya, 'Number of units', '10')
     await assertSummaryRow(cya, 'Email address', 'nrfjourneytests@gmail.com')
   }
 )

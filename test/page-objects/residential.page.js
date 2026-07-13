@@ -2,11 +2,11 @@ import { Page } from './page.js'
 
 class ResidentialPage extends Page {
   open() {
-    return super.open('/quote/residential')
+    return super.open('/quote/units')
   }
 
   get residentialUnitsInput() {
-    return this.page.locator('#residentialBuildingCount')
+    return this.page.locator('#housingUnits')
   }
 
   get continueButton() {

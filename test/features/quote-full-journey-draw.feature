@@ -10,7 +10,7 @@ Feature: NRF Quote full journey (drawn boundary on map)
     And I continue
     And I confirm I am developing housing
     And I continue
-    And I enter "10" residential units
+    And I enter "10" units
     And I continue
     And I select "Draw on a map" as my boundary type
     And I continue

@@ -9,7 +9,7 @@ Feature: NRF Quote full journey (file upload)
     And I continue
     And I confirm I am developing housing
     And I continue
-    And I enter "10" residential units
+    And I enter "10" units
     And I continue
     And I select "Upload a file" as my boundary type
     And I continue
