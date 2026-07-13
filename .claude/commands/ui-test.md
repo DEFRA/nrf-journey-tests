@@ -55,20 +55,20 @@ These are the actual routes and form field names from the source. Always use the
 
 ### Development types
 
-| Property   | Value                                                            |
-| ---------- | ---------------------------------------------------------------- |
-| Route      | `GET /quote/development-types`, `POST /quote/development-types`  |
-| Field name | `developmentTypes`                                               |
-| Options    | `housing` (checkbox), `other-residential` (checkbox)             |
-| Validation | At least one required                                            |
-| Next page  | If housing selected → `/quote/residential`; else → `/quote/next` |
+| Property   | Value                                                           |
+| ---------- | --------------------------------------------------------------- |
+| Route      | `GET /quote/development-types`, `POST /quote/development-types` |
+| Field name | `developmentTypes`                                              |
+| Options    | `housing` (checkbox), `other-residential` (checkbox)            |
+| Validation | At least one required                                           |
+| Next page  | If housing selected → `/quote/units`; else → `/quote/next`      |
 
 ### Residential
 
 | Property   | Value                                                         |
 | ---------- | ------------------------------------------------------------- |
-| Route      | `GET /quote/residential`, `POST /quote/residential`           |
-| Field name | `residentialBuildingCount`                                    |
+| Route      | `GET /quote/units`, `POST /quote/units`                       |
+| Field name | `housingUnits`                                                |
 | Input type | Numeric, pattern `[0-9]*`, width class `govuk-input--width-1` |
 | Validation | Required                                                      |
 | Next page  | `/quote/next` (placeholder)                                   |
@@ -128,7 +128,7 @@ page.getByRole('checkbox', { name: 'Other residential' })
 
 // Text/email/number inputs — use label text
 page.getByLabel('Email address')
-page.getByLabel('Number of residential buildings')
+page.getByLabel('Enter the maximum number of units you are developing')
 
 // File upload
 page.getByLabel('Upload a boundary file')
