@@ -69,7 +69,11 @@ services:
 
   ################################################################################
   cdp-uploader:
-    image: defradigital/cdp-uploader:latest
+    # Pinned below latest: 1.17.0 crashes on startup when NODE_ENV=development
+    # (required below for forcePathStyle S3 URLs against localstack) — its pino
+    # logger tries to load a pino-pretty transport that isn't bundled in the
+    # image. Bump this once upstream fixes it.
+    image: defradigital/cdp-uploader:${CDP_UPLOADER_VERSION:-1.16.0}
     ports:
       - '7337:7337'
     environment:
