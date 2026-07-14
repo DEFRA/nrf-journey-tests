@@ -80,13 +80,9 @@ When('I navigate back in the browser', async function () {
 })
 
 Then(
-  'I should see {string} as the red line boundary on the Check Your Answers page',
-  async function (string) {
-    await assertSummaryRow(
-      this.pageObjects.checkYourAnswersPage,
-      'Red line boundary',
-      string
-    )
+  'I should see {string} for {string} on the Check Your Answers page',
+  async function (value, key) {
+    await assertSummaryRow(this.pageObjects.checkYourAnswersPage, key, value)
   }
 )
 
