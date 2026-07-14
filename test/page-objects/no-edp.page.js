@@ -7,7 +7,7 @@ class NoEdpPage extends Page {
 
   get bodyText() {
     return this.page.getByText(
-      'Other ways to mitigate environmental impact are:'
+      'Please use the existing Habitat Regulations to meet your environmental obligations.'
     )
   }
 }
