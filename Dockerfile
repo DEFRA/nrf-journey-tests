@@ -1,4 +1,4 @@
-FROM node:24.16-slim
+FROM node:24.18-slim
 
 ENV TZ="Europe/London"
 
