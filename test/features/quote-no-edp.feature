@@ -14,6 +14,5 @@ Feature: Quote no EDP intersection
     And I select "Upload a file" as my boundary type
     And I continue
     And I upload "test/fixtures/no_edp_intersection.geojson" as my boundary file
-    And I save and continue on the boundary preview
     Then I should see the "Nature restoration levy is not available in this area" heading
     And I should see the no-EDP explanation text
