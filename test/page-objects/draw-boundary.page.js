@@ -30,7 +30,7 @@ class DrawBoundaryPage extends Page {
   }
 
   async searchLocation(query) {
-    const openSearch = this.page.locator('[aria-label="Open search"]')
+    const openSearch = this.page.locator('[aria-label="Search"]')
     await openSearch.waitFor({ state: 'visible' })
     await openSearch.evaluate((el) => el.click())
     await this.searchInput.waitFor({ state: 'visible' })
