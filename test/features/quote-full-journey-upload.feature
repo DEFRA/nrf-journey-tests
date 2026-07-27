@@ -17,7 +17,7 @@ Feature: NRF Quote full journey (file upload)
     And I save and continue on the boundary preview
     And I enter "nrfjourneytests@gmail.com" as my email
     And I continue
-    Then I should see "BnW_small_under_1_hectare.geojson" for "Upload a file" on the Check Your Answers page
+    Then I should see "BnW_small_under_1_hectare.geojson" for "Red line boundary" on the Check Your Answers page
     And I should see my responses on the Check Your Answers page
     When I submit my answers
     Then I should see the confirmation page

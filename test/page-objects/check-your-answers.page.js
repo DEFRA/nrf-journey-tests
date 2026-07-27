@@ -6,11 +6,11 @@ class CheckYourAnswersPage extends Page {
   }
 
   get submitButton() {
-    return this.page.getByRole('button', { name: 'Submit' })
+    return this.page.getByRole('button', { name: 'Confirm and submit' })
   }
 
   get deleteLink() {
-    return this.page.getByRole('button', { name: 'Delete' })
+    return this.page.getByRole('link', { name: 'Delete' })
   }
 
   summaryRowValue(key) {
