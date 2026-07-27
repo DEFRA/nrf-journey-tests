@@ -30,7 +30,14 @@ class DrawBoundaryPage extends Page {
   }
 
   async searchLocation(query) {
-    const openSearch = this.page.locator('[aria-label="Search"]')
+    // Playwright resolves the accessible name whether it's set via aria-label
+    // or aria-labelledby (the library currently uses the latter, associating
+    // the button with a separate tooltip element) — more robust than an
+    // aria-label attribute selector, which only matches the former.
+    const openSearch = this.page.getByRole('button', {
+      name: 'Search',
+      exact: true
+    })
     await openSearch.waitFor({ state: 'visible' })
     await openSearch.evaluate((el) => el.click())
     await this.searchInput.waitFor({ state: 'visible' })
