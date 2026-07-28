@@ -77,14 +77,49 @@ class DrawBoundaryPage extends Page {
     await this.doneButtonEnabled.waitFor({ state: 'visible', timeout: 10_000 })
     await this.doneButtonEnabled.click()
 
-    await this.saveAndContinueButton.waitFor({
-      state: 'visible',
-      timeout: 20_000
-    })
+    // Done can trigger more than one boundary-validation request in quick
+    // succession, and each cycle hides Save and continue while it shows
+    // "Checking boundary..." again. A click landing in that in-between
+    // window hits nothing (the button isn't in the DOM's hit-testable state),
+    // so no request fires and the page just sits on draw-boundary. Wait for
+    // the check requests to go quiet before treating the button as settled.
+    await this.waitForBoundaryChecksToSettle()
+
     await this.saveAndContinueButton.click()
     await this.page.waitForURL(/\/quote\/(email|no-edp)/, {
       timeout: 30_000
     })
+  }
+
+  async waitForBoundaryChecksToSettle() {
+    const quietPeriodMs = 750
+    let lastCheckAt = Date.now()
+    const onResponse = (response) => {
+      if (response.url().includes('/quote/draw-boundary/check')) {
+        lastCheckAt = Date.now()
+      }
+    }
+
+    this.page.on('response', onResponse)
+    try {
+      await this.saveAndContinueButton.waitFor({
+        state: 'visible',
+        timeout: 20_000
+      })
+
+      while (Date.now() - lastCheckAt < quietPeriodMs) {
+        await this.page.waitForTimeout(100)
+      }
+
+      // A later check cycle may have hidden the button again since it was
+      // first seen above; confirm it's (still, or once more) settled.
+      await this.saveAndContinueButton.waitFor({
+        state: 'visible',
+        timeout: 20_000
+      })
+    } finally {
+      this.page.off('response', onResponse)
+    }
   }
 
   async placePoint() {
