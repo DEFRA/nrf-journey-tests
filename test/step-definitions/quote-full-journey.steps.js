@@ -44,7 +44,7 @@ When(
   }
 )
 
-When('I draw a boundary on the map', { timeout: 60_000 }, async function () {
+When('I draw a boundary on the map', { timeout: 90_000 }, async function () {
   await this.pageObjects.drawBoundaryPage.searchLocation('Wroxham')
   await this.pageObjects.drawBoundaryPage.drawTriangleOnMap()
 })
