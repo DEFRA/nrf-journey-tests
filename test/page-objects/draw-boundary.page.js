@@ -47,7 +47,10 @@ class DrawBoundaryPage extends Page {
   }
 
   async drawTriangleOnMap() {
-    const drawButton = this.page.getByRole('button', { name: 'Draw' })
+    const drawButton = this.page.getByRole('button', {
+      name: 'Draw',
+      exact: true
+    })
     await drawButton.waitFor({ state: 'visible' })
     await drawButton.focus()
     await this.page.keyboard.press('Enter')
