@@ -77,49 +77,38 @@ class DrawBoundaryPage extends Page {
     await this.doneButtonEnabled.waitFor({ state: 'visible', timeout: 10_000 })
     await this.doneButtonEnabled.click()
 
-    // Done can trigger more than one boundary-validation request in quick
-    // succession, and each cycle hides Save and continue while it shows
-    // "Checking boundary..." again. A click landing in that in-between
-    // window hits nothing (the button isn't in the DOM's hit-testable state),
-    // so no request fires and the page just sits on draw-boundary. Wait for
-    // the check requests to go quiet before treating the button as settled.
-    await this.waitForBoundaryChecksToSettle()
-
-    await this.saveAndContinueButton.click()
-    await this.page.waitForURL(/\/quote\/(email|no-edp)/, {
-      timeout: 30_000
-    })
+    await this.saveAndContinueUntilNavigated()
   }
 
-  async waitForBoundaryChecksToSettle() {
-    const quietPeriodMs = 750
-    let lastCheckAt = Date.now()
-    const onResponse = (response) => {
-      if (response.url().includes('/quote/draw-boundary/check')) {
-        lastCheckAt = Date.now()
-      }
-    }
+  // Done can trigger more than one boundary-validation cycle in quick
+  // succession, and each cycle hides Save and continue while it re-shows
+  // "Checking boundary...". A click landing in that in-between window hits
+  // nothing — the button isn't there to hit — so no request fires and the
+  // page silently stays on draw-boundary. Rather than guessing how long that
+  // window lasts, click and check whether navigation actually followed; if a
+  // later cycle swallowed the click, the button reappears once things settle
+  // and we just try again.
+  async saveAndContinueUntilNavigated() {
+    const deadline = Date.now() + 30_000
 
-    this.page.on('response', onResponse)
-    try {
+    while (Date.now() < deadline) {
       await this.saveAndContinueButton.waitFor({
         state: 'visible',
-        timeout: 20_000
+        timeout: 10_000
       })
+      await this.saveAndContinueButton.click()
 
-      while (Date.now() - lastCheckAt < quietPeriodMs) {
-        await this.page.waitForTimeout(100)
-      }
+      const navigated = await this.page
+        .waitForURL(/\/quote\/(email|no-edp)/, { timeout: 5_000 })
+        .then(() => true)
+        .catch(() => false)
 
-      // A later check cycle may have hidden the button again since it was
-      // first seen above; confirm it's (still, or once more) settled.
-      await this.saveAndContinueButton.waitFor({
-        state: 'visible',
-        timeout: 20_000
-      })
-    } finally {
-      this.page.off('response', onResponse)
+      if (navigated) return
     }
+
+    throw new Error(
+      'Save and continue click never navigated away from draw-boundary within 30s'
+    )
   }
 
   async placePoint() {
