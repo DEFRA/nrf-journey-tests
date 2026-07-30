@@ -83,13 +83,16 @@ class DrawBoundaryPage extends Page {
     })
     await this.saveAndContinueButton.click()
     // Default waitUntil is 'load', which waits for the destination page's
-    // load event — including any resource requests still queued behind
-    // leftover tile fetches from panning during drawing. 'domcontentloaded'
-    // resolves once the DOM is parsed, without waiting on those late,
-    // same-origin-contended network requests.
+    // load event. 'domcontentloaded' still isn't enough: leftover tile
+    // fetches from panning during drawing can saturate the browser's
+    // per-origin connection limit, so the destination page's blocking
+    // <script> tag queues behind them and DOMContentLoaded is delayed too.
+    // 'commit' resolves as soon as the navigation response for the
+    // destination URL starts arriving, before any of its own requests are
+    // made — so it can't be blocked by connections held by the old page.
     await this.page.waitForURL(/\/quote\/(email|no-edp)/, {
       timeout: 30_000,
-      waitUntil: 'domcontentloaded'
+      waitUntil: 'commit'
     })
   }
 
