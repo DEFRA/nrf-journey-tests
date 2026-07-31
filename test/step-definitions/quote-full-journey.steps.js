@@ -3,6 +3,7 @@ import path from 'node:path'
 import { Given, When, Then } from '@cucumber/cucumber'
 import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
+import { attachScreenshot } from '../support/attach-screenshot.js'
 
 Given('I am on the start page', async function () {
   await this.pageObjects.homePage.open()
@@ -44,9 +45,19 @@ When(
   }
 )
 
+When('I search the map for {string}', async function (query) {
+  await this.pageObjects.drawBoundaryPage.searchLocation(query)
+  await attachScreenshot(this)
+})
+
 When('I draw a boundary on the map', { timeout: 60_000 }, async function () {
-  await this.pageObjects.drawBoundaryPage.searchLocation('Aylsham')
   await this.pageObjects.drawBoundaryPage.drawTriangleOnMap()
+  await attachScreenshot(this)
+})
+
+When('I click Save and continue', { timeout: 30_000 }, async function () {
+  await this.pageObjects.drawBoundaryPage.saveAndContinue()
+  await attachScreenshot(this)
 })
 
 When('I confirm I am developing housing', async function () {

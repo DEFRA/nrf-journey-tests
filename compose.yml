@@ -116,6 +116,12 @@ services:
       # Service-to-service API keys (test only; real values come from CDP secrets)
       - BACKEND_API_KEY=local-dev-backend-key
       - IMPACT_ASSESSOR_API_KEY=local-dev-impact-assessor-key
+      # Real OS Data Hub key for the draw-boundary map's location search.
+      # Docker Compose substitutes this from whatever OS_API_KEY is exported
+      # in the shell that runs `docker compose up` (CI secret or local
+      # export) — without it the search API 401s and the draw-boundary
+      # journey test can't select a real location.
+      - OS_API_KEY=${OS_API_KEY:-}
     depends_on:
       redis:
         condition: service_healthy

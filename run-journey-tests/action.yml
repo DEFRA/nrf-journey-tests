@@ -222,6 +222,11 @@ runs:
       shell: bash
       env:
         NOTIFY_API_KEY: ${{ env.NOTIFY_API_KEY }}
+        # Read directly by docker compose's ${OS_API_KEY:-} substitution in
+        # compose.yml (unlike NOTIFY_API_KEY below, it doesn't need writing
+        # to .env.local — compose picks env vars up from this step's process
+        # environment automatically).
+        OS_API_KEY: ${{ env.OS_API_KEY }}
       run: |
         chmod +x docker/scripts/localstack/*.sh
         # Write CI-provided secrets into .env.local so the compose env_file picks

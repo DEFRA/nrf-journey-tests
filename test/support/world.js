@@ -47,15 +47,32 @@ const browserChannel = process.env.BROWSER_CHANNEL || undefined
 const realChromeUserAgent =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
 
+// In headful debug runs, Chrome throttles rendering/timers for windows it
+// considers backgrounded or occluded (e.g. when the Inspector or another
+// window has focus), which makes the paused map feel sluggish even though
+// the machine has spare capacity. These flags are debug-only — CI runs
+// headless and never sets them — so they can't affect the real test runs.
+const debugPerformanceArgs = [
+  '--start-maximized',
+  '--disable-backgrounding-occluded-windows',
+  '--disable-renderer-backgrounding',
+  '--disable-background-timer-throttling',
+  '--disable-features=CalculateNativeWinOcclusion'
+]
+
 class PlaywrightWorld extends World {
   async openBrowser() {
     this.browser = await browserEngine.launch({
       headless,
+      args: headless ? [] : debugPerformanceArgs,
       ...(browserChannel ? { channel: browserChannel } : {})
     })
-    this.context = await this.browser.newContext(
-      browserName === 'chromium' ? { userAgent: realChromeUserAgent } : {}
-    )
+    this.context = await this.browser.newContext({
+      ...(browserName === 'chromium' ? { userAgent: realChromeUserAgent } : {}),
+      // Pairs with --start-maximized above: a fixed viewport would otherwise
+      // force the maximized window back down to Playwright's default size.
+      ...(headless ? {} : { viewport: null })
+    })
 
     this.page = await this.context.newPage()
     this.pageObjects = {

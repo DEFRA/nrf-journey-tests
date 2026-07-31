@@ -1,5 +1,12 @@
 import { Page } from './page.js'
 
+// Number of arrow-key presses used to pan the map between vertices. Kept
+// modest so the drawn triangle stays reasonably close to the searched
+// location — too large a pan risks carrying a vertex outside the seeded EDP
+// boundary data, incorrectly routing the journey to /quote/no-edp instead of
+// /quote/email.
+const PAN_STEPS = 15
+
 class DrawBoundaryPage extends Page {
   open() {
     return super.open('/quote/draw-boundary')
@@ -42,8 +49,20 @@ class DrawBoundaryPage extends Page {
     await openSearch.evaluate((el) => el.click())
     await this.searchInput.waitFor({ state: 'visible' })
     await this.searchInput.pressSequentially(query)
-    await this.searchInput.press('ArrowDown')
-    await this.searchInput.press('Enter')
+
+    // The suggestions dropdown re-fetches on every keystroke, so immediately
+    // pressing ArrowDown + Enter can select whatever the dropdown happened to
+    // be showing from an earlier, not-yet-superseded keystroke — landing the
+    // map on an unrelated place with the same partial text. Waiting for and
+    // clicking the option whose name actually starts with the full query
+    // (rather than e.g. "<query> Close" — a street sharing the same prefix)
+    // guarantees the selected result matches what was searched for.
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const firstMatch = this.page
+      .getByRole('option', { name: new RegExp(`^${escapedQuery}(,|$)`, 'i') })
+      .first()
+    await firstMatch.waitFor({ state: 'visible' })
+    await firstMatch.click()
   }
 
   async drawTriangleOnMap() {
@@ -63,20 +82,28 @@ class DrawBoundaryPage extends Page {
     // points with arrow keys. A vertex is only accepted if it lands a minimum
     // distance from existing vertices; if the map is still settling after the
     // location search, a pan can be too small and the vertex is silently
-    // dropped, leaving the Done button disabled. Pan generously and confirm the
-    // Done button enables, adding extra spaced points if it hasn't.
+    // dropped, leaving the Done button disabled. Confirm the Done button
+    // enables, adding extra spaced points if it hasn't.
     await this.placePoint()
     await this.panAndPlacePoint('ArrowRight')
     await this.panAndPlacePoint('ArrowDown')
 
     for (let attempt = 0; attempt < 5; attempt++) {
       if (await this.isDoneEnabled()) break
-      await this.panAndPlacePoint(attempt % 2 === 0 ? 'ArrowLeft' : 'ArrowUp')
+      // Extra points continue panning right/down (rather than back toward the
+      // centre) — the triangle's vertices must stay spaced far enough apart
+      // for the library to accept the polygon, without retracing ground
+      // already covered by the first two vertices.
+      await this.panAndPlacePoint(
+        attempt % 2 === 0 ? 'ArrowRight' : 'ArrowDown'
+      )
     }
 
     await this.doneButtonEnabled.waitFor({ state: 'visible', timeout: 10_000 })
     await this.doneButtonEnabled.click()
+  }
 
+  async saveAndContinue() {
     await this.saveAndContinueButton.waitFor({
       state: 'visible',
       timeout: 20_000
@@ -101,7 +128,8 @@ class DrawBoundaryPage extends Page {
   }
 
   async panAndPlacePoint(direction) {
-    for (let i = 0; i < 20; i++) await this.page.keyboard.press(direction)
+    for (let i = 0; i < PAN_STEPS; i++)
+      await this.page.keyboard.press(direction)
     await this.placePoint()
   }
 
