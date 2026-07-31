@@ -14,7 +14,9 @@ Feature: NRF Quote full journey (drawn boundary on map)
     And I continue
     And I select "Draw on a map" as my boundary type
     And I continue
+    And I search the map for "Aylsham"
     And I draw a boundary on the map
+    And I click Save and continue
     And I enter "nrfjourneytests@gmail.com" as my email
     And I continue
     Then I should see "Added" for "Red line boundary" on the Check Your Answers page
