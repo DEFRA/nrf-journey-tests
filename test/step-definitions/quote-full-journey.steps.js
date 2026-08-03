@@ -56,6 +56,9 @@ When('I draw a boundary on the map', { timeout: 60_000 }, async function () {
 })
 
 When('I click Save and continue', { timeout: 30_000 }, async function () {
+  await this.pageObjects.drawBoundaryPage.saveAndContinueButton.waitFor({
+    state: 'visible'
+  })
   await this.pageObjects.drawBoundaryPage.saveAndContinue()
   await attachScreenshot(this)
 })
