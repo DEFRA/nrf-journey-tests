@@ -117,7 +117,7 @@ class DrawBoundaryPage extends Page {
     // 'commit' resolves as soon as the navigation response for the
     // destination URL starts arriving, before any of its own requests are
     // made — so it can't be blocked by connections held by the old page.
-    await this.page.waitForURL(/\/quote\/(email|no-edp)/, {
+    await this.page.waitForURL(/\/quote\/(email|no-edp|excluded-area)/, {
       timeout: 30_000,
       waitUntil: 'commit'
     })

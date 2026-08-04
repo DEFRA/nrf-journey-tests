@@ -1,7 +1,6 @@
 @smoke @regression
 Feature: NRF Quote full journey (file upload)
 
-  @smoke @regression
   Scenario: Complete full quote journey via file upload
     Given I am on the start page
     When I start a new quote

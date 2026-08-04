@@ -1,7 +1,6 @@
 @smoke @regression
 Feature: NRF Quote full journey (drawn boundary on map)
 
-  @smoke @regression
   Scenario: Complete full quote journey via drawn boundary
     Given I am on the start page
     When I reject analytics cookies
