@@ -27,7 +27,7 @@ When('I click the Delete button', async function () {
   await this.pageObjects.checkYourAnswersPage.delete()
 })
 
-When('I click Yes to confirm deletion', async function () {
+When('I click Delete to confirm deletion', async function () {
   await this.pageObjects.deleteQuotePage.clickYes()
 })
 
