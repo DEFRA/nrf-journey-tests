@@ -5,20 +5,20 @@ class DeleteQuotePage extends Page {
     return super.open('/quote/delete-quote')
   }
 
-  get yesButton() {
-    return this.page.getByRole('button', { name: 'Yes' })
+  get deleteButton() {
+    return this.page.getByRole('button', { name: 'Delete' })
   }
 
-  get noLink() {
-    return this.page.getByRole('link', { name: 'No' })
+  get cancelLink() {
+    return this.page.getByRole('link', { name: 'Cancel' })
   }
 
   async clickYes() {
-    await this.yesButton.click()
+    await this.deleteButton.click()
   }
 
   async clickNo() {
-    await this.noLink.click()
+    await this.cancelLink.click()
   }
 }
 
