@@ -213,6 +213,13 @@ cucumber.js           # Cucumber profile configuration
 
 ### NOTIFY_API_KEY API key
 
+Notify has two named API keys defined inside notify settings — use the one matching the environment under test:
+
+| Environment                    | Notify key name    |
+| ------------------------------ | ------------------ |
+| Local, PR checks, CDP dev/test | `nrf-backend`      |
+| Prod                           | `nrf-backend-prod` |
+
 A .env.template file is provided for local development. Obtain the NOTIFY_API_KEY value from another team dev, and rename the file to .env.local
 For pull requests, the secret is set in github - https://github.com/DEFRA/nrf-journey-tests/settings/secrets/actions
 For journey tests running against CDP environments the secret is set in [CDP secrets](https://portal.cdp-int.defra.cloud/test-suites/nrf-journey-tests/secrets)
