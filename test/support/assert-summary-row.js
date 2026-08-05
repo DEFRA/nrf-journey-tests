@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict'
+import { waitForVisible } from './wait-for-visible.js'
 
 async function assertSummaryRow(checkYourAnswersPage, key, expectedValue) {
   const rowValue = checkYourAnswersPage.summaryRowValue(key)
-  await rowValue.waitFor({ state: 'visible' })
+  await waitForVisible(
+    checkYourAnswersPage.page,
+    rowValue,
+    `the "${key}" summary row`
+  )
   const text = await rowValue.textContent()
   assert.ok(
     text.includes(expectedValue),

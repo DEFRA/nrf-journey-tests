@@ -4,6 +4,7 @@ import { Given, When, Then } from '@cucumber/cucumber'
 import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
 import { attachScreenshot } from '../support/attach-screenshot.js'
+import { waitForVisible } from '../support/wait-for-visible.js'
 
 Given('I am on the start page', async function () {
   await this.pageObjects.homePage.open()
@@ -117,7 +118,9 @@ Then(
   { timeout: 20_000 },
   async function () {
     const panelTitle = this.pageObjects.confirmationPage.panelTitle
-    await panelTitle.waitFor({ state: 'visible' })
+    await waitForVisible(this.page, panelTitle, 'the confirmation panel', {
+      timeoutMs: 15_000
+    })
     const titleText = await panelTitle.textContent()
     assert.equal(titleText.trim(), 'Your details have been submitted')
   }
@@ -125,7 +128,7 @@ Then(
 
 Then('I should see an NRF reference number', async function () {
   const panelBody = this.pageObjects.confirmationPage.panelBody
-  await panelBody.waitFor({ state: 'visible' })
+  await waitForVisible(this.page, panelBody, 'the confirmation panel body')
   const bodyText = await panelBody.textContent()
   const match = bodyText.match(/NRF-\d+/)
   assert.ok(
@@ -137,7 +140,7 @@ Then('I should see an NRF reference number', async function () {
 
 Then('I should be on the start page', async function () {
   const heading = this.pageObjects.homePage.pageHeading
-  await heading.waitFor({ state: 'visible' })
+  await waitForVisible(this.page, heading, 'the start page heading')
   assert.equal((await heading.textContent()).trim(), 'Nature restoration levy')
 })
 
@@ -197,6 +200,7 @@ When('I follow the quote link in the email', async function () {
 
 Then(
   'I should see the quote details page with my NRF reference',
+  { timeout: 20_000 },
   async function () {
     const nrfReference = this.nrfReference
     assert.ok(
@@ -205,16 +209,20 @@ Then(
     )
 
     const heading = this.pageObjects.quoteDetailsPage.pageHeading
-    await heading.waitFor({ state: 'visible' })
+    await waitForVisible(this.page, heading, 'the quote details page heading', {
+      timeoutMs: 8_000
+    })
     assert.equal(
       (await heading.textContent()).trim(),
       'Your Nature restoration levy quote'
     )
 
-    await this.page
-      .getByText(nrfReference)
-      .first()
-      .waitFor({ state: 'visible' })
+    await waitForVisible(
+      this.page,
+      this.page.getByText(nrfReference).first(),
+      `the NRF reference "${nrfReference}" on the quote details page`,
+      { timeoutMs: 8_000 }
+    )
   }
 )
 
@@ -233,7 +241,7 @@ When('I open the quote link in {int} fresh sessions', async function (count) {
 
 Then('I should see that the link is invalid', async function () {
   const heading = this.pageObjects.quoteDetailsPage.pageHeading
-  await heading.waitFor({ state: 'visible' })
+  await waitForVisible(this.page, heading, 'the "link is invalid" heading')
   assert.equal((await heading.textContent()).trim(), 'The link is invalid')
 })
 
@@ -252,7 +260,7 @@ When('I enter my email to receive a new link', async function () {
 
 Then('I should see that a new link has been sent', async function () {
   const heading = this.pageObjects.quoteDetailsPage.pageHeading
-  await heading.waitFor({ state: 'visible' })
+  await waitForVisible(this.page, heading, 'the "check your email" heading')
   assert.equal((await heading.textContent()).trim(), 'Check your email')
 })
 
