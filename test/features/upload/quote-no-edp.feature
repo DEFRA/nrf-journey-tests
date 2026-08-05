@@ -1,8 +1,7 @@
 @smoke @regression
-Feature: Quote no EDP intersection
+Feature: Quote no EDP intersection - file upload
 
-  @smoke @regression
-  Scenario: Site outside EDP coverage shows the no-EDP information page
+  Scenario: Site outside EDP coverage shows the no-EDP information page for upload journey
     Given I am on the start page
     When I start a new quote
     And I select "Full planning permission" as my planning type

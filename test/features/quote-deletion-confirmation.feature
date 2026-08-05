@@ -1,6 +1,6 @@
+@regression
 Feature: Quote deletion confirmation
 
-  @regression
   Scenario: Browser back from deletion confirmation redirects to start page
     Given I have a quote ready to submit
     When I click the Delete button
