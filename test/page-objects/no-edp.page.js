@@ -2,7 +2,7 @@ import { Page } from './page.js'
 
 class NoEdpPage extends Page {
   open() {
-    return super.open('/quote/no-edp')
+    return super.open('/quote/not-in-edp')
   }
 
   get bodyText() {

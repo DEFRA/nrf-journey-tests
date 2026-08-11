@@ -3,8 +3,8 @@ import { Page } from './page.js'
 // Number of arrow-key presses used to pan the map between vertices. Kept
 // modest so the drawn triangle stays reasonably close to the searched
 // location — too large a pan risks carrying a vertex outside the seeded EDP
-// boundary data, incorrectly routing the journey to /quote/no-edp instead of
-// /quote/email.
+// boundary data, incorrectly routing the journey to the "Not in EDP" page
+// instead of the "Email address" page.
 const PAN_STEPS = 15
 
 class DrawBoundaryPage extends Page {
@@ -117,7 +117,7 @@ class DrawBoundaryPage extends Page {
     // 'commit' resolves as soon as the navigation response for the
     // destination URL starts arriving, before any of its own requests are
     // made — so it can't be blocked by connections held by the old page.
-    await this.page.waitForURL(/\/quote\/(email|no-edp|excluded-area)/, {
+    await this.page.waitForURL(/\/quote\/(email|not-in-edp|excluded-area)/, {
       timeout: 30_000,
       waitUntil: 'commit'
     })

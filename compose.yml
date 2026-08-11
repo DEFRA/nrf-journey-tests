@@ -20,7 +20,7 @@
 #
 # The nginx proxy sits in front of nrf-frontend and cdp-uploader on port 3000.
 # This puts them on the same origin so the CDP Uploader's relative redirect
-# (/quote/upload-received) resolves correctly back to the nrf-frontend.
+# (to the "Checking file" page) resolves correctly back to the nrf-frontend.
 #
 ################################################################################
 services:

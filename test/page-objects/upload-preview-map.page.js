@@ -2,7 +2,7 @@ import { Page } from './page.js'
 
 class UploadPreviewMapPage extends Page {
   open() {
-    return super.open('/quote/upload-preview-map')
+    return super.open('/quote/file-preview')
   }
 
   get saveAndContinueButton() {

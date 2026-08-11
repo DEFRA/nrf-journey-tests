@@ -2,7 +2,7 @@ import { Page } from './page.js'
 
 class ResidentialPage extends Page {
   open() {
-    return super.open('/quote/units')
+    return super.open('/quote/unit-number')
   }
 
   get residentialUnitsInput() {

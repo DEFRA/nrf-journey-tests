@@ -55,19 +55,19 @@ These are the actual routes and form field names from the source. Always use the
 
 ### Development types
 
-| Property   | Value                                                           |
-| ---------- | --------------------------------------------------------------- |
-| Route      | `GET /quote/development-types`, `POST /quote/development-types` |
-| Field name | `developmentTypes`                                              |
-| Options    | `housing` (checkbox), `other-residential` (checkbox)            |
-| Validation | At least one required                                           |
-| Next page  | If housing selected → `/quote/units`; else → `/quote/next`      |
+| Property   | Value                                                            |
+| ---------- | ---------------------------------------------------------------- |
+| Route      | `GET /quote/development-types`, `POST /quote/development-types`  |
+| Field name | `developmentTypes`                                               |
+| Options    | `housing` (checkbox), `other-residential` (checkbox)             |
+| Validation | At least one required                                            |
+| Next page  | If housing selected → `/quote/unit-number`; else → `/quote/next` |
 
 ### Residential
 
 | Property   | Value                                                         |
 | ---------- | ------------------------------------------------------------- |
-| Route      | `GET /quote/units`, `POST /quote/units`                       |
+| Route      | `GET /quote/unit-number`, `POST /quote/unit-number`           |
 | Field name | `housingUnits`                                                |
 | Input type | Numeric, pattern `[0-9]*`, width class `govuk-input--width-1` |
 | Validation | Required                                                      |
@@ -95,19 +95,19 @@ These are the actual routes and form field names from the source. Always use the
 | Validation       | Required, file type, file size                              |
 | Next page        | TBD                                                         |
 
-### No EDP
+### Not in EDP
 
 | Property | Value                                             |
 | -------- | ------------------------------------------------- |
-| Route    | `GET /quote/no-edp`                               |
+| Route    | `GET /quote/not-in-edp`                           |
 | Type     | Informational — no form                           |
 | Purpose  | Shown when no EDP exists for the development area |
 
-### Upload received
+### Checking file
 
 | Property | Value                                        |
 | -------- | -------------------------------------------- |
-| Route    | `GET /quote/upload-received`                 |
+| Route    | `GET /quote/checking-file`                   |
 | Type     | Success/confirmation panel — no form         |
 | Purpose  | Confirmation that boundary file was received |
 
