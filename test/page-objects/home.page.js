@@ -2,7 +2,7 @@ import { Page } from './page.js'
 
 class HomePage extends Page {
   open() {
-    return super.open('/')
+    return super.open('/manage/start-page')
   }
 
   get startNowButton() {
