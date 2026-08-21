@@ -39,22 +39,31 @@ async function findNotifyEmail(
         n.email_address === emailAddress &&
         new Date(n.created_at).getTime() >= afterTime
     )
-    const match = recipientEmails.find(
-      (n) =>
-        acceptedStatuses.includes(n.status) && n.body?.includes(expectedText)
-    )
+    let matchedEmailBody
+    const match = recipientEmails.find((n) => {
+      if (
+        acceptedStatuses.includes(n.status) &&
+        n.body?.includes(expectedText)
+      ) {
+        matchedEmailBody = n.body
+        return true
+      }
+      return false
+    })
 
     if (match) {
       log?.(
         `attempt ${attempt}/${maxAttempts}: matched email to ${emailAddress} (status: ${match.status})`
       )
-      return match
+      return matchedEmailBody
     }
 
     const statuses = recipientEmails.map((n) => n.status).join(', ')
     log?.(
       `attempt ${attempt}/${maxAttempts}: no match for ${emailAddress} containing "${expectedText}". ` +
-        `Emails to recipient: ${recipientEmails.length}${statuses ? ` (statuses: ${statuses})` : ''}`
+        `Emails to recipient: ${recipientEmails.length}${
+          statuses ? ` (statuses: ${statuses})` : ''
+        }`
     )
 
     if (attempt < maxAttempts) {
@@ -63,8 +72,9 @@ async function findNotifyEmail(
   }
 
   log?.(
-    `gave up after ${maxAttempts} attempts (~${(maxAttempts * retryDelayMs) / 1000}s) ` +
-      `looking for email to ${emailAddress} containing "${expectedText}"`
+    `gave up after ${maxAttempts} attempts (~${
+      (maxAttempts * retryDelayMs) / 1000
+    }s) ` + `looking for email to ${emailAddress} containing "${expectedText}"`
   )
   return null
 }

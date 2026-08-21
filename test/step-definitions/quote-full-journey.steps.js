@@ -158,8 +158,10 @@ Then(
     assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
 
     const expectedText = `NRF reference: ${nrfReference}`
+    const levyAmountParagraph =
+      /Provisional nature restoration levy amount £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
     const log = (message) => this.attach(message, 'text/plain')
-    const match = await findNotifyEmail(
+    const matchEmailBody = await findNotifyEmail(
       apiKey,
       this.submittedEmail,
       expectedText,
@@ -168,11 +170,13 @@ Then(
     )
 
     assert.ok(
-      match,
+      matchEmailBody,
       `No email (status sending or delivered) to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
     )
-
-    this.confirmationEmailBody = match.body
+    assert.ok(
+      levyAmountParagraph.test(matchEmailBody),
+      `Expected email body to match ${levyAmountParagraph} but got:\n${matchEmailBody}`
+    )
   }
 )
 
