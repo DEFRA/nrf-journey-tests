@@ -60,7 +60,7 @@ const debugPerformanceArgs = [
   '--disable-features=CalculateNativeWinOcclusion'
 ]
 
-class PlaywrightWorld extends World {
+export class PlaywrightWorld extends World {
   async openBrowser() {
     this.browser = await browserEngine.launch({
       headless,
