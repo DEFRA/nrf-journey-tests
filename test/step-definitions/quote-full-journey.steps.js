@@ -139,7 +139,7 @@ When(
     // The confirmation email is sent on submission. Record the moment just before
     // submitting so the Notify lookup only matches an email from this run — quote
     // creation can take a minute, so the scenario-start time is too early and
-    // would let a stale email with a colliding NRF reference through.
+    // would let a stale email with a colliding NRL reference through.
     this.quoteSubmittedAt = new Date().toISOString()
     await this.pageObjects.checkYourAnswersPage.submit()
   }
@@ -192,16 +192,16 @@ Then(
 )
 
 Then(
-  'I should see an NRF reference number',
+  'I should see an NRL reference number',
   /** @this {PlaywrightWorld} */
   async function () {
     const panelBody = this.pageObjects.confirmationPage.panelBody
     await waitForVisible(this.page, panelBody, 'the confirmation panel body')
     const bodyText = await panelBody.textContent()
-    const match = bodyText.match(/NRF-\d+/)
+    const match = bodyText.match(/NRL-\d+/)
     assert.ok(
       match,
-      `Expected panel body to contain an NRF-<number> reference but got "${bodyText.trim()}"`
+      `Expected panel body to contain an NRL-<number> reference but got "${bodyText.trim()}"`
     )
     this.nrfReference = match[0]
   }
@@ -228,13 +228,13 @@ Then(
     const nrfReference = this.nrfReference
     assert.ok(
       nrfReference,
-      'No NRF reference was captured earlier in this scenario'
+      'No NRL reference was captured earlier in this scenario'
     )
 
     const apiKey = process.env.NOTIFY_API_KEY
     assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
 
-    const expectedText = `NRF reference: ${nrfReference}`
+    const expectedText = `NRL reference: ${nrfReference}`
     const levyAmountParagraph =
       /Provisional nature restoration levy amount £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
     const log = (message) => this.attach(message, 'text/plain')
@@ -284,14 +284,14 @@ When(
 )
 
 Then(
-  'I should see the quote details page with my NRF reference',
+  'I should see the quote details page with my NRL reference',
   { timeout: 20_000 },
   /** @this {PlaywrightWorld} */
   async function () {
     const nrfReference = this.nrfReference
     assert.ok(
       nrfReference,
-      'No NRF reference was captured earlier in this scenario'
+      'No NRL reference was captured earlier in this scenario'
     )
 
     const heading = this.pageObjects.quoteDetailsPage.pageHeading
@@ -306,7 +306,7 @@ Then(
     await waitForVisible(
       this.page,
       this.page.getByText(nrfReference).first(),
-      `the NRF reference "${nrfReference}" on the quote details page`,
+      `the NRL reference "${nrfReference}" on the quote details page`,
       { timeoutMs: 8_000 }
     )
   }
@@ -374,7 +374,7 @@ Then(
     const apiKey = process.env.NOTIFY_API_KEY
     assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
 
-    const expectedText = `NRF reference: ${this.nrfReference}`
+    const expectedText = `NRL reference: ${this.nrfReference}`
     const log = (message) => this.attach(message, 'text/plain')
     const match = await findNotifyEmail(
       apiKey,

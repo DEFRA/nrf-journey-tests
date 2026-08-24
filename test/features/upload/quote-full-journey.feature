@@ -20,5 +20,5 @@ Feature: NRF Quote full journey (file upload)
     And I should see my responses on the Check Your Answers page
     When I submit my answers
     Then I should see the confirmation page
-    And I should see an NRF reference number
+    And I should see an NRL reference number
     And I have been sent a confirmation email
