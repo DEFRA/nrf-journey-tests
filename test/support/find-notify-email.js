@@ -18,7 +18,7 @@ async function findNotifyEmail(
     global.GLOBAL_AGENT.HTTP_PROXY = process.env.HTTP_PROXY
   }
   const client = new NotifyClient(apiKey)
-  // NRF references are short and hash-derived, so they can repeat across runs
+  // NRL references are short and hash-derived, so they can repeat across runs
   // against the shared Notify account. Only accept an email created during this
   // run, otherwise a previous run's email with the same reference (whose token
   // is invalid against the current database) could be matched. The caller passes

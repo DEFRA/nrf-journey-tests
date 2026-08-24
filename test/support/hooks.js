@@ -5,7 +5,7 @@ let failedCount = 0
 
 Before(async function () {
   // Recorded before any quote email is sent, so the email lookup can ignore
-  // older emails (reused NRF references across runs share the Notify account).
+  // older emails (reused NRL references across runs share the Notify account).
   this.scenarioStartedAt = new Date().toISOString()
   await this.openBrowser()
   await this.pageObjects.analyticsInternalPage.open()

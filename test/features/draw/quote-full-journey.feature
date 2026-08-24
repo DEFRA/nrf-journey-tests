@@ -22,7 +22,7 @@ Feature: NRF Quote full journey (drawn boundary on map)
     Then I should see my responses on the Check Your Answers page
     When I submit my answers
     Then I should see the confirmation page
-    And I should see an NRF reference number
+    And I should see an NRL reference number
     And I have been sent a confirmation email
     When I navigate back in the browser
     Then I should be on the start page
