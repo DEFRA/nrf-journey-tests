@@ -23,8 +23,17 @@ inputs:
   nrf-backend:
     required: false
     description: >
-      Docker image tag for nrf-backend (localstack mode only).
-      Defaults to latest when omitted.
+      Git ref (branch, tag, or commit SHA) to checkout nrf-backend at
+      (localstack mode only), since the image is always rebuilt from source.
+      Defaults to the repository default branch (main) when omitted.
+      Set by nrf-backend's own CI to test the exact PR commit.
+  nrf-impact-assessor:
+    required: false
+    description: >
+      Git ref (branch, tag, or commit SHA) to checkout nrf-impact-assessor at
+      (localstack mode only), since the image is always rebuilt from source.
+      Defaults to the repository default branch (main) when omitted.
+      Set by nrf-impact-assessor's own CI to test the exact PR commit.
   browser:
     required: false
     default: chromium
@@ -178,6 +187,7 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-backend
+        ref: ${{ inputs.nrf-backend }}
         path: nrf-backend
 
     - name: Checkout nrf-impact-assessor (for Alembic migrations)
@@ -185,6 +195,7 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-impact-assessor
+        ref: ${{ inputs.nrf-impact-assessor }}
         path: nrf-impact-assessor
 
     - name: Build nrf-frontend from depends-on checkout
