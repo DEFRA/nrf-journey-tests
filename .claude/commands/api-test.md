@@ -3,9 +3,9 @@
 You are generating API and backend tests for the **Nature Restoration Fund (NRF)** service. There are two backend services:
 
 - **nrf-backend** — Hapi.js REST API (Node.js), port 3001
-- **nrf-impact-assessor** — FastAPI (Python), port 8085 — background worker for geospatial impact calculations
+- **nrf-impact-assessor** — FastAPI (Python), port 8085 — synchronous geospatial impact analysis API (PostGIS)
 
-API tests live in `test/api/` and database tests in `test/db/`. These are **plain JavaScript files — do not use Cucumber**. Read `CLAUDE.md` for project-wide conventions.
+The repo currently has only the Cucumber E2E suite under `test/` (`features`, `page-objects`, `step-definitions`, `support`, `fixtures`). Add API tests alongside it (e.g. `test/api/`) as plain JavaScript files. Read `../AGENTS.md` (in the parent nrf-solution repo) for project-wide conventions.
 
 ---
 
@@ -15,18 +15,18 @@ API tests live in `test/api/` and database tests in `test/db/`. These are **plai
 nrf-frontend (port 3000)
        │
        ▼
-nrf-backend (port 3001)  ←──── Hapi.js REST API, MongoDB, Redis
+nrf-backend (port 3001)  ←──── Hapi.js REST API, PostgreSQL (nrf_backend), MongoDB, Redis
        │
        ▼
-nrf-impact-assessor (port 8085)  ←──── Python FastAPI, SQS trigger, MongoDB/PostGIS
+nrf-impact-assessor (port 8085)  ←──── Python FastAPI, PostgreSQL/PostGIS (nrf_impact)
        │
        ▼
-AWS services (LocalStack in dev): S3, SQS, SNS, DynamoDB
+AWS services (LocalStack in dev): S3, SQS, SNS
 ```
 
 - Frontend calls backend for data persistence and business logic
-- Impact assessor is a long-running background worker triggered via SQS
-- MongoDB is the primary store; Redis handles sessions
+- Impact assessor is a synchronous spatial analysis API, called over HTTP
+- PostgreSQL (`nrf_backend`, Liquibase migrations) is the backend's primary store; MongoDB holds sessions/app state; Redis handles caching and sessions
 - All inter-service communication is HTTP
 
 ---
@@ -35,17 +35,13 @@ AWS services (LocalStack in dev): S3, SQS, SNS, DynamoDB
 
 **Base URL:** `http://localhost:3001` (local), `https://nrf-backend.<env>.cdp-int.defra.cloud` (CDP)
 
-**Source:** `/home/sinangoktas/VSCodeProjects/nrf-backend/src/`
+**Source:** `../backend/src/`
 
 ### Current endpoints
 
-| Method | Path                   | Purpose                                                        | Auth |
-| ------ | ---------------------- | -------------------------------------------------------------- | ---- |
-| GET    | `/health`              | Health check                                                   | None |
-| GET    | `/example`             | Example list (template — remove when domain endpoints added)   | None |
-| GET    | `/example/{exampleId}` | Example detail (template — remove when domain endpoints added) | None |
+Health check: `GET /health`.
 
-**Note:** The backend is at template stage. As domain endpoints are added (quote submission, boundary upload, impact assessment trigger), tests must be added here. Always read the current route files in `nrf-backend/src/server/` before writing tests — do not assume endpoints exist.
+**Note:** Always read the current route files in `../backend/src/routes/` before writing tests — do not assume endpoints exist.
 
 ### Domain endpoints to test when implemented
 
@@ -64,41 +60,30 @@ These are the expected endpoints based on the application design. Verify against
 
 **Base URL:** `http://localhost:8085` (local)
 
-**Source:** `/home/sinangoktas/VSCodeProjects/nrf-impact-assessor/`
+**Source:** `../impact-assessor/`
 
-**Language:** Python 3.12+ / FastAPI — API tests for this service should still be written in JavaScript (HTTP calls) to keep the test suite in one language. Alternatively, Python/pytest tests can live in the nrf-impact-assessor repo itself.
+**Language:** Python 3.13 / FastAPI — API tests for this service should still be written in JavaScript (HTTP calls) to keep the test suite in one language. Alternatively, Python/pytest tests can live in the nrf-impact-assessor repo itself.
 
 ### Current endpoints
 
-| Method | Path            | Purpose                                |
-| ------ | --------------- | -------------------------------------- |
-| GET    | `/health`       | Health check                           |
-| GET    | `/docs`         | Swagger UI (not for automated testing) |
-| GET    | `/example/test` | Simple test endpoint                   |
-| GET    | `/example/db`   | Database query example                 |
-| GET    | `/example/http` | HTTP client example                    |
-
-### Trigger mechanism
-
-The impact assessor is triggered via **SQS message** (not a direct HTTP call from the frontend). Test the trigger by:
-
-1. Publishing a message to the SQS queue (via LocalStack in test mode)
-2. Polling the result endpoint until complete or timeout
+Do not assume endpoints. Read the routers in `../impact-assessor/app/` (boundary, assess, assessments, tiles) — the service is a synchronous request/response API.
 
 ---
 
 ## Test structure
 
+The repo's existing Cucumber E2E suite lives under `test/`:
+
 ```
 test/
-  api/
-    health.test.js            # Health check tests for each service
-    quote.test.js             # Quote submission and retrieval
-    boundary.test.js          # Boundary upload
-    impact-assessor.test.js   # Impact assessor trigger and result
-  db/
-    quote-repository.test.js  # Direct DB tests (when needed)
+  features/           # Gherkin feature files
+  page-objects/       # Page objects
+  step-definitions/   # Cucumber step definitions
+  support/            # World, hooks, config
+  fixtures/           # Test fixtures
 ```
+
+Add API tests alongside this structure (e.g. `test/api/`), as plain JavaScript files.
 
 **Naming convention:** `<resource>.test.js`
 
@@ -281,7 +266,7 @@ BACKEND_URL=http://localhost:3001 npm run test:api
 
 For every new API endpoint under test:
 
-1. Read the route handler in `nrf-backend/src/server/<resource>/` — check method, path, request schema, response schema
+1. Read the route handler in `../backend/src/routes/` — check method, path, request schema, response schema
 2. Identify: happy path, validation error cases, auth requirements
 3. Create or extend `test/api/<resource>.test.js`
 4. Add any required fixture files to `test/fixtures/`
@@ -296,4 +281,3 @@ For every new API endpoint under test:
 - The Swagger `/docs` endpoint (browser-rendered, not meaningful to assert)
 - Exact error message strings that may change (assert error shape and status code, not message text)
 - Timing-dependent behaviour without explicit polling/retry logic
-- SQS message content directly — test via the result endpoint after the worker processes
