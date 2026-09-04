@@ -2,7 +2,7 @@
 
 You are generating Playwright + Cucumber E2E tests for the **Nature Restoration Fund (NRF)** frontend service (`nrf-frontend`, Hapi.js + Nunjucks + GOV.UK Frontend).
 
-Before writing any code, re-read `CLAUDE.md` for conventions, patterns, and what to avoid.
+Before writing any code, re-read `../AGENTS.md` and `../.ai/rules/` (in the parent nrf-solution repo) for conventions, patterns, and what to avoid.
 
 ---
 
@@ -31,85 +31,11 @@ Key terms:
 
 ## Pages — routes, headings, form fields
 
-These are the actual routes and form field names from the source. Always use these exact names.
+Do not hard-code routes or field names in generated tests. Derive them per page from the source of truth:
 
-### Home page
-
-| Property          | Value                                 |
-| ----------------- | ------------------------------------- |
-| Route             | `GET /`                               |
-| Page title        | `Nature Restoration Fund - Gov.uk`    |
-| Page heading (h1) | `Nature Restoration Fund`             |
-| Key element       | Start button → `/quote/boundary-type` |
-
-### Boundary type
-
-| Property          | Value                                                                   |
-| ----------------- | ----------------------------------------------------------------------- |
-| Route             | `GET /quote/boundary-type`, `POST /quote/boundary-type`                 |
-| Page heading (h1) | `Choose how you would like to show us the boundary of your development` |
-| Field name        | `boundaryEntryType`                                                     |
-| Options           | `draw` (radio), `upload` (radio)                                        |
-| Validation        | Required                                                                |
-| Next page         | `/quote/next` (placeholder — map/upload pages not yet wired)            |
-
-### Development types
-
-| Property   | Value                                                            |
-| ---------- | ---------------------------------------------------------------- |
-| Route      | `GET /quote/development-types`, `POST /quote/development-types`  |
-| Field name | `developmentTypes`                                               |
-| Options    | `housing` (checkbox), `other-residential` (checkbox)             |
-| Validation | At least one required                                            |
-| Next page  | If housing selected → `/quote/unit-number`; else → `/quote/next` |
-
-### Residential
-
-| Property   | Value                                                         |
-| ---------- | ------------------------------------------------------------- |
-| Route      | `GET /quote/unit-number`, `POST /quote/unit-number`           |
-| Field name | `housingUnits`                                                |
-| Input type | Numeric, pattern `[0-9]*`, width class `govuk-input--width-1` |
-| Validation | Required                                                      |
-| Next page  | `/quote/next` (placeholder)                                   |
-
-### Email
-
-| Property   | Value                                                  |
-| ---------- | ------------------------------------------------------ |
-| Route      | `GET /quote/email`, `POST /quote/email`                |
-| Field name | `email`                                                |
-| Input type | Email, max 254 characters                              |
-| Validation | Required, valid email format, no spaces, max 254 chars |
-| Next page  | `/quote/next` (placeholder)                            |
-
-### Upload boundary
-
-| Property         | Value                                                       |
-| ---------------- | ----------------------------------------------------------- |
-| Route            | `GET /quote/upload-boundary`, `POST /quote/upload-boundary` |
-| Field name       | `file`                                                      |
-| Input type       | File (multipart form)                                       |
-| Accepted formats | `.shp`, `.geojson`, `.json`, `.kml`                         |
-| Max size         | 2MB                                                         |
-| Validation       | Required, file type, file size                              |
-| Next page        | TBD                                                         |
-
-### Not in EDP
-
-| Property | Value                                             |
-| -------- | ------------------------------------------------- |
-| Route    | `GET /quote/not-in-edp`                           |
-| Type     | Informational — no form                           |
-| Purpose  | Shown when no EDP exists for the development area |
-
-### Checking file
-
-| Property | Value                                        |
-| -------- | -------------------------------------------- |
-| Route    | `GET /quote/checking-file`                   |
-| Type     | Success/confirmation panel — no form         |
-| Purpose  | Confirmation that boundary file was received |
+- Routes and route paths: the page's `route-path.js` if it has one, else the `routePath` export in its `routes.js` (not all pages are migrated yet)
+- Field names, labels, and option values: the page's `index.njk` and `form-validation.js`
+- Journey order and scenarios: `../docs/user-journeys/*.md` in nrf-solution
 
 ---
 
@@ -150,7 +76,7 @@ page.locator('h1')
 page.locator('.govuk-back-link')
 ```
 
-Always check the actual Nunjucks template in `/home/sinangoktas/VSCodeProjects/nrf-frontend/src/server/<page>/` for exact label text before writing selectors.
+Always check the actual Nunjucks template in `../frontend/src/server/<page>/` for exact label text before writing selectors.
 
 ---
 
@@ -168,7 +94,7 @@ For each page, test in this order:
 
 1. **Happy path** — valid input, correct next page reached
 2. **Validation errors** — submit empty/invalid form, assert error summary and inline error messages appear
-3. **Conditional routing** — where next page depends on input value (e.g. development-types → residential)
+3. **Conditional routing** — where next page depends on input value (e.g. planning-type branching on the selected option)
 4. **Pre-population** — if the user navigates back, previously entered values are shown
 
 Do **not** test:
@@ -184,7 +110,7 @@ Do **not** test:
 For every new page under test:
 
 1. Check `flows/<journey>.md` — if it does not exist, stop and ask the user to create it
-2. Read the Nunjucks template and controller in `nrf-frontend/src/server/<page>/` for exact field names and label text
+2. Read the Nunjucks template and controller in `../frontend/src/server/<page>/` for exact field names and label text
 3. Create `test/page-objects/<name>.page.js` — extend `Page`, expose locators as getters and actions as async methods, no assertions
 4. Register the page object in `test/support/world.js` under `this.pageObjects`
 5. Create `test/features/<journey>.feature` — tag every scenario `@smoke` and/or `@regression`
