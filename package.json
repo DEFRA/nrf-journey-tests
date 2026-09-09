@@ -30,11 +30,11 @@
   "dependencies": {
     "@cucumber/cucumber": "11.3.0",
     "allure-commandline": "2.43.0",
-    "allure-cucumberjs": "3.11.0",
+    "allure-cucumberjs": "3.12.1",
     "global-agent": "3.0.0",
-    "notifications-node-client": "8.4.0",
-    "playwright": "1.62.1",
-    "undici": "7.29.0"
+    "notifications-node-client": "8.5.0",
+    "playwright": "1.63.0",
+    "undici": "7.29.1"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
