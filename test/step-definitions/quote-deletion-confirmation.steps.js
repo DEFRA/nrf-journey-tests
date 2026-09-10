@@ -6,10 +6,10 @@ import { waitForVisible } from '../support/wait-for-visible.js'
 
 Given(
   'I have a quote ready to submit',
-  // This chains ~10 prior actions before the final wait below, so the
-  // default 15s step timeout leaves little headroom for that wait alone —
-  // give the whole setup more room.
-  { timeout: 30_000 },
+  // This chains ~10 prior actions before the final wait below — including
+  // drawing a boundary on the map — so the default 15s step timeout leaves
+  // little headroom; give the whole setup more room.
+  { timeout: 90_000 },
   /** @this {PlaywrightWorld} */
   async function () {
     await this.pageObjects.homePage.open()
@@ -24,8 +24,12 @@ Given(
     await this.page.getByRole('button', { name: 'Continue' }).click()
     await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
     await this.page.getByRole('button', { name: 'Continue' }).click()
-    // Skip the map drawing step by navigating directly to email
-    await this.pageObjects.emailPage.open()
+    // The boundary must actually be drawn: Check your answers now rejects
+    // quotes with unanswered questions, so skipping straight to email would
+    // land on the 400 error page instead.
+    await this.pageObjects.drawBoundaryPage.searchLocation('Aylsham')
+    await this.pageObjects.drawBoundaryPage.drawTriangleOnMap()
+    await this.pageObjects.drawBoundaryPage.saveAndContinue()
     await this.pageObjects.emailPage.fillEmail('test@example.com')
     await this.page.getByRole('button', { name: 'Continue' }).click()
     await waitForVisible(
