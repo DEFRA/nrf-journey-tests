@@ -237,6 +237,8 @@ Then(
     const expectedText = `NRL reference: ${nrfReference}`
     const levyAmountParagraph =
       /Provisional nature restoration levy amount £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
+    const inflationAdjustedLevyAmountParagraph =
+      /Inflation-adjusted nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
     const log = (message) => this.attach(message, 'text/plain')
     const matchEmailBody = await findNotifyEmail(
       apiKey,
@@ -253,6 +255,10 @@ Then(
     assert.ok(
       levyAmountParagraph.test(matchEmailBody),
       `Expected email body to match ${levyAmountParagraph} but got:\n${matchEmailBody}`
+    )
+    assert.ok(
+      inflationAdjustedLevyAmountParagraph.test(matchEmailBody),
+      `Expected email body to match ${inflationAdjustedLevyAmountParagraph} but got:\n${matchEmailBody}`
     )
   }
 )
