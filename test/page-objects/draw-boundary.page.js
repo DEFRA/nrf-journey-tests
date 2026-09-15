@@ -7,6 +7,11 @@ import { Page } from './page.js'
 // instead of the "Email address" page.
 const PAN_STEPS = 15
 
+// The exact text the boundary information panel shows when the drawn area
+// isn't eligible via an EDP — no EDP match, or inside an exclusion zone.
+const UNSUPPORTED_AREA_MESSAGE =
+  'An area not supported by an Environmental Delivery Plan (EDP)'
+
 class DrawBoundaryPage extends Page {
   open() {
     return super.open('/quote/draw-boundary')
@@ -36,20 +41,12 @@ class DrawBoundaryPage extends Page {
     return this.page.locator('#draw-boundary-map')
   }
 
-  // The EDP name the boundary information panel shows for an eligible match
-  // (the __edp-name span is a constant "Environmental Delivery Plan (EDP)"
-  // label in every list item, so the description element is the one that
-  // carries the actual name — its absence means no EDP name is shown).
-  get boundaryInfoEdpDescriptions() {
-    return this.page.locator('.app-boundary-info-panel__edp-description')
+  get boundaryInfoIntersections() {
+    return this.page.locator('[data-boundary-info-intersections]')
   }
 
   get boundaryInfoUnsupportedAreaMessage() {
-    return this.page
-      .locator('[data-boundary-info-intersections]')
-      .getByText(
-        'An area not supported by an Environmental Delivery Plan (EDP)'
-      )
+    return this.boundaryInfoIntersections.getByText(UNSUPPORTED_AREA_MESSAGE)
   }
 
   async searchLocation(query) {
@@ -154,4 +151,4 @@ class DrawBoundaryPage extends Page {
   }
 }
 
-export { DrawBoundaryPage }
+export { DrawBoundaryPage, UNSUPPORTED_AREA_MESSAGE }
