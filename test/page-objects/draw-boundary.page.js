@@ -36,6 +36,22 @@ class DrawBoundaryPage extends Page {
     return this.page.locator('#draw-boundary-map')
   }
 
+  // The EDP name the boundary information panel shows for an eligible match
+  // (the __edp-name span is a constant "Environmental Delivery Plan (EDP)"
+  // label in every list item, so the description element is the one that
+  // carries the actual name — its absence means no EDP name is shown).
+  get boundaryInfoEdpDescriptions() {
+    return this.page.locator('.app-boundary-info-panel__edp-description')
+  }
+
+  get boundaryInfoUnsupportedAreaMessage() {
+    return this.page
+      .locator('[data-boundary-info-intersections]')
+      .getByText(
+        'An area not supported by an Environmental Delivery Plan (EDP)'
+      )
+  }
+
   async searchLocation(query) {
     // Playwright resolves the accessible name whether it's set via aria-label
     // or aria-labelledby (the library currently uses the latter, associating

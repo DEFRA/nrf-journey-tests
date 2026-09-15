@@ -14,5 +14,6 @@ Feature: Quote excluded area - draw
     And I continue
     And I search the map for "Coldham Hall Carnser, NR14, Norfolk"
     And I draw a boundary on the map
-    And I click Save and continue
+    And I should see the unsupported area message in the boundary information panel
+    When I click Save and continue
     Then I should see the "Development is within the excluded area of this Environmental Delivery Plan (EDP)" heading

@@ -99,6 +99,31 @@ When(
   }
 )
 
+// Checking the boundary after Done fires an async request to the impact
+// assessor, so the panel content can lag behind the draw step — the generous
+// wait covers that latency (the save step already blocks on the same check).
+// Once the unsupported message is visible the panel is fully rendered from a
+// single payload, so the no-EDP-name assertion below is race-free.
+Then(
+  'I should see the unsupported area message in the boundary information panel',
+  { timeout: 20_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const drawBoundaryPage = this.pageObjects.drawBoundaryPage
+    await waitForVisible(
+      this.page,
+      drawBoundaryPage.boundaryInfoUnsupportedAreaMessage,
+      'the unsupported area message in the boundary information panel',
+      { timeoutMs: 15_000 }
+    )
+    assert.equal(
+      await drawBoundaryPage.boundaryInfoEdpDescriptions.count(),
+      0,
+      'Expected no EDP name in the boundary information panel'
+    )
+  }
+)
+
 When(
   'I confirm I am developing housing',
   /** @this {PlaywrightWorld} */
