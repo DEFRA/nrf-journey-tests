@@ -5,6 +5,7 @@ import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
 import { attachScreenshot } from '../support/attach-screenshot.js'
 import { waitForVisible } from '../support/wait-for-visible.js'
+import { UNSUPPORTED_AREA_MESSAGE } from '../page-objects/draw-boundary.page.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -96,6 +97,38 @@ When(
   async function () {
     await this.pageObjects.drawBoundaryPage.saveAndContinue()
     await attachScreenshot(this)
+  }
+)
+
+// Checking the boundary after Done fires an async request to the impact
+// assessor, so the panel content can lag behind the draw step — the generous
+// wait covers that latency (the save step already blocks on the same check).
+// Once the unsupported message is visible the panel is fully rendered from a
+// single payload, so the exact-text assertion below is race-free. Asserting
+// the panel's whole rendered text means any EDP name alongside or instead of
+// the message fails the step, without keying on styling classes.
+Then(
+  'I should see the unsupported area message in the boundary information panel',
+  { timeout: 20_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const drawBoundaryPage = this.pageObjects.drawBoundaryPage
+    await waitForVisible(
+      this.page,
+      drawBoundaryPage.boundaryInfoUnsupportedAreaMessage,
+      'the unsupported area message in the boundary information panel',
+      { timeoutMs: 15_000 }
+    )
+    const intersectionsText = (
+      await drawBoundaryPage.boundaryInfoIntersections.innerText()
+    )
+      .replace(/\s+/g, ' ')
+      .trim()
+    assert.equal(
+      intersectionsText,
+      UNSUPPORTED_AREA_MESSAGE,
+      'Expected only the unsupported area message in the boundary information panel — an EDP name would mean the boundary was treated as eligible'
+    )
   }
 )
 
