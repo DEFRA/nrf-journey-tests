@@ -29,8 +29,8 @@
   },
   "dependencies": {
     "@cucumber/cucumber": "11.3.0",
-    "allure-commandline": "2.43.0",
-    "allure-cucumberjs": "3.12.1",
+    "allure-commandline": "2.46.1",
+    "allure-cucumberjs": "3.12.2",
     "global-agent": "3.0.0",
     "notifications-node-client": "8.5.0",
     "playwright": "1.63.0",
@@ -43,7 +43,7 @@
     "eslint-plugin-no-secrets": "2.3.3",
     "eslint-plugin-prettier": "5.5.6",
     "husky": "9.1.7",
-    "prettier": "3.9.6"
+    "prettier": "3.9.8"
   },
   "overrides": {
     "uuid": "11.1.1",
