@@ -100,6 +100,26 @@ When(
   }
 )
 
+When(
+  'I amend the boundary on the map',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.drawBoundaryPage.amendTriangleOnMap()
+    await attachScreenshot(this)
+  }
+)
+
+When(
+  'I click the back button on the map',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.drawBoundaryPage.backButton.click()
+    await this.page.waitForURL(/\/quote\/boundary-type/, { timeout: 30_000 })
+  }
+)
+
 // Checking the boundary after Done fires an async request to the impact
 // assessor, so the panel content can lag behind the draw step — the generous
 // wait covers that latency (the save step already blocks on the same check).
@@ -191,6 +211,51 @@ Then(
   /** @this {PlaywrightWorld} */
   async function (value, key) {
     await assertSummaryRow(this.pageObjects.checkYourAnswersPage, key, value)
+  }
+)
+
+When(
+  'I click Change for {string} on the Check Your Answers page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    await this.pageObjects.checkYourAnswersPage.changeLink(key).click()
+  }
+)
+
+When(
+  'I click the back link',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    // exact: the footer's "give your feedback" link substring-matches "Back"
+    await this.page.getByRole('link', { name: 'Back', exact: true }).click()
+  }
+)
+
+Then(
+  'the {string} option should be selected',
+  /** @this {PlaywrightWorld} */
+  async function (label) {
+    const radio = this.page.getByRole('radio', { name: label })
+    await radio.waitFor({ state: 'visible' })
+    assert.ok(
+      await radio.isChecked(),
+      `Expected the "${label}" option to be selected`
+    )
+  }
+)
+
+Then(
+  'the map should show my previously drawn boundary',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const existingBoundaryGeojson =
+      await this.pageObjects.drawBoundaryPage.mapContainer.getAttribute(
+        'data-existing-boundary-geojson'
+      )
+    assert.ok(
+      existingBoundaryGeojson && existingBoundaryGeojson !== 'null',
+      'Expected the map to hydrate the previously drawn boundary but data-existing-boundary-geojson was not set'
+    )
   }
 )
 

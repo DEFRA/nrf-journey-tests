@@ -49,6 +49,14 @@ class DrawBoundaryPage extends Page {
     return this.boundaryInfoIntersections.getByText(UNSUPPORTED_AREA_MESSAGE)
   }
 
+  get boundaryInfoEditButton() {
+    return this.page.locator('[data-boundary-action="edit"]')
+  }
+
+  get backButton() {
+    return this.page.getByRole('button', { name: 'Back' })
+  }
+
   async searchLocation(query) {
     // Playwright resolves the accessible name whether it's set via aria-label
     // or aria-labelledby (the library currently uses the latter, associating
@@ -79,6 +87,27 @@ class DrawBoundaryPage extends Page {
   }
 
   async drawTriangleOnMap() {
+    await this.startDrawing()
+    await this.placeTriangle()
+  }
+
+  // Replaces a boundary hydrated from a previous session: select it by
+  // clicking the map centre (the map is fitted to the boundary's bounds, so
+  // the centre sits inside the polygon — that's what enables the menu's
+  // "Delete feature" item), delete it, then draw a fresh triangle. Waits for
+  // the info panel's Edit button first as the signal that hydration has
+  // finished and the polygon is clickable.
+  async amendTriangleOnMap() {
+    await this.boundaryInfoEditButton.waitFor({
+      state: 'visible',
+      timeout: 20_000
+    })
+    await this.deleteExistingBoundary()
+    await this.startDrawing()
+    await this.placeTriangle()
+  }
+
+  async startDrawing() {
     const drawButton = this.page.getByRole('button', {
       name: 'Draw',
       exact: true
@@ -90,7 +119,40 @@ class DrawBoundaryPage extends Page {
     await this.page
       .getByRole('button', { name: 'Cancel' })
       .waitFor({ state: 'visible' })
+  }
 
+  async deleteExistingBoundary() {
+    const { x, y, width, height } = await this.mapContainer.boundingBox()
+    const drawToolsButton = this.page.getByRole('button', {
+      name: 'Draw tools'
+    })
+    const deleteFeature = this.page.getByRole('menuitem', {
+      name: 'Delete feature'
+    })
+    // The menu item is an <li> carrying aria-disabled, not a disabled form
+    // control, so read the attribute directly
+    const isDeleteEnabled = async () =>
+      (await deleteFeature.getAttribute('aria-disabled')) === null
+
+    // Clicking the hydrated polygon's centre selects it (the map is fitted
+    // to its bounds, so the centre sits inside), but the click can land
+    // while the map is still settling and miss. "Delete feature" only
+    // enables once a draw feature is selected, so use it as the retry
+    // signal, closing the menu between attempts.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.page.mouse.click(x + width / 2, y + height / 2)
+      await drawToolsButton.click()
+      if (await isDeleteEnabled()) {
+        await deleteFeature.click()
+        return
+      }
+      await this.page.keyboard.press('Escape')
+      await this.page.waitForTimeout(500)
+    }
+    await deleteFeature.click()
+  }
+
+  async placeTriangle() {
     // Place a triangle by pressing Enter at the map centre and panning between
     // points with arrow keys. A vertex is only accepted if it lands a minimum
     // distance from existing vertices; if the map is still settling after the
