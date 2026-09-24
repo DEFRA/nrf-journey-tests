@@ -149,7 +149,9 @@ class DrawBoundaryPage extends Page {
       await this.page.keyboard.press('Escape')
       await this.page.waitForTimeout(500)
     }
-    await deleteFeature.click()
+    throw new Error(
+      'Could not select the existing boundary on the map after 3 attempts'
+    )
   }
 
   async placeTriangle() {
