@@ -64,8 +64,12 @@ When(
   { timeout: 60_000 },
   /** @this {PlaywrightWorld} */
   async function () {
+    // The "Checking file" page polls until the uploader has scanned the file,
+    // which can be slow on a remote browser. Wait for most of the step's 60s
+    // rather than Playwright's 30s default.
     await this.pageObjects.uploadPreviewMapPage.saveAndContinueButton.waitFor({
-      state: 'visible'
+      state: 'visible',
+      timeout: 50_000
     })
     await this.pageObjects.uploadPreviewMapPage.saveAndContinue()
   }
@@ -92,6 +96,7 @@ Then(
 
 // Closes the key again afterwards: on tablet/desktop it opens as a panel over
 // the map, which would otherwise sit over the area the boundary is drawn in
+// (on a phone it is a modal drawer that blocks the rest of the page)
 Then(
   'the map key should show the EDP and excluded areas',
   /** @this {PlaywrightWorld} */
@@ -114,7 +119,7 @@ Then(
     assert.match(labels[0], /Environmental Delivery Plan/)
     assert.equal(labels[1].trim(), 'Excluded areas')
 
-    await drawBoundaryPage.keyButton.click()
+    await drawBoundaryPage.closeKeyButton.click()
     await drawBoundaryPage.keyEntryLabels.first().waitFor({ state: 'hidden' })
   }
 )
@@ -250,7 +255,10 @@ When(
   'I navigate back in the browser',
   /** @this {PlaywrightWorld} */
   async function () {
-    await this.page.goBack()
+    // Resolve once the navigation commits, not on the "load" event: that event
+    // can be slow to fire after going back (seen on Firefox), and the next step
+    // already waits for the start page heading to be visible.
+    await this.page.goBack({ waitUntil: 'commit' })
   }
 )
 
