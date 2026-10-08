@@ -162,10 +162,15 @@ services:
     volumes:
       - ./docker/scripts/postgres/01-create-impact-db.sql:/docker-entrypoint-initdb.d/01-create-impact-db.sql
     healthcheck:
+      # Connect over TCP (-h 127.0.0.1), not the unix socket. On first start the
+      # image runs the init scripts on a temporary server that listens only on
+      # the socket, then restarts as the real server. A socket check can pass
+      # just before that restart, so dependants like the migrations got
+      # "connection refused" and failed `docker compose up --wait`.
       test:
         [
           'CMD-SHELL',
-          'pg_isready -U postgres -d nrf_backend && psql -U postgres -d nrf_impact -c "SELECT 1" -q -t'
+          'pg_isready -h 127.0.0.1 -U postgres -d nrf_backend && psql -h 127.0.0.1 -U postgres -d nrf_impact -c "SELECT 1" -q -t'
         ]
       interval: 5s
       start_period: 10s
