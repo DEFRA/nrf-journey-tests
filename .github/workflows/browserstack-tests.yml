@@ -1,0 +1,65 @@
+name: Run Journey Tests on BrowserStack
+
+permissions:
+  checks: write
+  pull-requests: write
+  id-token: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      nrf-frontend:
+        description: 'Docker image tag for nrf-frontend. Defaults to latest.'
+        required: false
+        type: string
+      nrf-backend:
+        description: 'Git ref for nrf-backend. Defaults to main.'
+        required: false
+        type: string
+  schedule:
+    # Monday to Friday at 06:00 UTC (07:00 UK time during BST, 06:00 in winter).
+    # GitHub cron is always UTC.
+    - cron: '0 6 * * 1-5'
+
+jobs:
+  browserstack:
+    name: BrowserStack (${{ matrix.device }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # Cap concurrent jobs so we stay within the BrowserStack plan's parallel
+      # session limit
+      max-parallel: 5
+      matrix:
+        device:
+          # Real phones (the device names are defined in test/support/browserstack.js)
+          - iphone
+          - android
+          - android-galaxy-s23
+          # Desktop browsers
+          - safari-macos
+          - chrome-windows
+          - chrome-windows-latest-3
+          - edge-windows
+          - edge-windows-latest-3
+          - chrome-macos
+          - chrome-macos-latest-3
+          - firefox-macos
+          - firefox-macos-latest-3
+    env:
+      NOTIFY_API_KEY: ${{ secrets.NOTIFY_API_KEY }}
+      OS_API_KEY: ${{ secrets.OS_API_KEY }}
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: DEFRA/nrf-journey-tests
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref || '' }}
+
+      - uses: ./run-journey-tests
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref || '' }}
+          nrf-frontend: ${{ inputs.nrf-frontend }}
+          nrf-backend: ${{ inputs.nrf-backend }}
+          browserstack-device: ${{ matrix.device }}

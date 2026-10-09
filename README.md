@@ -23,6 +23,24 @@ End-to-end tests using [Playwright](https://playwright.dev/) (browser library) a
   npm ci
   ```
 
+## BrowserStack (real devices)
+
+The upload and draw journeys can run on a real iPhone (Safari) and a real Android phone (Chrome) via BrowserStack.
+The app runs in the localstack docker compose stack, and the device reaches it through a BrowserStack Local tunnel
+that the test run starts itself.
+
+```sh
+docker compose up --wait -d
+BROWSERSTACK_USERNAME=... BROWSERSTACK_ACCESS_KEY=... BROWSERSTACK_DEVICE=iphone npm run test:e2e:browserstack
+```
+
+`BROWSERSTACK_DEVICE` picks the device or browser, for example `iphone`, `android`, `chrome-windows` or `firefox-macos-latest-3`;
+the full list is in `test/support/browserstack.js`. Desktop Safari and Firefox are BrowserStack's patched Playwright WebKit and Firefox builds.
+Android runs the upload and draw full journeys. The iPhone runs the upload journey only, because BrowserStack's iOS Playwright
+sends synthetic events that the draw map doesn't respond to.
+In GitHub Actions the **Run Journey Tests on BrowserStack** workflow runs every device and browser as its own job on manual dispatch and on weekday mornings (06:00 UTC, Monday to Friday).
+It needs the `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` repository secrets.
+
 ---
 
 ## Run modes

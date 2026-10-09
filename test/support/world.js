@@ -20,8 +20,14 @@ import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
 import { QuoteDetailsPage } from '../page-objects/quote-details.page.js'
 import { AnalyticsInternalPage } from '../page-objects/analytics-internal.page.js'
+import {
+  isBrowserStack,
+  connectBrowserStack,
+  enableIosAutoWait
+} from './browserstack.js'
 
-setDefaultTimeout(15000)
+// Real remote devices are slower than a local headless browser.
+setDefaultTimeout(isBrowserStack ? 60000 : 15000)
 
 const baseUrl = process.env.ENVIRONMENT
   ? `https://nrf-frontend.${process.env.ENVIRONMENT}.cdp-int.defra.cloud`
@@ -61,20 +67,29 @@ const debugPerformanceArgs = [
 ]
 
 export class PlaywrightWorld extends World {
-  async openBrowser() {
-    this.browser = await browserEngine.launch({
-      headless,
-      args: headless ? [] : debugPerformanceArgs,
-      ...(browserChannel ? { channel: browserChannel } : {})
-    })
-    this.context = await this.browser.newContext({
-      ...(browserName === 'chromium' ? { userAgent: realChromeUserAgent } : {}),
-      // Pairs with --start-maximized above: a fixed viewport would otherwise
-      // force the maximized window back down to Playwright's default size.
-      ...(headless ? {} : { viewport: null })
-    })
+  async openBrowser(sessionName) {
+    if (isBrowserStack) {
+      const remote = await connectBrowserStack(sessionName)
+      this.context = remote.context
+      this.closeRemote = remote.close
+    } else {
+      this.browser = await browserEngine.launch({
+        headless,
+        args: headless ? [] : debugPerformanceArgs,
+        ...(browserChannel ? { channel: browserChannel } : {})
+      })
+      this.context = await this.browser.newContext({
+        ...(browserName === 'chromium'
+          ? { userAgent: realChromeUserAgent }
+          : {}),
+        // Pairs with --start-maximized above: a fixed viewport would otherwise
+        // force the maximized window back down to Playwright's default size.
+        ...(headless ? {} : { viewport: null })
+      })
+    }
 
     this.page = await this.context.newPage()
+    enableIosAutoWait(this.page)
     this.pageObjects = {
       homePage: new HomePage(this.page, baseUrl),
       planningTypePage: new PlanningTypePage(this.page, baseUrl),
@@ -100,6 +115,7 @@ export class PlaywrightWorld extends World {
 
   async closeBrowser() {
     await this.browser?.close()
+    await this.closeRemote?.()
   }
 }
 
