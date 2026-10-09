@@ -7,29 +7,6 @@ import { Page } from './page.js'
 // instead of the "Email address" page.
 const PAN_STEPS = 15
 
-// Where to hover, as fractions of the map's size, when looking for a
-// hydrated boundary. The map is fitted to the boundary, so it fills the
-// middle of the map; the centre is tried first.
-const HOVER_X_FRACTIONS = [0.5, 0.45, 0.55, 0.4, 0.6]
-const HOVER_Y_FRACTIONS = [0.5, 0.55, 0.45, 0.6, 0.4, 0.65, 0.35, 0.7]
-
-// How long to keep trying to select a hydrated boundary while the map's style,
-// and with it the draw layers, is still loading
-const SELECT_BOUNDARY_TIMEOUT_MS = 15_000
-
-/**
- * @param {{ x: number, y: number, width: number, height: number }} box
- * @returns {{ x: number, y: number }[]}
- */
-function getHoverPoints({ x, y, width, height }) {
-  return HOVER_Y_FRACTIONS.flatMap((yFraction) =>
-    HOVER_X_FRACTIONS.map((xFraction) => ({
-      x: x + width * xFraction,
-      y: y + height * yFraction
-    }))
-  )
-}
-
 // The exact text the boundary information panel shows when the drawn area
 // isn't eligible via an EDP — no EDP match, or inside an exclusion zone.
 const UNSUPPORTED_AREA_MESSAGE =
@@ -130,18 +107,18 @@ class DrawBoundaryPage extends Page {
     await this.placeTriangle()
   }
 
-  // Replaces a boundary hydrated from a previous session: select it by
-  // clicking it on the map (that's what enables the menu's "Delete feature"
-  // item), delete it, then draw a fresh triangle. Waits for the info panel's
-  // Edit button first as the signal that hydration has finished.
-  async amendTriangleOnMap() {
+  // Amends a boundary hydrated from a previous session via the info panel's
+  // Edit button, which selects the boundary and puts it into edit mode
+  // without a click on the map canvas, then confirms it with Done. Waits for
+  // the Edit button first as the signal that hydration has finished.
+  async amendBoundaryOnMap() {
     await this.boundaryInfoEditButton.waitFor({
       state: 'visible',
       timeout: 20_000
     })
-    await this.deleteExistingBoundary()
-    await this.startDrawing()
-    await this.placeTriangle()
+    await this.boundaryInfoEditButton.click()
+    await this.doneButtonEnabled.waitFor({ state: 'visible', timeout: 10_000 })
+    await this.doneButtonEnabled.click()
   }
 
   async startDrawing() {
@@ -156,60 +133,6 @@ class DrawBoundaryPage extends Page {
     await this.page
       .getByRole('button', { name: 'Cancel' })
       .waitFor({ state: 'visible' })
-  }
-
-  get drawToolsButton() {
-    return this.page.getByRole('button', { name: 'Draw tools' })
-  }
-
-  get deleteFeatureMenuItem() {
-    return this.page.getByRole('menuitem', { name: 'Delete feature' })
-  }
-
-  // Selecting the hydrated boundary is what enables "Delete feature". The map
-  // is fitted to the boundary's bounds, but its centre isn't reliably inside
-  // the polygon: the fit centres it within the map's padding rather than the
-  // canvas, and the bounding-box centre of the drawn right-angled triangle
-  // sits on its hypotenuse. So try points around the centre until one
-  // selects it. Retries until a time limit, as the Edit button can appear
-  // before the base map style has loaded, and the draw layers are only added
-  // once it has.
-  async deleteExistingBoundary() {
-    const points = getHoverPoints(await this.mapContainer.boundingBox())
-    const deadline = Date.now() + SELECT_BOUNDARY_TIMEOUT_MS
-    do {
-      for (const point of points) {
-        if (await this.selectBoundaryAt(point)) {
-          await this.deleteFeatureMenuItem.click()
-          return
-        }
-      }
-      await this.page.waitForTimeout(500)
-    } while (Date.now() < deadline)
-    throw new Error(
-      `Could not select the existing boundary on the map within ${SELECT_BOUNDARY_TIMEOUT_MS}ms`
-    )
-  }
-
-  // Clicks only where the map shows a pointer cursor, which it does near
-  // selectable draw features, then opens the draw tools menu and checks
-  // whether "Delete feature" has enabled. Leaves the menu open on success
-  // so the caller can click it.
-  async selectBoundaryAt({ x, y }) {
-    await this.page.mouse.move(x, y)
-    const cursor = await this.mapContainer
-      .locator('canvas.maplibregl-canvas')
-      .evaluate((el) => el.style.cursor)
-    if (cursor !== 'pointer') return false
-
-    await this.page.mouse.click(x, y)
-    await this.drawToolsButton.click()
-    // The menu item is an <li> carrying aria-disabled, not a disabled form
-    // control, so read the attribute directly
-    const isDeleteEnabled =
-      (await this.deleteFeatureMenuItem.getAttribute('aria-disabled')) === null
-    if (!isDeleteEnabled) await this.page.keyboard.press('Escape')
-    return isDeleteEnabled
   }
 
   async placeTriangle() {
