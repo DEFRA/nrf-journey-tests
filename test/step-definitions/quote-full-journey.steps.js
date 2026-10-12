@@ -128,7 +128,7 @@ When(
   { timeout: 60_000 },
   /** @this {PlaywrightWorld} */
   async function () {
-    await this.pageObjects.drawBoundaryPage.amendTriangleOnMap()
+    await this.pageObjects.drawBoundaryPage.amendBoundaryOnMap()
     await attachScreenshot(this)
   }
 )
