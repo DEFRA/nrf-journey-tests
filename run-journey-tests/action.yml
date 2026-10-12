@@ -40,10 +40,35 @@ inputs:
     description: >
       Browser engine to run tests against.
       Accepted values: chromium, firefox, webkit. Defaults to chromium.
+  browserstack-device:
+    required: false
+    description: >
+      Run the upload and draw journeys on a real BrowserStack device instead of
+      a local browser. Accepted values: iphone, android. Requires
+      BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY in the job env.
+      Only supported in localstack mode (the BrowserStack Local tunnel exposes
+      the runner's localhost to the device).
 
 runs:
   using: 'composite'
   steps:
+    - name: Check BrowserStack inputs
+      if: ${{ inputs.browserstack-device }}
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        BROWSERSTACK_USERNAME: ${{ env.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ env.BROWSERSTACK_ACCESS_KEY }}
+      run: |
+        if [ -n "$ENVIRONMENT" ]; then
+          echo "::error::browserstack-device only works in localstack mode (the Local tunnel exposes the runner's localhost); unset the environment input."
+          exit 1
+        fi
+        if [ -z "$BROWSERSTACK_USERNAME" ] || [ -z "$BROWSERSTACK_ACCESS_KEY" ]; then
+          echo "::error::BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY must be set (repository secrets)."
+          exit 1
+        fi
+
     # Resolve depends-on BEFORE checking out nrf-journey-tests so that a
     # "Depends on: DEFRA/nrf-journey-tests#<N>" in the calling PR is honoured.
     # The action checks out dependent repos into subdirectories (e.g. ./nrf-journey-tests/).
@@ -225,6 +250,7 @@ runs:
       shell: bash
 
     - name: Install Playwright browsers
+      if: ${{ !inputs.browserstack-device }}
       run: npx playwright install --with-deps ${{ inputs.browser || 'chromium' }}
       shell: bash
 
@@ -257,8 +283,16 @@ runs:
         ENVIRONMENT: ${{ inputs.environment }}
         BROWSER: ${{ inputs.browser || 'chromium' }}
         NOTIFY_API_KEY: ${{ env.NOTIFY_API_KEY }}
+        BROWSERSTACK_DEVICE: ${{ inputs.browserstack-device }}
       run: |
-        npm run test:e2e; TEST_EXIT=$?
+        # GitHub runs this under bash -e, so capture the exit code with || to
+        # still generate the report when the tests fail
+        TEST_EXIT=0
+        if [ -n "$BROWSERSTACK_DEVICE" ]; then
+          npm run test:e2e:browserstack || TEST_EXIT=$?
+        else
+          npm run test:e2e || TEST_EXIT=$?
+        fi
         npm run report
         exit $TEST_EXIT
 
@@ -276,12 +310,12 @@ runs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: allure-report
+        name: allure-report${{ inputs.browserstack-device && format('-{0}', inputs.browserstack-device) || '' }}
         path: ./allure-report
 
     - name: Upload docker compose logs
       if: ${{ always() && !inputs.environment }}
       uses: actions/upload-artifact@v4
       with:
-        name: docker-compose-logs
+        name: docker-compose-logs${{ inputs.browserstack-device && format('-{0}', inputs.browserstack-device) || '' }}
         path: ./logs.txt
