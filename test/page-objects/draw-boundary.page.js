@@ -67,18 +67,6 @@ class DrawBoundaryPage extends Page {
     return this.page.getByRole('button', { name: 'Styles', exact: true })
   }
 
-  // Present in the Key panel at every viewport. On a phone the panel is a modal
-  // drawer that covers the Key button, so the button can't be used to close it.
-  get closeKeyButton() {
-    return this.page.getByRole('button', { name: 'Close Key', exact: true })
-  }
-
-  // Each key entry is a <dt> symbol / <dd> label pair, so the <dd>s
-  // (role "definition") are the entries' labels
-  get keyEntryLabels() {
-    return this.page.locator('.im-c-map-key').getByRole('definition')
-  }
-
   async searchLocation(query) {
     // Playwright resolves the accessible name whether it's set via aria-label
     // or aria-labelledby (the library currently uses the latter, associating

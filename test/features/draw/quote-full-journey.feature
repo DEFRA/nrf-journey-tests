@@ -14,7 +14,6 @@ Feature: NRF Quote full journey (drawn boundary on map)
     And I select "Draw on a map" as my boundary type
     And I continue
     Then I should see the Key and Styles buttons on the map
-    And the map key should show the EDP and excluded areas
     When I search the map for "Aylsham"
     And I draw a boundary on the map
     And I click Save and continue

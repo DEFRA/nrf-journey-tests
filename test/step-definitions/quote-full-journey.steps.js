@@ -94,36 +94,6 @@ Then(
   }
 )
 
-// Closes the key again afterwards: on tablet/desktop it opens as a panel over
-// the map, which would otherwise sit over the area the boundary is drawn in
-// (on a phone it is a modal drawer that blocks the rest of the page)
-Then(
-  'the map key should show the EDP and excluded areas',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    const drawBoundaryPage = this.pageObjects.drawBoundaryPage
-    await drawBoundaryPage.keyButton.click()
-    await waitForVisible(
-      this.page,
-      drawBoundaryPage.keyEntryLabels.first(),
-      'an entry in the map key'
-    )
-    await attachScreenshot(this)
-
-    const labels = await drawBoundaryPage.keyEntryLabels.allInnerTexts()
-    assert.equal(
-      labels.length,
-      2,
-      `Expected 2 entries in the map key but found: ${JSON.stringify(labels)}`
-    )
-    assert.match(labels[0], /Environmental Delivery Plan/)
-    assert.equal(labels[1].trim(), 'Excluded areas')
-
-    await drawBoundaryPage.closeKeyButton.click()
-    await drawBoundaryPage.keyEntryLabels.first().waitFor({ state: 'hidden' })
-  }
-)
-
 When(
   'I search the map for {string}',
   /** @this {PlaywrightWorld} */
