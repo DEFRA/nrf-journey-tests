@@ -5,6 +5,7 @@ import {
 } from '@cucumber/cucumber'
 import { chromium, firefox, webkit } from 'playwright'
 import { HomePage } from '../page-objects/home.page.js'
+import { WhatWouldYouLikeToDoPage } from '../page-objects/what-would-you-like-to-do.page.js'
 import { PlanningTypePage } from '../page-objects/planning-type.page.js'
 import { BoundaryTypePage } from '../page-objects/boundary-type.page.js'
 import { ConfirmHousingPage } from '../page-objects/confirm-housing.page.js'
@@ -92,6 +93,10 @@ export class PlaywrightWorld extends World {
     enableIosAutoWait(this.page)
     this.pageObjects = {
       homePage: new HomePage(this.page, baseUrl),
+      whatWouldYouLikeToDoPage: new WhatWouldYouLikeToDoPage(
+        this.page,
+        baseUrl
+      ),
       planningTypePage: new PlanningTypePage(this.page, baseUrl),
       boundaryTypePage: new BoundaryTypePage(this.page, baseUrl),
       confirmHousingPage: new ConfirmHousingPage(this.page, baseUrl),

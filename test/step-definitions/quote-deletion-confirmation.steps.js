@@ -14,6 +14,10 @@ Given(
   async function () {
     await this.pageObjects.homePage.open()
     await this.pageObjects.homePage.startNow()
+    await this.pageObjects.whatWouldYouLikeToDoPage.selectOption(
+      'I want a quote for the nature restoration levy'
+    )
+    await this.page.getByRole('button', { name: 'Continue' }).click()
     await this.pageObjects.planningTypePage.selectPlanningType(
       'Full planning permission'
     )
