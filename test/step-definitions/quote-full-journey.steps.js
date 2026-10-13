@@ -34,6 +34,14 @@ When(
 )
 
 When(
+  'I select {string} as what I would like to do',
+  /** @this {PlaywrightWorld} */
+  async function (option) {
+    await this.pageObjects.whatWouldYouLikeToDoPage.selectOption(option)
+  }
+)
+
+When(
   'I select {string} as my planning type',
   /** @this {PlaywrightWorld} */
   async function (planningType) {
