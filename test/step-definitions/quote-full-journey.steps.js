@@ -360,7 +360,7 @@ Then(
 
     const expectedText = `NRL reference: ${nrfReference}`
     const levyAmountParagraph =
-      /Provisional nature restoration levy amount £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
+      /Provisional nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
     const inflationAdjustedLevyAmountParagraph =
       /Inflation-adjusted nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
     const log = (message) => this.attach(message, 'text/plain')
