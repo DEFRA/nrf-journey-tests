@@ -5,8 +5,8 @@ class HaveNrlReferencePage extends Page {
     return super.open('/request-to-use/have-nrl-reference')
   }
 
-  async selectOption(label) {
-    await this.page.getByRole('radio', { name: label }).click()
+  async selectAnswer(answer) {
+    await this.page.getByRole('radio', { name: answer }).click()
   }
 }
 
