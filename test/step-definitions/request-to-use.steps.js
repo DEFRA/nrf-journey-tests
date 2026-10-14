@@ -1,4 +1,4 @@
-import { When } from '@cucumber/cucumber'
+import { When, Then } from '@cucumber/cucumber'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -15,5 +15,13 @@ When(
   /** @this {PlaywrightWorld} */
   async function (reference) {
     await this.pageObjects.enterNrlReferencePage.fillNrlReference(reference)
+  }
+)
+
+Then(
+  'I should be taken to {string}',
+  /** @this {PlaywrightWorld} */
+  async function (path) {
+    await this.page.waitForURL((url) => url.pathname === path)
   }
 )

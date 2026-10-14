@@ -13,6 +13,9 @@ Feature: Request to use journey
     When I enter "NRL-123456" as my NRL reference
     And I continue
     Then I should see the "Enter your email address" heading
+    When I enter "test@example.com" as my email
+    And I continue
+    Then I should be taken to "/request-to-use/email-sent"
 
   Scenario: Request to use journey asks for the NRL reference when the user doesn't have one
     Given I am on the start page
