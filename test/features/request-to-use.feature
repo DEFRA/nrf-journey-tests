@@ -10,6 +10,9 @@ Feature: Request to use journey
     When I answer "Yes" to having an NRL reference
     And I continue
     Then I should see the "Enter your NRL reference" heading
+    When I enter "NRL-123456" as my NRL reference
+    And I continue
+    Then I should see the "Enter your email address" heading
 
   Scenario: Request to use journey asks for the NRL reference when the user doesn't have one
     Given I am on the start page

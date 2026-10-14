@@ -9,3 +9,11 @@ When(
     await this.pageObjects.haveNrlReferencePage.selectAnswer(answer)
   }
 )
+
+When(
+  'I enter {string} as my NRL reference',
+  /** @this {PlaywrightWorld} */
+  async function (reference) {
+    await this.pageObjects.enterNrlReferencePage.fillNrlReference(reference)
+  }
+)

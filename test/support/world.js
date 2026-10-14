@@ -7,6 +7,7 @@ import { chromium, firefox, webkit } from 'playwright'
 import { HomePage } from '../page-objects/home.page.js'
 import { WhatWouldYouLikeToDoPage } from '../page-objects/what-would-you-like-to-do.page.js'
 import { HaveNrlReferencePage } from '../page-objects/have-nrl-reference.page.js'
+import { EnterNrlReferencePage } from '../page-objects/enter-nrl-reference.page.js'
 import { PlanningTypePage } from '../page-objects/planning-type.page.js'
 import { BoundaryTypePage } from '../page-objects/boundary-type.page.js'
 import { ConfirmHousingPage } from '../page-objects/confirm-housing.page.js'
@@ -99,6 +100,7 @@ export class PlaywrightWorld extends World {
         baseUrl
       ),
       haveNrlReferencePage: new HaveNrlReferencePage(this.page, baseUrl),
+      enterNrlReferencePage: new EnterNrlReferencePage(this.page, baseUrl),
       planningTypePage: new PlanningTypePage(this.page, baseUrl),
       boundaryTypePage: new BoundaryTypePage(this.page, baseUrl),
       confirmHousingPage: new ConfirmHousingPage(this.page, baseUrl),
