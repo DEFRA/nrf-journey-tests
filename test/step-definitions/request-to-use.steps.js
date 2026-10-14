@@ -1,4 +1,6 @@
+import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
+import { waitForVisible } from '../support/wait-for-visible.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -7,6 +9,19 @@ Given(
   /** @this {PlaywrightWorld} */
   async function () {
     await this.pageObjects.quoteNotMatchedPage.open()
+  }
+)
+
+Then(
+  'I should see the email confirmation page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const panelTitle = this.pageObjects.emailConfirmationPage.panelTitle
+    await waitForVisible(this.page, panelTitle, 'the email confirmation panel')
+    assert.equal(
+      (await panelTitle.textContent()).trim(),
+      'We have sent you an email'
+    )
   }
 )
 
