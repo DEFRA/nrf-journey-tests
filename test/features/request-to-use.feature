@@ -15,7 +15,7 @@ Feature: Request to use journey
     Then I should see the "Enter your email address" heading
     When I enter "test@example.com" as my email
     And I continue
-    Then I should see the "We have sent you an email" heading
+    Then I should see the email confirmation page
 
   Scenario: Request to use journey asks for the NRL reference when the user doesn't have one
     Given I am on the start page
