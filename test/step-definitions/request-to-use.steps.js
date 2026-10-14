@@ -1,6 +1,14 @@
-import { When, Then } from '@cucumber/cucumber'
+import { Given, When, Then } from '@cucumber/cucumber'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
+
+Given(
+  'I am on the these details do not match our records page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.quoteNotMatchedPage.open()
+  }
+)
 
 When(
   'I answer {string} to having an NRL reference',
