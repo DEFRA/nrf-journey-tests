@@ -28,3 +28,9 @@ Feature: Request to use journey
     Then I should see the "You need a quote before you can request to use the nature restoration levy" heading
     When I click the back link
     Then I should see the "Do you have an NRL reference?" heading
+
+  Scenario: These details do not match our records page back link returns to enter your email address
+    Given I am on the these details do not match our records page
+    Then I should see the "These details do not match our records" heading
+    When I click the back link
+    Then I should see the "Enter your email address" heading
