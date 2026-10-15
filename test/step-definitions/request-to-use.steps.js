@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict'
-import { Given, When, Then } from '@cucumber/cucumber'
+import { When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
-Given(
-  'I am on the these details do not match our records page',
+When(
+  'I go directly to the these details do not match our records page',
   /** @this {PlaywrightWorld} */
   async function () {
     await this.pageObjects.quoteNotMatchedPage.open()
