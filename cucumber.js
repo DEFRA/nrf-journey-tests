@@ -1,3 +1,8 @@
+// Scenarios each launch their own browser and session, so they run in parallel
+// worker processes. BrowserStack stays serial: each worker would start its own
+// Local tunnel and use another device session.
+const parallelWorkers = 2
+
 export default {
   // BrowserStack runs cover one upload and one draw journey, end to end. The
   // iPhone runs the upload journey only: BrowserStack's iOS Playwright sends
@@ -10,6 +15,7 @@ export default {
           : ['test/features/draw/quote-full-journey.feature'])
       ]
     : ['test/features/**/*.feature'],
+  parallel: process.env.BROWSERSTACK_DEVICE ? 0 : parallelWorkers,
   tags: 'not @pending',
   // Real remote browsers occasionally stall for about a minute (the page stops
   // responding, or a meta refresh never fires). Retry a failed scenario once on

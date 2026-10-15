@@ -7,6 +7,8 @@ import {
   stopBrowserStackLocal
 } from './browserstack.js'
 
+// Scenarios run in parallel workers and the global hooks run once per worker
+// process, so failedCount is that worker's count. The FAILED file only needs to exist.
 let failedCount = 0
 
 BeforeAll({ timeout: 120_000 }, async function () {
