@@ -4,14 +4,6 @@ import { waitForVisible } from '../support/wait-for-visible.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
-When(
-  'I go directly to the these details do not match our records page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    await this.pageObjects.quoteNotMatchedPage.open()
-  }
-)
-
 Then(
   'I should see the email confirmation page',
   /** @this {PlaywrightWorld} */
@@ -38,6 +30,20 @@ When(
   /** @this {PlaywrightWorld} */
   async function (reference) {
     await this.pageObjects.enterNrlReferencePage.fillNrlReference(reference)
+  }
+)
+
+When(
+  'I enter the NRL reference from my quote as my NRL reference',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.nrfReference,
+      'No NRL reference was captured earlier in this scenario'
+    )
+    await this.pageObjects.enterNrlReferencePage.fillNrlReference(
+      this.nrfReference
+    )
   }
 )
 
