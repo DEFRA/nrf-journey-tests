@@ -223,18 +223,24 @@ runs:
         ref: ${{ inputs.nrf-impact-assessor }}
         path: nrf-impact-assessor
 
-    - name: Build nrf-frontend from depends-on checkout
-      if: ${{ !inputs.environment && steps.detect.outputs.nrf_frontend_path != '' }}
-      shell: bash
-      run: docker build -t defradigital/nrf-frontend:pr-build ${{ steps.detect.outputs.nrf_frontend_path }}
-
-    - name: Build nrf-backend from source
-      if: ${{ !inputs.environment }}
-      shell: bash
-      run: docker build -t defradigital/nrf-backend:pr-build ${{ steps.detect.outputs.nrf_backend_path || './nrf-backend' }}
-
+    # Logged in before any image work so base image pulls are authenticated.
     - name: Docker Login
       uses: DEFRA/cdp-build-action/docker-login@main
+
+    # Image pulls and builds are slow and independent of the npm and Playwright
+    # installs below, so they run in the background and are collected by "Wait
+    # for image pulls and builds". Builds go through `docker compose build` so
+    # they produce the same development-target images `docker compose up` uses.
+    - name: Start image pulls and builds
+      if: ${{ !inputs.environment }}
+      shell: bash
+      env:
+        NRF_FRONTEND_PATH: ${{ steps.detect.outputs.nrf_frontend_path }}
+        NRF_FRONTEND: ${{ steps.detect.outputs.nrf_frontend_path != '' && 'pr-build' || inputs.nrf-frontend }}
+        NRF_BACKEND: pr-build
+        NRF_BACKEND_PATH: ${{ steps.detect.outputs.nrf_backend_path || './nrf-backend' }}
+        NRF_IMPACT_ASSESSOR_PATH: ${{ steps.detect.outputs.nrf_impact_assessor_path || './nrf-impact-assessor' }}
+      run: docker/scripts/ci/start-image-work.sh
 
     - uses: actions/setup-node@v4
       with:
@@ -249,10 +255,22 @@ runs:
       run: npm ci --ignore-scripts
       shell: bash
 
+    - name: Cache Playwright browsers
+      if: ${{ !inputs.browserstack-device }}
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ inputs.browser || 'chromium' }}-${{ hashFiles('package-lock.json') }}
+
     - name: Install Playwright browsers
       if: ${{ !inputs.browserstack-device }}
       run: npx playwright install --with-deps ${{ inputs.browser || 'chromium' }}
       shell: bash
+
+    - name: Wait for image pulls and builds
+      if: ${{ !inputs.environment }}
+      shell: bash
+      run: docker/scripts/ci/wait-image-work.sh
 
     - name: Start docker compose (localstack mode)
       if: ${{ !inputs.environment }}
