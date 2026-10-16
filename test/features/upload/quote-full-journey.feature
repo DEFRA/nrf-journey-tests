@@ -24,3 +24,28 @@ Feature: NRF Quote full journey (file upload)
     Then I should see the confirmation page
     And I should see an NRL reference number
     And I have been sent a confirmation email
+
+    When I am on the start page
+    And I start a new quote
+    And I select "I am ready to request to use the nature restoration levy" as what I would like to do
+    And I continue
+    Then I should see the "Do you have an NRL reference?" heading
+    When I answer "No" to having an NRL reference
+    And I continue
+    Then I should see the "You need a quote before you can request to use the nature restoration levy" heading
+    When I click the back link
+    Then I should see the "Do you have an NRL reference?" heading
+    When I answer "Yes" to having an NRL reference
+    And I continue
+    Then I should see the "Enter your NRL reference" heading
+    When I enter the NRL reference from my quote as my NRL reference
+    And I continue
+    Then I should see the "Enter your email address" heading
+    When I enter "unknown@example.com" as my email
+    And I continue
+    Then I should see the "These details do not match our records" heading
+    When I click the back link
+    Then I should see the "Enter your email address" heading
+    When I enter "nrfjourneytests@gmail.com" as my email
+    And I continue
+    Then I should see the email confirmation page
