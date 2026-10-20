@@ -392,6 +392,7 @@ Then(
       inflationAdjustedLevyAmountParagraph.test(matchEmailBody),
       `Expected email body to match ${inflationAdjustedLevyAmountParagraph} but got:\n${matchEmailBody}`
     )
+    this.confirmationEmailBody = matchEmailBody
   }
 )
 

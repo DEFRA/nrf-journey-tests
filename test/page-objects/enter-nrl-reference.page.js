@@ -1,8 +1,12 @@
 import { Page } from './page.js'
 
 class EnterNrlReferencePage extends Page {
-  open() {
-    return super.open('/request-to-use/enter-nrl-reference')
+  open(pathAndQuery = '/request-to-use/enter-nrl-reference') {
+    return super.open(pathAndQuery)
+  }
+
+  get prefilledReference() {
+    return this.nrlReferenceInput.inputValue()
   }
 
   get nrlReferenceInput() {

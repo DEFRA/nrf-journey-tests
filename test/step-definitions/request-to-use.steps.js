@@ -48,6 +48,42 @@ When(
   }
 )
 
+When(
+  'I follow the request to use link in the quote email',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.confirmationEmailBody,
+      'No confirmation email body was captured earlier in this scenario'
+    )
+
+    // Only the path and query are used, so the link works whatever host the email names.
+    const linkMatch = this.confirmationEmailBody.match(
+      /https?:\/\/[^\s)\]>]*?(\/request-to-use\/enter-nrl-reference\?[^\s)\]>]+)/
+    )
+    assert.ok(
+      linkMatch,
+      `Expected the quote email to contain a request to use link but found none:\n${this.confirmationEmailBody}`
+    )
+
+    await this.pageObjects.enterNrlReferencePage.open(linkMatch[1])
+  }
+)
+
+Then(
+  'the NRL reference from my quote should be pre-filled',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.enterNrlReferencePage.nrlReferenceInput.waitFor({
+      state: 'visible'
+    })
+    assert.equal(
+      await this.pageObjects.enterNrlReferencePage.prefilledReference,
+      this.nrfReference
+    )
+  }
+)
+
 Then(
   'I should be taken to {string}',
   /** @this {PlaywrightWorld} */
