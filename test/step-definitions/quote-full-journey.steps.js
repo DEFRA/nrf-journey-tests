@@ -450,23 +450,6 @@ Then(
   }
 )
 
-When(
-  'I open the quote link in {int} fresh sessions',
-  /** @this {PlaywrightWorld} */
-  async function (count) {
-    assert.ok(
-      this.quoteLinkUrl,
-      'No quote link was captured earlier in this scenario'
-    )
-
-    for (let session = 1; session <= count; session++) {
-      await this.pageObjects.quoteDetailsPage.visitInFreshSession(
-        this.quoteLinkUrl
-      )
-    }
-  }
-)
-
 Then(
   'I should see that the link is invalid',
   /** @this {PlaywrightWorld} */

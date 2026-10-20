@@ -49,3 +49,6 @@ Feature: NRF Quote full journey (file upload)
     When I enter "nrfjourneytests@gmail.com" as my email
     And I continue
     Then I should see the email confirmation page
+    And I have been sent the retrieve quote email
+    When I follow the magic link in the email
+    Then I should see the review and amend quote details page
