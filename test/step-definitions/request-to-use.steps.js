@@ -92,35 +92,61 @@ Then(
   }
 )
 
+/**
+ * @this {PlaywrightWorld}
+ * @param {string} [excludeBody] - an earlier email body to skip, so a new email is not confused with it
+ */
+async function captureRetrieveQuoteEmail(excludeBody) {
+  assert.ok(
+    this.nrfReference,
+    'No NRL reference was captured earlier in this scenario'
+  )
+  const apiKey = process.env.NOTIFY_API_KEY
+  assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
+
+  // The quote confirmation email does not contain a magic link, so the link
+  // path identifies the retrieve your quote email.
+  const expectedText = `/request-to-use/retrieve/${this.nrfReference}/`
+  const log = (message) => this.attach(message, 'text/plain')
+  const body = await findNotifyEmail(
+    apiKey,
+    this.submittedEmail,
+    expectedText,
+    log,
+    this.quoteSubmittedAt ?? this.scenarioStartedAt,
+    excludeBody
+  )
+
+  assert.ok(
+    body,
+    `No retrieve quote email to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
+  )
+  this.retrieveQuoteEmailBody = body
+}
+
 Then(
   'I have been sent the retrieve quote email',
   { timeout: 60_000 },
   /** @this {PlaywrightWorld} */
   async function () {
-    assert.ok(
-      this.nrfReference,
-      'No NRL reference was captured earlier in this scenario'
-    )
-    const apiKey = process.env.NOTIFY_API_KEY
-    assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
+    await captureRetrieveQuoteEmail.call(this)
+  }
+)
 
-    // The quote confirmation email does not contain a magic link, so the link
-    // path identifies the retrieve your quote email.
-    const expectedText = `/request-to-use/retrieve/${this.nrfReference}/`
-    const log = (message) => this.attach(message, 'text/plain')
-    const body = await findNotifyEmail(
-      apiKey,
-      this.submittedEmail,
-      expectedText,
-      log,
-      this.quoteSubmittedAt ?? this.scenarioStartedAt
-    )
+Then(
+  'I have been sent a new retrieve quote email',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await captureRetrieveQuoteEmail.call(this, this.retrieveQuoteEmailBody)
+  }
+)
 
-    assert.ok(
-      body,
-      `No retrieve quote email to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
-    )
-    this.retrieveQuoteEmailBody = body
+When(
+  'I get a new link',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.linkExpiredPage.getNewLink()
   }
 )
 

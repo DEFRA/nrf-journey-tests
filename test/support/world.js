@@ -8,6 +8,7 @@ import { HomePage } from '../page-objects/home.page.js'
 import { WhatWouldYouLikeToDoPage } from '../page-objects/what-would-you-like-to-do.page.js'
 import { HaveNrlReferencePage } from '../page-objects/have-nrl-reference.page.js'
 import { EnterNrlReferencePage } from '../page-objects/enter-nrl-reference.page.js'
+import { LinkExpiredPage } from '../page-objects/link-expired.page.js'
 import { EmailConfirmationPage } from '../page-objects/email-confirmation.page.js'
 import { PlanningTypePage } from '../page-objects/planning-type.page.js'
 import { BoundaryTypePage } from '../page-objects/boundary-type.page.js'
@@ -104,6 +105,7 @@ export class PlaywrightWorld extends World {
       haveNrlReferencePage: new HaveNrlReferencePage(this.page, baseUrl),
       enterNrlReferencePage: new EnterNrlReferencePage(this.page, baseUrl),
       emailConfirmationPage: new EmailConfirmationPage(this.page, baseUrl),
+      linkExpiredPage: new LinkExpiredPage(this.page, baseUrl),
       planningTypePage: new PlanningTypePage(this.page, baseUrl),
       boundaryTypePage: new BoundaryTypePage(this.page, baseUrl),
       confirmHousingPage: new ConfirmHousingPage(this.page, baseUrl),

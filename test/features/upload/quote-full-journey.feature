@@ -37,6 +37,14 @@ Feature: NRF Quote full journey (file upload)
     When I follow the magic link in the email
     Then I should see the review and amend quote details page
 
+    When I follow the magic link in the email
+    Then I should see the "This link has expired" heading
+    When I get a new link
+    Then I should see the email confirmation page
+    And I have been sent a new retrieve quote email
+    When I follow the magic link in the email
+    Then I should see the review and amend quote details page
+
   Scenario: Request to use dropouts and back links
     Given I am on the start page
     When I start a new quote
