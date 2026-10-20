@@ -8,6 +8,7 @@ import { HomePage } from '../page-objects/home.page.js'
 import { WhatWouldYouLikeToDoPage } from '../page-objects/what-would-you-like-to-do.page.js'
 import { HaveNrlReferencePage } from '../page-objects/have-nrl-reference.page.js'
 import { EnterNrlReferencePage } from '../page-objects/enter-nrl-reference.page.js'
+import { LinkExpiredPage } from '../page-objects/link-expired.page.js'
 import { EmailConfirmationPage } from '../page-objects/email-confirmation.page.js'
 import { PlanningTypePage } from '../page-objects/planning-type.page.js'
 import { BoundaryTypePage } from '../page-objects/boundary-type.page.js'
@@ -23,6 +24,7 @@ import { UploadPreviewMapPage } from '../page-objects/upload-preview-map.page.js
 import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
 import { QuoteDetailsPage } from '../page-objects/quote-details.page.js'
+import { ReviewQuoteDetailsPage } from '../page-objects/review-quote-details.page.js'
 import { AnalyticsInternalPage } from '../page-objects/analytics-internal.page.js'
 import {
   isBrowserStack,
@@ -103,6 +105,7 @@ export class PlaywrightWorld extends World {
       haveNrlReferencePage: new HaveNrlReferencePage(this.page, baseUrl),
       enterNrlReferencePage: new EnterNrlReferencePage(this.page, baseUrl),
       emailConfirmationPage: new EmailConfirmationPage(this.page, baseUrl),
+      linkExpiredPage: new LinkExpiredPage(this.page, baseUrl),
       planningTypePage: new PlanningTypePage(this.page, baseUrl),
       boundaryTypePage: new BoundaryTypePage(this.page, baseUrl),
       confirmHousingPage: new ConfirmHousingPage(this.page, baseUrl),
@@ -120,6 +123,7 @@ export class PlaywrightWorld extends World {
       noEdpPage: new NoEdpPage(this.page, baseUrl),
       drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl),
       quoteDetailsPage: new QuoteDetailsPage(this.page, baseUrl),
+      reviewQuoteDetailsPage: new ReviewQuoteDetailsPage(this.page, baseUrl),
       analyticsInternalPage: new AnalyticsInternalPage(this.page, baseUrl)
     }
   }

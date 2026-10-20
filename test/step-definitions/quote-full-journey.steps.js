@@ -392,6 +392,7 @@ Then(
       inflationAdjustedLevyAmountParagraph.test(matchEmailBody),
       `Expected email body to match ${inflationAdjustedLevyAmountParagraph} but got:\n${matchEmailBody}`
     )
+    this.confirmationEmailBody = matchEmailBody
   }
 )
 
@@ -447,23 +448,6 @@ Then(
       `the NRL reference "${nrfReference}" on the quote details page`,
       { timeoutMs: 8_000 }
     )
-  }
-)
-
-When(
-  'I open the quote link in {int} fresh sessions',
-  /** @this {PlaywrightWorld} */
-  async function (count) {
-    assert.ok(
-      this.quoteLinkUrl,
-      'No quote link was captured earlier in this scenario'
-    )
-
-    for (let session = 1; session <= count; session++) {
-      await this.pageObjects.quoteDetailsPage.visitInFreshSession(
-        this.quoteLinkUrl
-      )
-    }
   }
 )
 

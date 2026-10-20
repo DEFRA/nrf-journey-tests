@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
+import { findNotifyEmail } from '../support/find-notify-email.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -47,10 +48,145 @@ When(
   }
 )
 
+When(
+  'I follow the request to use link in the quote email',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.confirmationEmailBody,
+      'No confirmation email body was captured earlier in this scenario'
+    )
+
+    // Only the path and query are used, so the link works whatever host the email names.
+    const linkMatch = this.confirmationEmailBody.match(
+      /https?:\/\/[^\s)\]>]*?(\/request-to-use\/enter-nrl-reference\?[^\s)\]>]+)/
+    )
+    assert.ok(
+      linkMatch,
+      `Expected the quote email to contain a request to use link but found none:\n${this.confirmationEmailBody}`
+    )
+
+    await this.pageObjects.enterNrlReferencePage.open(linkMatch[1])
+  }
+)
+
+Then(
+  'the NRL reference from my quote should be pre-filled',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.enterNrlReferencePage.nrlReferenceInput.waitFor({
+      state: 'visible'
+    })
+    assert.equal(
+      await this.pageObjects.enterNrlReferencePage.prefilledReference,
+      this.nrfReference
+    )
+  }
+)
+
 Then(
   'I should be taken to {string}',
   /** @this {PlaywrightWorld} */
   async function (path) {
     await this.page.waitForURL((url) => url.pathname === path)
+  }
+)
+
+/**
+ * @this {PlaywrightWorld}
+ * @param {string} [excludeBody] - an earlier email body to skip, so a new email is not confused with it
+ */
+async function captureRetrieveQuoteEmail(excludeBody) {
+  assert.ok(
+    this.nrfReference,
+    'No NRL reference was captured earlier in this scenario'
+  )
+  const apiKey = process.env.NOTIFY_API_KEY
+  assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
+
+  // The quote confirmation email does not contain a magic link, so the link
+  // path identifies the retrieve your quote email.
+  const expectedText = `/request-to-use/retrieve/${this.nrfReference}/`
+  const log = (message) => this.attach(message, 'text/plain')
+  const body = await findNotifyEmail(
+    apiKey,
+    this.submittedEmail,
+    expectedText,
+    log,
+    this.quoteSubmittedAt ?? this.scenarioStartedAt,
+    excludeBody
+  )
+
+  assert.ok(
+    body,
+    `No retrieve quote email to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
+  )
+  this.retrieveQuoteEmailBody = body
+}
+
+Then(
+  'I have been sent the retrieve quote email',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await captureRetrieveQuoteEmail.call(this)
+  }
+)
+
+Then(
+  'I have been sent a new retrieve quote email',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await captureRetrieveQuoteEmail.call(this, this.retrieveQuoteEmailBody)
+  }
+)
+
+When(
+  'I get a new link',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.linkExpiredPage.getNewLink()
+  }
+)
+
+When(
+  'I follow the magic link in the email',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.retrieveQuoteEmailBody,
+      'No retrieve quote email body was captured earlier in this scenario'
+    )
+
+    // Only the path is used, so the link works whatever host the email names.
+    const linkMatch = this.retrieveQuoteEmailBody.match(
+      new RegExp(
+        `https?://[^\\s)\\]>]*?(/request-to-use/retrieve/${this.nrfReference}/[\\w-]+)`
+      )
+    )
+    assert.ok(
+      linkMatch,
+      `Expected the email body to contain a magic link for ${this.nrfReference} but found none:\n${this.retrieveQuoteEmailBody}`
+    )
+
+    await this.pageObjects.reviewQuoteDetailsPage.open(linkMatch[1])
+  }
+)
+
+Then(
+  'I should see the review and amend quote details page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const heading = this.pageObjects.reviewQuoteDetailsPage.pageHeading
+    await waitForVisible(
+      this.page,
+      heading,
+      'the review and amend quote details heading'
+    )
+    assert.equal(
+      (await heading.textContent()).trim(),
+      `Review and amend the quote details for ${this.nrfReference}`
+    )
   }
 )

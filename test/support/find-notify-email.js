@@ -11,7 +11,8 @@ async function findNotifyEmail(
   emailAddress,
   expectedText,
   log,
-  sentAfter
+  sentAfter,
+  excludeBody
 ) {
   if (process.env.HTTP_PROXY) {
     bootstrap()
@@ -43,7 +44,8 @@ async function findNotifyEmail(
     const match = recipientEmails.find((n) => {
       if (
         acceptedStatuses.includes(n.status) &&
-        n.body?.includes(expectedText)
+        n.body?.includes(expectedText) &&
+        n.body !== excludeBody
       ) {
         matchedEmailBody = n.body
         return true
