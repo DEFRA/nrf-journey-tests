@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
 import { findNotifyEmail } from '../support/find-notify-email.js'
+import { assertSummaryRow } from '../support/assert-summary-row.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -188,5 +189,21 @@ Then(
       (await heading.textContent()).trim(),
       `Review and amend the quote details for ${this.nrfReference}`
     )
+  }
+)
+
+Then(
+  'I should see {string} for {string} on the review and amend quote details page',
+  /** @this {PlaywrightWorld} */
+  async function (value, key) {
+    await assertSummaryRow(this.pageObjects.reviewQuoteDetailsPage, key, value)
+  }
+)
+
+When(
+  'I click Change for {string} on the review and amend quote details page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    await this.pageObjects.reviewQuoteDetailsPage.changeLink(key).click()
   }
 )
