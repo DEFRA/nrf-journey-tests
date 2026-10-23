@@ -1,9 +1,23 @@
 import assert from 'node:assert/strict'
-import { When, Then } from '@cucumber/cucumber'
+import { Given, When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
 import { findNotifyEmail } from '../support/find-notify-email.js'
+import { assertSummaryRow } from '../support/assert-summary-row.js'
+import { reachReviewQuoteDetailsPage } from '../support/reach-review-quote-details-page.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
+
+// The composite seeds the quote over HTTP (fast) but the request-to-use half
+// runs in the browser, where the Notify retrieve-email lookup alone can take
+// most of a minute — well over the per-step default.
+Given(
+  'I have reached the review and amend quote details page through the request to use journey',
+  { timeout: 120_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await reachReviewQuoteDetailsPage(this)
+  }
+)
 
 Then(
   'I should see the email confirmation page',
@@ -188,5 +202,21 @@ Then(
       (await heading.textContent()).trim(),
       `Review and amend the quote details for ${this.nrfReference}`
     )
+  }
+)
+
+Then(
+  'I should see {string} for {string} on the review and amend quote details page',
+  /** @this {PlaywrightWorld} */
+  async function (value, key) {
+    await assertSummaryRow(this.pageObjects.reviewQuoteDetailsPage, key, value)
+  }
+)
+
+When(
+  'I click Change for {string} on the review and amend quote details page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    await this.pageObjects.reviewQuoteDetailsPage.changeLink(key).click()
   }
 )
