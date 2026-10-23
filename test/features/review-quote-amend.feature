@@ -2,7 +2,7 @@
 Feature: NRF2-1260 Change answers on the review and amend quote details page
 
   Scenario: Change each answer, go back from a change page, and abandon changes
-    Given I have completed a quote and request to use journey via file upload
+    Given I have reached the review and amend quote details page through the request to use journey
 
     # Change planning permission type
     When I click Change for "Planning permission type" on the review and amend quote details page

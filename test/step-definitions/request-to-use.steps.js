@@ -3,18 +3,19 @@ import { Given, When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
 import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
-import { completeQuoteAndRequestToUseJourney } from '../support/complete-quote-and-request-to-use-journey.js'
+import { reachReviewQuoteDetailsPage } from '../support/reach-review-quote-details-page.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
-// The journey's steps each carry up to 60s of timeout individually (upload,
-// Notify lookups), so the composite needs the sum, not the default.
+// The composite seeds the quote over HTTP (fast) but the request-to-use half
+// runs in the browser, where the Notify retrieve-email lookup alone can take
+// most of a minute — well over the per-step default.
 Given(
-  'I have completed a quote and request to use journey via file upload',
-  { timeout: 300_000 },
+  'I have reached the review and amend quote details page through the request to use journey',
+  { timeout: 120_000 },
   /** @this {PlaywrightWorld} */
   async function () {
-    await completeQuoteAndRequestToUseJourney(this)
+    await reachReviewQuoteDetailsPage(this)
   }
 )
 
