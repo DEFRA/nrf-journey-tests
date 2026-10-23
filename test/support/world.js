@@ -31,13 +31,10 @@ import {
   connectBrowserStack,
   enableIosAutoWait
 } from './browserstack.js'
+import { baseUrl } from './base-url.js'
 
 // Real remote devices are slower than a local headless browser.
 setDefaultTimeout(isBrowserStack ? 60000 : 15000)
-
-const baseUrl = process.env.ENVIRONMENT
-  ? `https://nrf-frontend.${process.env.ENVIRONMENT}.cdp-int.defra.cloud`
-  : process.env.BASE_URL || 'http://localhost:3000'
 
 const headless = process.env.E2E_HEADFUL !== 'true'
 
