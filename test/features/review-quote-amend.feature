@@ -2,39 +2,7 @@
 Feature: NRF2-1260 Change answers on the review and amend quote details page
 
   Scenario: Change each answer, go back from a change page, and abandon changes
-    Given I am on the start page
-    When I start a new quote
-    And I select "I want a quote for the nature restoration levy" as what I would like to do
-    And I continue
-    And I select "Full planning permission" as my planning type
-    And I continue
-    And I confirm I am developing housing
-    And I continue
-    And I enter "10" units
-    And I continue
-    And I select "Upload a file" as my boundary type
-    And I continue
-    And I upload "test/fixtures/BnW_small_under_1_hectare.geojson" as my boundary file
-    And I save and continue on the boundary preview
-    And I enter "nrfjourneytests@gmail.com" as my email
-    And I continue
-    Then I should see "BnW_small_under_1_hectare.geojson" for "Red line boundary" on the Check Your Answers page
-    When I submit my answers
-    Then I should see the confirmation page
-    And I should see an NRL reference number
-    And I have been sent a confirmation email
-
-    When I follow the request to use link in the quote email
-    Then I should see the "Enter your NRL reference" heading
-    And the NRL reference from my quote should be pre-filled
-    When I continue
-    Then I should see the "Enter your email address" heading
-    When I enter "nrfjourneytests@gmail.com" as my email
-    And I continue
-    Then I should see the email confirmation page
-    And I have been sent the retrieve quote email
-    When I follow the magic link in the email
-    Then I should see the review and amend quote details page
+    Given I have completed a quote and request to use journey via file upload
 
     # Change planning permission type
     When I click Change for "Planning permission type" on the review and amend quote details page

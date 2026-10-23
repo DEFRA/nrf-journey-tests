@@ -1,10 +1,22 @@
 import assert from 'node:assert/strict'
-import { When, Then } from '@cucumber/cucumber'
+import { Given, When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
 import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
+import { completeQuoteAndRequestToUseJourney } from '../support/complete-quote-and-request-to-use-journey.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
+
+// The journey's steps each carry up to 60s of timeout individually (upload,
+// Notify lookups), so the composite needs the sum, not the default.
+Given(
+  'I have completed a quote and request to use journey via file upload',
+  { timeout: 300_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await completeQuoteAndRequestToUseJourney(this)
+  }
+)
 
 Then(
   'I should see the email confirmation page',
