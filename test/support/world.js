@@ -25,6 +25,7 @@ import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
 import { QuoteDetailsPage } from '../page-objects/quote-details.page.js'
 import { ReviewQuoteDetailsPage } from '../page-objects/review-quote-details.page.js'
+import { AcceptLevyPage } from '../page-objects/accept-levy.page.js'
 import { AnalyticsInternalPage } from '../page-objects/analytics-internal.page.js'
 import {
   isBrowserStack,
@@ -121,6 +122,7 @@ export class PlaywrightWorld extends World {
       drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl),
       quoteDetailsPage: new QuoteDetailsPage(this.page, baseUrl),
       reviewQuoteDetailsPage: new ReviewQuoteDetailsPage(this.page, baseUrl),
+      acceptLevyPage: new AcceptLevyPage(this.page, baseUrl),
       analyticsInternalPage: new AnalyticsInternalPage(this.page, baseUrl)
     }
   }

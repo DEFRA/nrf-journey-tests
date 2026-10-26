@@ -220,3 +220,33 @@ When(
     await this.pageObjects.reviewQuoteDetailsPage.changeLink(key).click()
   }
 )
+
+Then(
+  'I should see the provisional and inflation-adjusted levy amounts on the accept levy page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const headings = this.pageObjects.acceptLevyPage.levyAmountHeadings
+    await waitForVisible(
+      this.page,
+      headings.first(),
+      'the levy amount headings'
+    )
+    const text = await headings.allTextContents()
+    assert.match(
+      text.join('\n'),
+      /Provisional nature restoration levy amount: £[\d,]+(\.\d{2})? \(excluding VAT\)/
+    )
+    assert.match(
+      text.join('\n'),
+      /Inflation-adjusted nature restoration levy amount: £[\d,]+(\.\d{2})? \(excluding VAT\)/
+    )
+  }
+)
+
+When(
+  'I choose {string} on the accept levy page',
+  /** @this {PlaywrightWorld} */
+  async function (answer) {
+    await this.pageObjects.acceptLevyPage.selectAnswer(answer)
+  }
+)
