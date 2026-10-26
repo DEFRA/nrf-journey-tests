@@ -20,7 +20,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Test code and Create Test Coverage Reports
         uses: actions/setup-node@v4
@@ -52,7 +52,7 @@ jobs:
       NOTIFY_API_KEY: ${{ secrets.NOTIFY_API_KEY }}
       OS_API_KEY: ${{ secrets.OS_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: ./run-journey-tests
         with:
