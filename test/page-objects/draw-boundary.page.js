@@ -169,10 +169,15 @@ class DrawBoundaryPage extends Page {
     // 'commit' resolves as soon as the navigation response for the
     // destination URL starts arriving, before any of its own requests are
     // made — so it can't be blocked by connections held by the old page.
-    await this.page.waitForURL(/\/quote\/(email|not-in-edp|excluded-area)/, {
-      timeout: 30_000,
-      waitUntil: 'commit'
-    })
+    // Saving from a change opened on Check Your Answers returns there rather
+    // than continuing the journey to the email page.
+    await this.page.waitForURL(
+      /\/quote\/(email|not-in-edp|excluded-area|check-your-answers)/,
+      {
+        timeout: 30_000,
+        waitUntil: 'commit'
+      }
+    )
   }
 
   async placePoint() {
