@@ -23,8 +23,8 @@ import { UploadBoundaryPage } from '../page-objects/upload-boundary.page.js'
 import { UploadPreviewMapPage } from '../page-objects/upload-preview-map.page.js'
 import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
-import { QuoteDetailsPage } from '../page-objects/quote-details.page.js'
 import { ReviewQuoteDetailsPage } from '../page-objects/review-quote-details.page.js'
+import { AcceptLevyPage } from '../page-objects/accept-levy.page.js'
 import { AnalyticsInternalPage } from '../page-objects/analytics-internal.page.js'
 import {
   isBrowserStack,
@@ -62,7 +62,6 @@ const realChromeUserAgent =
 // the machine has spare capacity. These flags are debug-only — CI runs
 // headless and never sets them — so they can't affect the real test runs.
 const debugPerformanceArgs = [
-  '--start-maximized',
   '--disable-backgrounding-occluded-windows',
   '--disable-renderer-backgrounding',
   '--disable-background-timer-throttling',
@@ -85,9 +84,7 @@ export class PlaywrightWorld extends World {
         ...(browserName === 'chromium'
           ? { userAgent: realChromeUserAgent }
           : {}),
-        // Pairs with --start-maximized above: a fixed viewport would otherwise
-        // force the maximized window back down to Playwright's default size.
-        ...(headless ? {} : { viewport: null })
+        viewport: { width: 1024, height: 800 }
       })
     }
 
@@ -119,8 +116,8 @@ export class PlaywrightWorld extends World {
       uploadPreviewMapPage: new UploadPreviewMapPage(this.page, baseUrl),
       noEdpPage: new NoEdpPage(this.page, baseUrl),
       drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl),
-      quoteDetailsPage: new QuoteDetailsPage(this.page, baseUrl),
       reviewQuoteDetailsPage: new ReviewQuoteDetailsPage(this.page, baseUrl),
+      acceptLevyPage: new AcceptLevyPage(this.page, baseUrl),
       analyticsInternalPage: new AnalyticsInternalPage(this.page, baseUrl)
     }
   }

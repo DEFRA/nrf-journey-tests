@@ -1,14 +1,23 @@
 @regression
-Feature: NRF2-1260 Change answers on the review and amend quote details page
+Feature: Change answers on the review and amend quote details page
 
   Scenario: Change each answer, go back from a change page, and abandon changes
-    Given I have reached the review and amend quote details page through the request to use journey
+    Given I have created a quote for Nature Restoration Levy
+
+    When I am on the start page
+    And I start a new quote
+    And I select "I am ready to request to use the nature restoration levy" as what I would like to do
+    When I enter my NRL reference
+    When I enter "nrfjourneytests@gmail.com" as my email
+    Then I should see the email confirmation page
+    And I have been sent the retrieve quote email
+    When I follow the magic link in the email
+    Then I should see the review and amend quote details page
 
     # Change planning permission type
     When I click Change for "Planning permission type" on the review and amend quote details page
     Then I should be taken to "/request-to-use/change/planning-type"
     When I select "Outline planning permission" as my planning type
-    And I continue
     Then I should see the review and amend quote details page
     And I should see "Outline planning permission" for "Planning permission type" on the review and amend quote details page
 
@@ -16,7 +25,6 @@ Feature: NRF2-1260 Change answers on the review and amend quote details page
     When I click Change for "Number of housing units" on the review and amend quote details page
     Then I should be taken to "/request-to-use/change/unit-number"
     When I enter "25" units
-    And I continue
     Then I should see the review and amend quote details page
     And I should see "25" for "Number of housing units" on the review and amend quote details page
 
@@ -24,7 +32,6 @@ Feature: NRF2-1260 Change answers on the review and amend quote details page
     When I click Change for "Housing" on the review and amend quote details page
     Then I should be taken to "/request-to-use/change/confirm-housing"
     When I confirm I am developing housing
-    And I continue
     Then I should see the review and amend quote details page
     And I should see "Yes" for "Housing" on the review and amend quote details page
 

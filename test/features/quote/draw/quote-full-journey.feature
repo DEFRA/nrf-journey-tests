@@ -6,21 +6,15 @@ Feature: NRF Quote full journey (drawn boundary on map)
     When I reject analytics cookies
     And I start a new quote
     And I select "I want a quote for the nature restoration levy" as what I would like to do
-    And I continue
     And I select "Full planning permission" as my planning type
-    And I continue
     And I confirm I am developing housing
-    And I continue
     And I enter "10" units
-    And I continue
     And I select "Draw on a map" as my boundary type
-    And I continue
     Then I should see the Key and Styles buttons on the map
     When I search the map for "Aylsham"
     And I draw a boundary on the map
     And I click Save and continue
     And I enter "nrfjourneytests@gmail.com" as my email
-    And I continue
     Then I should see "Added" for "Red line boundary" on the Check Your Answers page
     Then I should see my responses on the Check Your Answers page
     When I submit my answers

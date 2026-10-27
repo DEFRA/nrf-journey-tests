@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { NotifyClient } from './notify-client.js'
 import { bootstrap } from 'global-agent'
 
@@ -7,13 +8,16 @@ const acceptedStatuses = ['sending', 'delivered']
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function findNotifyEmail(
-  apiKey,
+  world,
   emailAddress,
   expectedText,
-  log,
   sentAfter,
   excludeBody
 ) {
+  const apiKey = process.env.NOTIFY_API_KEY
+  assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
+  const log = (message) => world.attach(message, 'text/plain')
+
   if (process.env.HTTP_PROXY) {
     bootstrap()
     global.GLOBAL_AGENT.HTTP_PROXY = process.env.HTTP_PROXY
