@@ -42,12 +42,10 @@ const browsers = { chromium, firefox, webkit }
 const browserName = process.env.BROWSER || 'chromium'
 const browserEngine = browsers[browserName] ?? chromium
 
-// Set BROWSER_CHANNEL=chrome locally to use the system Chrome installation,
-// which supports WebGL in headless mode. The Playwright-bundled headless shell
-// has no GPU and the interactive map's WebGL check shows a fallback message,
-// preventing the draw boundary journey from running. CI uses the full Playwright
-// Chromium (installed with --with-deps) which has SwiftShader and does not need
-// this override.
+// Optional: set BROWSER_CHANNEL=chrome to use the system Chrome installation
+// instead of Playwright's bundled Chromium. Not the default: on macOS the system
+// Chrome took ~14s to load the draw map page versus <1s in bundled Chromium,
+// which renders the WebGL map fine both headed (GPU) and headless (SwiftShader).
 const browserChannel = process.env.BROWSER_CHANNEL || undefined
 
 // Headless Chromium's default UA contains "HeadlessChrome", which the quote
