@@ -68,6 +68,33 @@ services:
       retries: 5
 
   ################################################################################
+  # Stands in for Defra ID. Tests register their own users through its API.
+  defra-id-stub:
+    image: defradigital/cdp-defra-id-stub:latest
+    platform: linux/amd64
+    ports:
+      - '3200:3200'
+    environment:
+      - PORT=3200
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - USE_SINGLE_INSTANCE_CACHE=true
+      - NODE_ENV=development
+      - APP_BASE_URL=http://defra-id-stub.localhost:3200
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3200/health']
+      interval: 5s
+      start_period: 5s
+      retries: 3
+    networks:
+      default:
+        aliases:
+          - defra-id-stub.localhost
+
+  ################################################################################
   cdp-uploader:
     image: defradigital/cdp-uploader:latest
     ports:
@@ -109,7 +136,19 @@ services:
     environment:
       - PORT=3000
       - NODE_ENV=development
-      - ENABLE_DEFRA_ID=false
+      # Sign-in goes through the defra-id-stub below, which advertises
+      # http://defra-id-stub.localhost:3200: browsers resolve *.localhost to
+      # loopback, and the stub's network alias covers this container.
+      - ENABLE_DEFRA_ID=true
+      - DEFRA_ID_BASE_URL=http://defra-id-stub.localhost:3200
+      - DEFRA_ID_WELL_KNOWN_PATH=/cdp-defra-id-stub/.well-known/openid-configuration
+      - DEFRA_ID_CLIENT_ID=client-test
+      - DEFRA_ID_CLIENT_SECRET=test_value
+      - DEFRA_ID_SERVICE_ID=service-test
+      - DEFRA_ID_SCOPES=openid,offline_access
+      - DEFRA_ID_REDIRECT_HOSTS=http://defra-id-stub.localhost:3200
+      - FRONTEND_BASE_URL=http://localhost:3000
+      - COOKIE_PASSWORD=nrf-frontend-secure-cookie-password-must-be-32-chars-minimum-abc123
       - NRF_BACKEND_API_URL=http://nrf-backend:3001
       - NRF_BACKEND_OPTIONAL=true
       - REDIS_HOST=redis
@@ -128,6 +167,8 @@ services:
       - OS_API_KEY=${OS_API_KEY:-}
     depends_on:
       redis:
+        condition: service_healthy
+      defra-id-stub:
         condition: service_healthy
     healthcheck:
       test:

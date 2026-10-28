@@ -5,6 +5,12 @@ class AcceptLevyPage extends Page {
     return super.open('/request-to-use/accept-levy')
   }
 
+  async acceptAmount() {
+    await this.page
+      .getByRole('radio', { name: 'Yes, accept this amount' })
+      .click()
+  }
+
   get provisionalAmountHeading() {
     return this.page.getByRole('heading', {
       name: /^Provisional nature restoration levy amount:/
