@@ -2,8 +2,8 @@ import assert from 'node:assert/strict'
 import { NotifyClient } from './notify-client.js'
 import { bootstrap } from 'global-agent'
 
-const retryDelayMs = 5_000
-const maxAttempts = 10
+const retryDelayMs = 1_000
+const maxAttempts = 50
 const acceptedStatuses = ['sending', 'delivered']
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
