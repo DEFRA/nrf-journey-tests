@@ -243,7 +243,7 @@ Scenarios that need a signed-in user use `test/support/defra-id/index.js`, which
 | `real` (default) | Deployed CDP environments, after merging | A non-prod [test account](https://eaflood.atlassian.net/wiki/spaces/NRFDT/pages/6575620298) via One Login. |
 
 - The action sets the mode itself: `stub` for the Compose stack, `real` when the `environment` input is set.
-- Real mode needs `DEFRA_ID_USER_PASSWORD` (the accounts share one password), an ordinary (non-secret) config value for these non-prod test accounts; the action sets it. The account emails are built in; override with `DEFRA_ID_INDIVIDUAL_EMAIL`, `DEFRA_ID_EMPLOYEE_EMAIL` or `DEFRA_ID_AGENT_EMAIL` if needed.
+- Real mode signs in with the shared non-prod account password, built in as a default (it is not a secret). Override it with `DEFRA_ID_USER_PASSWORD`. The account emails are also built in; override with `DEFRA_ID_INDIVIDUAL_EMAIL`, `DEFRA_ID_EMPLOYEE_EMAIL` or `DEFRA_ID_AGENT_EMAIL` if needed.
 - Stub mode needs the Compose stack's `defra-id-stub` (port 3200). It is reached at `http://defra-id-stub.localhost:3200`: browsers resolve `*.localhost` to loopback, so nothing needs adding to `/etc/hosts`.
 - Each user type (`individual`, `employee`, `agent`) has the same name and organisation in both modes, so one scenario can assert the same thing either way.
 - Stub users must be registered before the browser reaches the sign-in page, because the stub lists users when it renders.

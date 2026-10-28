@@ -16,13 +16,9 @@ export const isStubMode = mode === 'stub'
 
 /** @typedef {import('../world.js').PlaywrightWorld} PlaywrightWorld */
 
-function requireEnv(name) {
-  const value = process.env[name]
-  if (!value) {
-    throw new Error(`${name} must be set when DEFRA_ID_MODE is "real"`)
-  }
-  return value
-}
+// Shared password of the non-prod test accounts (listed on the NRF "Test users
+// (non-prod)" Confluence page). Not a secret.
+const DEFAULT_USER_PASSWORD = 'P4ssw0rd!$'
 
 /**
  * Chooses the Defra ID user for this scenario and stores it on the world.
@@ -62,7 +58,7 @@ export async function signInToDefraId(world) {
     await signInWithRealDefraId({
       page,
       email: defraIdUser.email,
-      password: requireEnv('DEFRA_ID_USER_PASSWORD')
+      password: process.env.DEFRA_ID_USER_PASSWORD || DEFAULT_USER_PASSWORD
     })
   }
 
