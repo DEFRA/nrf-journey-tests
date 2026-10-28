@@ -212,6 +212,7 @@ test/
     page.js           # Base page with pageHeading locator
     home.page.js      # HomePage — open()
   support/
+    defra-id/         # Sign-in for scenarios that need it: index.js picks stub or real; stub/ and real/ hold each flow
     world.js          # Cucumber World: launches browser, exposes this.page + this.pageObjects
     hooks.js          # Before/After lifecycle; screenshot on failure; FAILED file on suite failure
 cucumber.js           # Cucumber profile configuration
@@ -228,8 +229,24 @@ cucumber.js           # Cucumber profile configuration
 | `NRF_FRONTEND`   | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
 | `NRF_BACKEND`    | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                         |
 | `NOTIFY_API_KEY` | <secret>                | API key for test to access Notify sent emails. Get from another team dev, or CDP secrets          |
+| `DEFRA_ID_MODE`  | `real`                  | `stub` signs in through the defra-id-stub; `real` through the non-prod Defra ID. See below.       |
 
 ---
+
+### Defra ID sign-in modes
+
+Scenarios that need a signed-in user use `test/support/defra-id/index.js`, which switches on `DEFRA_ID_MODE`:
+
+| Mode             | Used for                                 | How the user signs in                                                                                      |
+| ---------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `stub`           | Pull requests (Docker Compose stack)     | A fresh user is registered with the defra-id-stub per scenario, then removed. No credentials needed.       |
+| `real` (default) | Deployed CDP environments, after merging | A non-prod [test account](https://eaflood.atlassian.net/wiki/spaces/NRFDT/pages/6575620298) via One Login. |
+
+- The action sets the mode itself: `stub` for the Compose stack, `real` when the `environment` input is set.
+- Real mode signs in with the shared non-prod account password, built in as a default (it is not a secret). Override it with `DEFRA_ID_USER_PASSWORD`. The account emails are also built in; override with `DEFRA_ID_INDIVIDUAL_EMAIL`, `DEFRA_ID_EMPLOYEE_EMAIL` or `DEFRA_ID_AGENT_EMAIL` if needed.
+- Stub mode needs the Compose stack's `defra-id-stub` (port 3200). It is reached at `http://defra-id-stub.localhost:3200`: browsers resolve `*.localhost` to loopback, so nothing needs adding to `/etc/hosts`.
+- Each user type (`individual`, `employee`, `agent`) has the same name and organisation in both modes, so one scenario can assert the same thing either way.
+- Stub users must be registered before the browser reaches the sign-in page, because the stub lists users when it renders.
 
 ### NOTIFY_API_KEY API key
 

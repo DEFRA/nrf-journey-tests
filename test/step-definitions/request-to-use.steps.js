@@ -62,6 +62,32 @@ When(
 )
 
 When(
+  'I accept the levy amount',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.acceptLevyPage.acceptAmount()
+    await clickContinue(this.page)
+  }
+)
+
+When(
+  'I say I am requesting to use the levy for {string}',
+  /** @this {PlaywrightWorld} */
+  async function (answer) {
+    const heading = this.page.locator('h1', {
+      hasText: 'Who are you requesting to use the nature restoration levy for?'
+    })
+    await waitForVisible(
+      this.page,
+      heading,
+      'the who are you requesting heading'
+    )
+    await this.pageObjects.defraAccountUserTypePage.selectAnswer(answer)
+    await clickContinue(this.page)
+  }
+)
+
+When(
   'I follow the request to use link in the quote email',
   /** @this {PlaywrightWorld} */
   async function () {
@@ -252,6 +278,14 @@ Then(
     }).format(BASE_CHARGE_PER_UNIT * this.housingUnits)
     const { provisionalAmountHeading, inflationAdjustedAmountHeading } =
       this.pageObjects.acceptLevyPage
+
+    await waitForVisible(
+      this.page,
+      this.page.locator('h1', {
+        hasText: 'Do you accept this nature restoration levy amount?'
+      }),
+      'the accept levy heading'
+    )
 
     await waitForVisible(
       this.page,
