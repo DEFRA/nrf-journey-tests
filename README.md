@@ -147,6 +147,8 @@ npm run test:e2e:local
 npm run test:e2e:debug
 ```
 
+Both use Playwright's bundled Chromium, which renders the draw map headed and headless. Set `BROWSER_CHANNEL=chrome` to use your system Chrome instead; it was much slower to load the map in testing.
+
 **Tear down** when done:
 
 ```sh

@@ -1,21 +1,19 @@
 import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
+import { clickContinue } from '../support/click-continue.js'
 import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
-import { reachReviewQuoteDetailsPage } from '../support/reach-review-quote-details-page.js'
+import { seedQuoteViaFrontend } from '../support/seed-quote.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
-// The composite seeds the quote over HTTP (fast) but the request-to-use half
-// runs in the browser, where the Notify retrieve-email lookup alone can take
-// most of a minute — well over the per-step default.
 Given(
-  'I have reached the review and amend quote details page through the request to use journey',
+  'I have created a quote for Nature Restoration Levy',
   { timeout: 120_000 },
   /** @this {PlaywrightWorld} */
   async function () {
-    await reachReviewQuoteDetailsPage(this)
+    await seedQuoteViaFrontend(this)
   }
 )
 
@@ -37,6 +35,7 @@ When(
   /** @this {PlaywrightWorld} */
   async function (answer) {
     await this.pageObjects.haveNrlReferencePage.selectAnswer(answer)
+    await clickContinue(this.page)
   }
 )
 
@@ -45,20 +44,20 @@ When(
   /** @this {PlaywrightWorld} */
   async function (reference) {
     await this.pageObjects.enterNrlReferencePage.fillNrlReference(reference)
+    await clickContinue(this.page)
   }
 )
 
 When(
-  'I enter the NRL reference from my quote as my NRL reference',
+  'I enter my NRL reference',
   /** @this {PlaywrightWorld} */
   async function () {
-    assert.ok(
-      this.nrfReference,
-      'No NRL reference was captured earlier in this scenario'
-    )
+    await this.pageObjects.haveNrlReferencePage.selectAnswer('Yes')
+    await clickContinue(this.page)
     await this.pageObjects.enterNrlReferencePage.fillNrlReference(
       this.nrfReference
     )
+    await clickContinue(this.page)
   }
 )
 
@@ -85,7 +84,7 @@ When(
 )
 
 Then(
-  'the NRL reference from my quote should be pre-filled',
+  'the NRL reference from my quote is pre-filled',
   /** @this {PlaywrightWorld} */
   async function () {
     await this.pageObjects.enterNrlReferencePage.nrlReferenceInput.waitFor({
@@ -95,6 +94,7 @@ Then(
       await this.pageObjects.enterNrlReferencePage.prefilledReference,
       this.nrfReference
     )
+    await clickContinue(this.page)
   }
 )
 
@@ -115,18 +115,13 @@ async function captureRetrieveQuoteEmail(excludeBody) {
     this.nrfReference,
     'No NRL reference was captured earlier in this scenario'
   )
-  const apiKey = process.env.NOTIFY_API_KEY
-  assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
-
   // The quote confirmation email does not contain a magic link, so the link
   // path identifies the retrieve your quote email.
   const expectedText = `/request-to-use/retrieve/${this.nrfReference}/`
-  const log = (message) => this.attach(message, 'text/plain')
   const body = await findNotifyEmail(
-    apiKey,
+    this,
     this.submittedEmail,
     expectedText,
-    log,
     this.quoteSubmittedAt ?? this.scenarioStartedAt,
     excludeBody
   )
@@ -218,5 +213,58 @@ When(
   /** @this {PlaywrightWorld} */
   async function (key) {
     await this.pageObjects.reviewQuoteDetailsPage.changeLink(key).click()
+  }
+)
+
+const BASE_CHARGE_PER_UNIT = 2675
+
+When(
+  'I note the number of housing units',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const value = this.pageObjects.reviewQuoteDetailsPage.summaryRowValue(
+      'Number of housing units'
+    )
+    await waitForVisible(this.page, value, 'the number of housing units')
+    const units = Number((await value.textContent()).trim())
+    assert.ok(
+      Number.isInteger(units) && units > 0,
+      `Expected a positive whole number of housing units but got "${await value.textContent()}"`
+    )
+    this.housingUnits = units
+  }
+)
+
+// Until inflation is applied, the inflation-adjusted amount equals the
+// provisional amount: both are the base charge per unit times the units.
+Then(
+  'I should see the levy amounts for my number of housing units',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.housingUnits,
+      'No number of housing units was noted earlier in this scenario'
+    )
+    const expectedAmount = new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      maximumFractionDigits: 0
+    }).format(BASE_CHARGE_PER_UNIT * this.housingUnits)
+    const { provisionalAmountHeading, inflationAdjustedAmountHeading } =
+      this.pageObjects.acceptLevyPage
+
+    await waitForVisible(
+      this.page,
+      provisionalAmountHeading,
+      'the provisional levy amount'
+    )
+    assert.equal(
+      (await provisionalAmountHeading.textContent()).trim(),
+      `Provisional nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+    )
+    assert.equal(
+      (await inflationAdjustedAmountHeading.textContent()).trim(),
+      `Inflation-adjusted nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+    )
   }
 )

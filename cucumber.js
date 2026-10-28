@@ -9,10 +9,10 @@ export default {
   // synthetic events, which the draw map doesn't respond to.
   paths: process.env.BROWSERSTACK_DEVICE
     ? [
-        'test/features/upload/quote-full-journey.feature',
+        'test/features/quote/upload/quote-full-journey.feature',
         ...(process.env.BROWSERSTACK_DEVICE === 'iphone'
           ? []
-          : ['test/features/draw/quote-full-journey.feature'])
+          : ['test/features/quote/draw/quote-full-journey.feature'])
       ]
     : ['test/features/**/*.feature'],
   parallel: process.env.BROWSERSTACK_DEVICE ? 0 : parallelWorkers,
@@ -32,7 +32,7 @@ export default {
     'test/step-definitions/**/*.js'
   ],
   format: [
-    'summary',
+    'progress',
     ['allure-cucumberjs/reporter', 'allure-results/.allure-stream']
   ],
   formatOptions: {

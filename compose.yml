@@ -116,6 +116,10 @@ services:
       # Service-to-service API keys (test only; real values come from CDP secrets)
       - BACKEND_API_KEY=local-dev-backend-key
       - IMPACT_ASSESSOR_API_KEY=local-dev-impact-assessor-key
+      # Levy recalculation (Continue on the review and amend page) and the map
+      # tile proxy call the impact assessor directly; the default is localhost,
+      # which is the frontend container itself here.
+      - IMPACT_ASSESSOR_BASE_URL=http://nrf-impact-assessor:8085
       # Real OS Data Hub key for the draw-boundary map's location search.
       # Docker Compose substitutes this from whatever OS_API_KEY is exported
       # in the shell that runs `docker compose up` (CI secret or local
