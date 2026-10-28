@@ -27,6 +27,7 @@ import { ReviewQuoteDetailsPage } from '../page-objects/review-quote-details.pag
 import { AcceptLevyPage } from '../page-objects/accept-levy.page.js'
 import { DefraAccountUserTypePage } from '../page-objects/defra-account-user-type.page.js'
 import { DefraAccountIndividualPage } from '../page-objects/defra-account-individual.page.js'
+import { DefraAccountOrganisationPage } from '../page-objects/defra-account-organisation.page.js'
 import { EnterAddressPage } from '../page-objects/enter-address.page.js'
 import { AnalyticsInternalPage } from '../page-objects/analytics-internal.page.js'
 import {
@@ -124,6 +125,10 @@ export class PlaywrightWorld extends World {
         baseUrl
       ),
       defraAccountIndividualPage: new DefraAccountIndividualPage(
+        this.page,
+        baseUrl
+      ),
+      defraAccountOrganisationPage: new DefraAccountOrganisationPage(
         this.page,
         baseUrl
       ),
