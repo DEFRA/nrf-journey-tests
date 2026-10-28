@@ -41,7 +41,6 @@ Feature: Request to use journey
     Then I should see the levy amounts for my number of housing units
     When I accept the levy amount
     And I request to use the levy for "Yourself, as an individual"
-    Then I should see the "You'll need to create or sign in to a Defra account as an individual" heading
-    When I continue
+    And I continue from the "You'll need to create or sign in to a Defra account as an individual" page
     And I sign in to Defra ID
     Then I should be signed in and can enter my address

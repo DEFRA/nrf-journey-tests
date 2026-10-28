@@ -302,3 +302,9 @@ Then(
     )
   }
 )
+
+Then('I continue from the {string} page', async function (heading) {
+  const h1 = this.page.locator('h1', { hasText: heading })
+  await waitForVisible(this.page, h1, `heading "${heading}"`)
+  await clickContinue(this.page)
+})
