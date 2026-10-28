@@ -71,7 +71,7 @@ When(
 )
 
 When(
-  'I say I am requesting to use the levy for {string}',
+  'I request to use the levy for {string}',
   /** @this {PlaywrightWorld} */
   async function (answer) {
     const heading = this.page.locator('h1', {

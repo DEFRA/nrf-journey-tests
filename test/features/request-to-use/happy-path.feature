@@ -18,7 +18,7 @@ Feature: Request to use journey
     When I continue
     Then I should see the levy amounts for my number of housing units
     When I accept the levy amount
-    And I say I am requesting to use the levy for "The business or organisation you work for"
+    And I request to use the levy for "The business or organisation you work for"
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
     And I should see that I am representing my organisation as an employee
@@ -40,7 +40,7 @@ Feature: Request to use journey
     When I continue
     Then I should see the levy amounts for my number of housing units
     When I accept the levy amount
-    And I say I am requesting to use the levy for "Yourself, as an individual"
+    And I request to use the levy for "Yourself, as an individual"
     Then I should see the "You'll need to create or sign in to a Defra account as an individual" heading
     When I continue
     And I sign in to Defra ID
