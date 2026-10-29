@@ -71,7 +71,7 @@ When(
 )
 
 When(
-  'I say I am requesting to use the levy for {string}',
+  'I request to use the levy for {string}',
   /** @this {PlaywrightWorld} */
   async function (answer) {
     const heading = this.page.locator('h1', {
@@ -302,3 +302,9 @@ Then(
     )
   }
 )
+
+Then('I continue from the {string} page', async function (heading) {
+  const h1 = this.page.locator('h1', { hasText: heading })
+  await waitForVisible(this.page, h1, `heading "${heading}"`)
+  await clickContinue(this.page)
+})
