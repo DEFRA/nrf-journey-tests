@@ -71,6 +71,23 @@ const debugPerformanceArgs = [
   '--disable-features=CalculateNativeWinOcclusion'
 ]
 
+// CDP test containers reach the internet (Defra ID) only through HTTP_PROXY, but
+// the CDP-hosted frontend must be reached directly.
+function browserProxy() {
+  if (!process.env.HTTP_PROXY || process.env.ENVIRONMENT === undefined) {
+    return {}
+  }
+  const { origin, username, password } = new URL(process.env.HTTP_PROXY)
+  return {
+    proxy: {
+      server: origin,
+      username: decodeURIComponent(username),
+      password: decodeURIComponent(password),
+      bypass: '*.cdp-int.defra.cloud'
+    }
+  }
+}
+
 export class PlaywrightWorld extends World {
   async openBrowser(sessionName) {
     if (isBrowserStack) {
@@ -81,7 +98,8 @@ export class PlaywrightWorld extends World {
       this.browser = await browserEngine.launch({
         headless,
         args: headless ? [] : debugPerformanceArgs,
-        ...(browserChannel ? { channel: browserChannel } : {})
+        ...(browserChannel ? { channel: browserChannel } : {}),
+        ...browserProxy()
       })
       this.context = await this.browser.newContext({
         ...(browserName === 'chromium'
@@ -92,6 +110,7 @@ export class PlaywrightWorld extends World {
     }
 
     this.page = await this.context.newPage()
+    this.page.setDefaultNavigationTimeout(isBrowserStack ? 90_000 : 60_000)
     enableIosAutoWait(this.page)
     this.pageObjects = {
       homePage: new HomePage(this.page, baseUrl),
