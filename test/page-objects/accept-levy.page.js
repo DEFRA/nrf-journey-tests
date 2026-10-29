@@ -11,6 +11,12 @@ class AcceptLevyPage extends Page {
       .click()
   }
 
+  async declineAmount() {
+    await this.page
+      .getByRole('radio', { name: 'No, delete my quote details' })
+      .click()
+  }
+
   get provisionalAmountHeading() {
     return this.page.getByRole('heading', {
       name: /^Provisional nature restoration levy amount:/
