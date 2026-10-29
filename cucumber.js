@@ -1,7 +1,7 @@
 // Scenarios each launch their own browser and session, so they run in parallel
 // worker processes. BrowserStack stays serial: each worker would start its own
 // Local tunnel and use another device session.
-const parallelWorkers = 2
+const parallelWorkers = 5
 
 export default {
   // BrowserStack runs cover one upload and one draw journey, end to end. The
