@@ -33,7 +33,7 @@
     "allure-commandline": "2.46.1",
     "allure-cucumberjs": "3.14.0",
     "browserstack-local": "1.5.16",
-    "global-agent": "3.0.0",
+    "global-agent": "4.1.6",
     "notifications-node-client": "8.5.0",
     "playwright": "1.64.1",
     "undici": "7.30.1"
