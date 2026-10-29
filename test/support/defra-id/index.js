@@ -43,10 +43,16 @@ export async function prepareDefraIdUser({ world, userType }) {
 
 /**
  * Completes sign-in on the Defra ID page the browser has been redirected to,
- * then waits for the redirect back to the service.
+ * then waits for the redirect back to the service. Pass
+ * `expectOrganisationPicker` for a user with several organisation links: the
+ * redirect only happens once chooseOrganisation has been called.
  * @param {PlaywrightWorld} world
+ * @param {{expectOrganisationPicker?: boolean}} [options]
  */
-export async function signInToDefraId(world) {
+export async function signInToDefraId(
+  world,
+  { expectOrganisationPicker = false } = {}
+) {
   const { page, defraIdUser } = world
   if (!defraIdUser) {
     throw new Error('No Defra ID user: call prepareDefraIdUser first')
@@ -62,6 +68,25 @@ export async function signInToDefraId(world) {
     })
   }
 
+  if (!expectOrganisationPicker) {
+    await waitForRedirectToService(page)
+  }
+}
+
+/**
+ * Chooses an organisation on the Defra ID organisation picker, then waits for
+ * the redirect back to the service.
+ * @param {PlaywrightWorld} world
+ * @param {string} organisationName
+ */
+export async function chooseOrganisation(world, organisationName) {
+  const { page } = world
+  await page.getByRole('radio', { name: organisationName }).check()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await waitForRedirectToService(page)
+}
+
+async function waitForRedirectToService(page) {
   const serviceOrigin = new URL(baseUrl).origin
   await page.waitForURL((url) => url.origin === serviceOrigin, {
     timeout: 60_000

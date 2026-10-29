@@ -9,8 +9,9 @@
  * @property {string} lastName
  * @property {string} emailEnvVar - env var that overrides the real account email
  * @property {string} realEmail - email of the real non-prod account
- * @property {string} [organisationName] - organisation the user acts for
+ * @property {string} [organisationName] - organisation the user acts for in the journey
  * @property {string} [relationshipRole] - relationship to the organisation, e.g. Employee
+ * @property {Array<{organisationName: string, relationshipRole: string}>} [otherRelationships] - further organisation links the user has; with any, Defra ID shows the organisation picker
  */
 
 /** @typedef {'individual' | 'employee' | 'agent'} DefraIdUserType */
@@ -36,8 +37,11 @@ export const defraIdUsers = {
     lastName: 'Allen',
     emailEnvVar: 'DEFRA_ID_AGENT_EMAIL',
     realEmail: 'nrfnonprod+argentagentsemployee@gmail.com',
-    organisationName: 'Argent Agents',
-    relationshipRole: 'Agent'
+    organisationName: 'IVY HOUSEBUILDERS LIMITED',
+    relationshipRole: 'Agent',
+    otherRelationships: [
+      { organisationName: 'Argent Agents', relationshipRole: 'Employee' }
+    ]
   }
 }
 

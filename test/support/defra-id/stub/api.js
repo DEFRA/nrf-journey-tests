@@ -11,8 +11,32 @@ const attempts = 3
 /**
  * @param {DefraIdUser} user
  */
+function buildStubRelationships(user) {
+  const links = [
+    ...(user.otherRelationships ?? []),
+    ...(user.organisationName
+      ? [
+          {
+            organisationName: user.organisationName,
+            relationshipRole: user.relationshipRole
+          }
+        ]
+      : [])
+  ]
+  return links.map(({ organisationName, relationshipRole }) => ({
+    organisationName,
+    relationshipRole,
+    roleName: relationshipRole,
+    roleStatus: '1'
+  }))
+}
+
+/**
+ * @param {DefraIdUser} user
+ */
 function buildStubUser(user) {
   const userId = randomUUID()
+  const relationships = buildStubRelationships(user)
   return {
     userId,
     email: `${userId}@example.com`,
@@ -20,18 +44,9 @@ function buildStubUser(user) {
     lastName: user.lastName,
     loa: '1',
     aal: '1',
-    enrolmentCount: 1,
+    enrolmentCount: Math.max(relationships.length, 1),
     enrolmentRequestCount: 1,
-    relationships: user.organisationName
-      ? [
-          {
-            organisationName: user.organisationName,
-            relationshipRole: user.relationshipRole,
-            roleName: user.relationshipRole,
-            roleStatus: '1'
-          }
-        ]
-      : []
+    relationships
   }
 }
 

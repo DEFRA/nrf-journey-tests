@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
 import {
+  chooseOrganisation,
   prepareDefraIdUser,
   signInToDefraId
 } from '../support/defra-id/index.js'
@@ -23,6 +24,24 @@ When(
   /** @this {PlaywrightWorld} */
   async function () {
     await signInToDefraId(this)
+  }
+)
+
+When(
+  'I sign in to Defra ID and am shown the organisation picker',
+  { timeout: 120_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await signInToDefraId(this, { expectOrganisationPicker: true })
+  }
+)
+
+When(
+  'I choose {string} on the organisation picker',
+  { timeout: 120_000 },
+  /** @this {PlaywrightWorld} */
+  async function (organisationName) {
+    await chooseOrganisation(this, organisationName)
   }
 )
 

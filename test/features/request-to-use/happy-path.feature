@@ -65,6 +65,7 @@ Feature: Request to use journey
     When I accept the levy amount
     And I request to use the levy for "A client you act for as an agent or third party"
     And I continue from the "Your client will need to create a Defra account and invite you as an agent or third party" page
-    And I sign in to Defra ID
+    And I sign in to Defra ID and am shown the organisation picker
+    And I choose "IVY HOUSEBUILDERS LIMITED" on the organisation picker
     Then I should be signed in and can enter my address
     And I should see that I am representing my organisation as an agent
