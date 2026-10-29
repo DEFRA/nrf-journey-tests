@@ -68,6 +68,19 @@ Feature: Change a red line boundary from Check Your Answers
     Then I should see the "Check your answers" heading
     And I should see "BnW_small_under_1_hectare.geojson" for "Red line boundary" on the Check Your Answers page
 
+  Scenario: Changing an uploaded boundary goes through the boundary type page
+    When I click Change for "Red line boundary" on the Check Your Answers page
+    And I select "Upload a file" as my boundary type
+    And I continue
+    And I upload "test/fixtures/BnW_small_under_1_hectare.geojson" as my boundary file
+    And I save and continue on the boundary preview
+    Then I should see the "Check your answers" heading
+    When I click Change for "Red line boundary" on the Check Your Answers page
+    Then I should see the "Choose how you would like to show us the boundary of your development" heading
+    And the "Upload a file" option should be selected
+    When I continue
+    Then I should see the "Upload a red line boundary file" heading
+
   Scenario: Back from the uploaded file page returns to the upload page, boundary type page and Check Your Answers page
     When I click Change for "Red line boundary" on the Check Your Answers page
     And I select "Upload a file" as my boundary type
