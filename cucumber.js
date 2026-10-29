@@ -1,7 +1,10 @@
 // Scenarios each launch their own browser and session, so they run in parallel
 // worker processes. BrowserStack stays serial: each worker would start its own
-// Local tunnel and use another device session.
-const parallelWorkers = 5
+// Local tunnel and use another device session. Set PARALLEL_WORKERS to override
+// the default, e.g. when a slower runner times out under load.
+const parallelWorkers = process.env.PARALLEL_WORKERS
+  ? Number(process.env.PARALLEL_WORKERS)
+  : 2
 
 export default {
   // BrowserStack runs cover one upload and one draw journey, end to end. The

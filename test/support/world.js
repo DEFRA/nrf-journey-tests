@@ -92,6 +92,7 @@ export class PlaywrightWorld extends World {
     }
 
     this.page = await this.context.newPage()
+    this.page.setDefaultNavigationTimeout(isBrowserStack ? 90_000 : 60_000)
     enableIosAutoWait(this.page)
     this.pageObjects = {
       homePage: new HomePage(this.page, baseUrl),

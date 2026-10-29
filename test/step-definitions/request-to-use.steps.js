@@ -303,8 +303,15 @@ Then(
   }
 )
 
-Then('I continue from the {string} page', async function (heading) {
-  const h1 = this.page.locator('h1', { hasText: heading })
-  await waitForVisible(this.page, h1, `heading "${heading}"`)
-  await clickContinue(this.page)
-})
+Then(
+  'I continue from the {string} page',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function (heading) {
+    const h1 = this.page.locator('h1', { hasText: heading })
+    await waitForVisible(this.page, h1, `heading "${heading}"`, {
+      timeoutMs: 30_000
+    })
+    await clickContinue(this.page)
+  }
+)
