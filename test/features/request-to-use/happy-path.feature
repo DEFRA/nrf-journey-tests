@@ -19,6 +19,7 @@ Feature: Request to use journey
     Then I should see the levy amounts for my number of housing units
     When I accept the levy amount
     And I request to use the levy for "The business or organisation you work for"
+    And I continue from the "You'll need to create or join a Defra account for your business or organisation" page
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
     And I should see that I am representing my organisation as an employee
