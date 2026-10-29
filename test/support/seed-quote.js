@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { baseUrl } from './base-url.js'
+import { findNotifyEmail } from './find-notify-email.js'
 
 export const SEED_EMAIL = 'nrfjourneytests@gmail.com'
 
@@ -23,11 +24,11 @@ const POLYGON = {
 // Creates a complete quote by driving the frontend's own routes over HTTP —
 // the same requests the browser makes when a user walks the quote journey,
 // just without rendering pages, uploading a file through the CDP uploader or
-// waiting for the confirmation email. The frontend adds the backend
-// credentials server-side, so no API keys are needed here, and the resulting
-// quote is indistinguishable from a UI-created one at the request-to-use
-// stage. Leaves the world state the request-to-use steps expect:
-// submittedEmail, nrfReference and quoteSubmittedAt.
+// rendering the confirmation. The frontend adds the backend credentials
+// server-side, and the resulting quote is indistinguishable from a UI-created
+// one at the request-to-use stage. Leaves the world state the request-to-use
+// steps expect: submittedEmail, nrfReference, quoteSubmittedAt and
+// confirmationEmailBody (fetched from Notify, so NOTIFY_API_KEY is required).
 /**
  * @param {import('./world.js').PlaywrightWorld} world
  */
@@ -165,6 +166,18 @@ async function seedQuoteViaFrontend(world) {
     'No NRL reference found on the quote confirmation page'
   )
   world.nrfReference = referenceMatch[0]
+
+  const expectedText = `NRL reference: ${world.nrfReference}`
+  world.confirmationEmailBody = await findNotifyEmail(
+    world,
+    world.submittedEmail,
+    expectedText,
+    world.quoteSubmittedAt
+  )
+  assert.ok(
+    world.confirmationEmailBody,
+    `No confirmation email to ${world.submittedEmail} containing "${expectedText}" after all retries — see attached attempt log`
+  )
 }
 
 export { seedQuoteViaFrontend }

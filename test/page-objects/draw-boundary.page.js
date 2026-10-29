@@ -76,7 +76,8 @@ class DrawBoundaryPage extends Page {
       name: 'Search',
       exact: true
     })
-    await openSearch.waitFor({ state: 'visible' })
+    // The map can take 20s+ to initialise in a headful browser.
+    await openSearch.waitFor({ state: 'visible', timeout: 40_000 })
     await openSearch.evaluate((el) => el.click())
     await this.searchInput.waitFor({ state: 'visible' })
     await this.searchInput.pressSequentially(query)
@@ -94,6 +95,26 @@ class DrawBoundaryPage extends Page {
       .first()
     await firstMatch.waitFor({ state: 'visible' })
     await firstMatch.click()
+    await this.waitForMapToSettle()
+  }
+
+  // Choosing a search result flies the map to the location. The triangle is
+  // placed relative to the map centre, so drawing while the map is still
+  // moving puts it somewhere else — sometimes inside an eligible EDP when the
+  // journey needs an excluded or uncovered area. The map exposes no "idle"
+  // signal, so wait until two consecutive screenshots of it are identical
+  // (animation finished and tiles loaded).
+  async waitForMapToSettle({ timeout = 20_000, interval = 500 } = {}) {
+    const deadline = Date.now() + timeout
+    let previous = null
+    while (Date.now() < deadline) {
+      const current = await this.mapContainer.screenshot({
+        animations: 'disabled'
+      })
+      if (previous && current.equals(previous)) return
+      previous = current
+      await this.page.waitForTimeout(interval)
+    }
   }
 
   async drawTriangleOnMap() {

@@ -1,0 +1,20 @@
+@smoke @regression
+Feature: NRF Quote full journey (file upload)
+
+  Scenario: Complete full quote and request to use journey via file upload
+    Given I am on the start page
+    When I start a new quote
+    And I select "I want a quote for the nature restoration levy" as what I would like to do
+    And I select "Full planning permission" as my planning type
+    And I confirm I am developing housing
+    And I enter "10" units
+    And I select "Upload a file" as my boundary type
+    And I upload "test/fixtures/BnW_small_under_1_hectare.geojson" as my boundary file
+    And I save and continue on the boundary preview
+    And I enter "nrfjourneytests@gmail.com" as my email
+    Then I should see "BnW_small_under_1_hectare.geojson" for "Red line boundary" on the Check Your Answers page
+    And I should see my responses on the Check Your Answers page
+    When I submit my answers
+    Then I should see the confirmation page
+    And I should see an NRL reference number
+    And I have been sent a confirmation email

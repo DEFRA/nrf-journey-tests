@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
 import { waitForVisible } from '../support/wait-for-visible.js'
+import { clickContinue } from '../support/click-continue.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -9,7 +10,7 @@ Given(
   // This chains ~10 prior actions before the final wait below — including
   // drawing a boundary on the map — so the default 15s step timeout leaves
   // little headroom; give the whole setup more room.
-  { timeout: 90_000 },
+  { timeout: 150_000 },
   /** @this {PlaywrightWorld} */
   async function () {
     await this.pageObjects.homePage.open()
@@ -17,17 +18,17 @@ Given(
     await this.pageObjects.whatWouldYouLikeToDoPage.selectOption(
       'I want a quote for the nature restoration levy'
     )
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
     await this.pageObjects.planningTypePage.selectPlanningType(
       'Full planning permission'
     )
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
     await this.pageObjects.confirmHousingPage.selectYes()
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
     await this.pageObjects.residentialPage.fillResidentialUnits('10')
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
     await this.pageObjects.boundaryTypePage.selectBoundaryType('Draw on a map')
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
     // The boundary must actually be drawn: Check your answers now rejects
     // quotes with unanswered questions, so skipping straight to email would
     // land on the 400 error page instead.
@@ -35,7 +36,7 @@ Given(
     await this.pageObjects.drawBoundaryPage.drawTriangleOnMap()
     await this.pageObjects.drawBoundaryPage.saveAndContinue()
     await this.pageObjects.emailPage.fillEmail('test@example.com')
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
     await waitForVisible(
       this.page,
       this.pageObjects.checkYourAnswersPage.pageHeading,

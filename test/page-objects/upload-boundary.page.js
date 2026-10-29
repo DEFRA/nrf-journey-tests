@@ -1,4 +1,5 @@
 import { Page } from './page.js'
+import { clickContinue } from '../support/click-continue.js'
 
 class UploadBoundaryPage extends Page {
   open() {
@@ -11,7 +12,7 @@ class UploadBoundaryPage extends Page {
 
   async uploadFile(filePath) {
     await this.fileInput.setInputFiles(filePath)
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
   }
 }
 

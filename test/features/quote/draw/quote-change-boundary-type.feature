@@ -8,20 +8,14 @@ Feature: Change a red line boundary from Check Your Answers
     Given I am on the start page
     When I start a new quote
     And I select "I want a quote for the nature restoration levy" as what I would like to do
-    And I continue
     And I select "Full planning permission" as my planning type
-    And I continue
     And I confirm I am developing housing
-    And I continue
     And I enter "10" units
-    And I continue
     And I select "Draw on a map" as my boundary type
-    And I continue
     And I search the map for "Aylsham"
     And I draw a boundary on the map
     And I click Save and continue
     And I enter "nrfjourneytests@gmail.com" as my email
-    And I continue
 
   Scenario: The drawn boundary Change link opens the boundary type page
     When I click Change for "Red line boundary" on the Check Your Answers page
@@ -56,7 +50,6 @@ Feature: Change a red line boundary from Check Your Answers
   Scenario: Switching to upload from the boundary type page
     When I click Change for "Red line boundary" on the Check Your Answers page
     And I select "Upload a file" as my boundary type
-    And I continue
     Then I should see the "Upload a red line boundary file" heading
 
   Scenario: Saving an uploaded boundary returns to the Check Your Answers page

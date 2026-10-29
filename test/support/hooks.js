@@ -6,6 +6,7 @@ import {
   startBrowserStackLocal,
   stopBrowserStackLocal
 } from './browserstack.js'
+import { cleanUpDefraIdUser } from './defra-id/index.js'
 
 // Scenarios run in parallel workers and the global hooks run once per worker
 // process, so failedCount is that worker's count. The FAILED file only needs to exist.
@@ -49,6 +50,7 @@ After({ timeout: 30_000 }, async function (scenario) {
       // Session already closed — the BrowserStack dashboard shows it as unmarked
     }
   }
+  await cleanUpDefraIdUser(this)
   await this.closeBrowser()
 })
 

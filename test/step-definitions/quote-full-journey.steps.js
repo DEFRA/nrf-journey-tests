@@ -5,6 +5,7 @@ import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
 import { attachScreenshot } from '../support/attach-screenshot.js'
 import { waitForVisible } from '../support/wait-for-visible.js'
+import { clickContinue } from '../support/click-continue.js'
 import { UNSUPPORTED_AREA_MESSAGE } from '../page-objects/draw-boundary.page.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
@@ -38,6 +39,7 @@ When(
   /** @this {PlaywrightWorld} */
   async function (option) {
     await this.pageObjects.whatWouldYouLikeToDoPage.selectOption(option)
+    await clickContinue(this.page)
   }
 )
 
@@ -46,6 +48,7 @@ When(
   /** @this {PlaywrightWorld} */
   async function (planningType) {
     await this.pageObjects.planningTypePage.selectPlanningType(planningType)
+    await clickContinue(this.page)
   }
 )
 
@@ -54,6 +57,7 @@ When(
   /** @this {PlaywrightWorld} */
   async function (boundaryType) {
     await this.pageObjects.boundaryTypePage.selectBoundaryType(boundaryType)
+    await clickContinue(this.page)
   }
 )
 
@@ -85,18 +89,21 @@ When(
 
 Then(
   'I should see the Key and Styles buttons on the map',
+  { timeout: 60_000 },
   /** @this {PlaywrightWorld} */
   async function () {
     const drawBoundaryPage = this.pageObjects.drawBoundaryPage
     await waitForVisible(
       this.page,
       drawBoundaryPage.keyButton,
-      'the Key button on the map'
+      'the Key button on the map',
+      { timeoutMs: 40_000 }
     )
     await waitForVisible(
       this.page,
       drawBoundaryPage.stylesButton,
-      'the Styles button on the map'
+      'the Styles button on the map',
+      { timeoutMs: 40_000 }
     )
     await attachScreenshot(this)
   }
@@ -104,6 +111,7 @@ Then(
 
 When(
   'I search the map for {string}',
+  { timeout: 60_000 },
   /** @this {PlaywrightWorld} */
   async function (query) {
     await this.pageObjects.drawBoundaryPage.searchLocation(query)
@@ -188,6 +196,7 @@ When(
   /** @this {PlaywrightWorld} */
   async function () {
     await this.pageObjects.confirmHousingPage.selectYes()
+    await clickContinue(this.page)
   }
 )
 
@@ -195,7 +204,7 @@ When(
   'I continue',
   /** @this {PlaywrightWorld} */
   async function () {
-    await this.page.getByRole('button', { name: 'Continue' }).click()
+    await clickContinue(this.page)
   }
 )
 
@@ -204,6 +213,7 @@ When(
   /** @this {PlaywrightWorld} */
   async function (count) {
     await this.pageObjects.residentialPage.fillResidentialUnits(count)
+    await clickContinue(this.page)
   }
 )
 
@@ -213,6 +223,7 @@ When(
   async function (email) {
     this.submittedEmail = email
     await this.pageObjects.emailPage.fillEmail(email)
+    await clickContinue(this.page)
   }
 )
 
@@ -363,20 +374,15 @@ Then(
       'No NRL reference was captured earlier in this scenario'
     )
 
-    const apiKey = process.env.NOTIFY_API_KEY
-    assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
-
     const expectedText = `NRL reference: ${nrfReference}`
     const levyAmountParagraph =
       /Provisional nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
     const inflationAdjustedLevyAmountParagraph =
       /Inflation-adjusted nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(plus VAT charged at 20%\)/
-    const log = (message) => this.attach(message, 'text/plain')
     const matchEmailBody = await findNotifyEmail(
-      apiKey,
+      this,
       this.submittedEmail,
       expectedText,
-      log,
       this.quoteSubmittedAt ?? this.scenarioStartedAt
     )
 
@@ -393,130 +399,5 @@ Then(
       `Expected email body to match ${inflationAdjustedLevyAmountParagraph} but got:\n${matchEmailBody}`
     )
     this.confirmationEmailBody = matchEmailBody
-  }
-)
-
-When(
-  'I follow the quote link in the email',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    assert.ok(
-      this.confirmationEmailBody,
-      'No confirmation email body was captured earlier in this scenario'
-    )
-
-    // The email contains several links, so anchor on the access link's text
-    // rather than a bare URL pattern. It is a markdown link of the form
-    // [Commit to using Nature Restoration Fund](<url>); capture the url in the
-    // parentheses.
-    const linkMatch = this.confirmationEmailBody.match(
-      /\[Commit to using Nature Restoration Fund\]\((https?:\/\/[^)]+)\)/
-    )
-    assert.ok(
-      linkMatch,
-      `Expected the email body to contain a "Commit to using Nature Restoration Fund" link but found none:\n${this.confirmationEmailBody}`
-    )
-
-    this.quoteLinkUrl = linkMatch[1]
-    await this.pageObjects.quoteDetailsPage.visit(this.quoteLinkUrl)
-  }
-)
-
-Then(
-  'I should see the quote details page with my NRL reference',
-  { timeout: 20_000 },
-  /** @this {PlaywrightWorld} */
-  async function () {
-    const nrfReference = this.nrfReference
-    assert.ok(
-      nrfReference,
-      'No NRL reference was captured earlier in this scenario'
-    )
-
-    const heading = this.pageObjects.quoteDetailsPage.pageHeading
-    await waitForVisible(this.page, heading, 'the quote details page heading', {
-      timeoutMs: 8_000
-    })
-    assert.equal(
-      (await heading.textContent()).trim(),
-      'Your Nature restoration levy quote'
-    )
-
-    await waitForVisible(
-      this.page,
-      this.page.getByText(nrfReference).first(),
-      `the NRL reference "${nrfReference}" on the quote details page`,
-      { timeoutMs: 8_000 }
-    )
-  }
-)
-
-Then(
-  'I should see that the link is invalid',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    const heading = this.pageObjects.quoteDetailsPage.pageHeading
-    await waitForVisible(this.page, heading, 'the "link is invalid" heading')
-    assert.equal((await heading.textContent()).trim(), 'The link is invalid')
-  }
-)
-
-When(
-  'I enter my email to receive a new link',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    assert.ok(
-      this.submittedEmail,
-      'No email was captured earlier in this scenario'
-    )
-    // Record the time so a later Notify lookup only matches an email sent by this
-    // resend, not the original confirmation email.
-    this.resendRequestedAt = new Date().toISOString()
-    await this.pageObjects.quoteDetailsPage.requestNewLinkForEmail(
-      this.submittedEmail
-    )
-  }
-)
-
-Then(
-  'I should see that a new link has been sent',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    const heading = this.pageObjects.quoteDetailsPage.pageHeading
-    await waitForVisible(this.page, heading, 'the "check your email" heading')
-    assert.equal((await heading.textContent()).trim(), 'Check your email')
-  }
-)
-
-Then(
-  'I should receive a new quote link by email',
-  { timeout: 60_000 },
-  /** @this {PlaywrightWorld} */
-  async function () {
-    const apiKey = process.env.NOTIFY_API_KEY
-    assert.ok(apiKey, 'NOTIFY_API_KEY env var is required')
-
-    const expectedText = `NRL reference: ${this.nrfReference}`
-    const log = (message) => this.attach(message, 'text/plain')
-    const match = await findNotifyEmail(
-      apiKey,
-      this.submittedEmail,
-      expectedText,
-      log,
-      this.resendRequestedAt
-    )
-
-    assert.ok(
-      match,
-      `No resent email to ${this.submittedEmail} containing "${expectedText}" after all retries — see attached attempt log`
-    )
-
-    const linkMatch = match.body.match(
-      /\[Commit to using Nature Restoration Fund\]\((https?:\/\/[^)]+)\)/
-    )
-    assert.ok(
-      linkMatch,
-      `Expected the resent email to contain a "Commit to using Nature Restoration Fund" link but found none:\n${match.body}`
-    )
   }
 )
