@@ -20,8 +20,9 @@ Feature: Delete quote from the request to use journey
     When I cancel deleting my quote
     Then I should see the review and amend quote details page
 
-  @pending
   Scenario: Deleting the quote shows the your details have been deleted page
     When I delete my quote
     Then I should be taken to "/request-to-use/delete-quote-confirmation"
     And I should see the your details have been deleted page
+    When I navigate back in the browser
+    Then I should be on the start page
