@@ -139,7 +139,6 @@ services:
       # Sign-in goes through the defra-id-stub below, which advertises
       # http://defra-id-stub.localhost:3200: browsers resolve *.localhost to
       # loopback, and the stub's network alias covers this container.
-      - ENABLE_DEFRA_ID=true
       - DEFRA_ID_BASE_URL=http://defra-id-stub.localhost:3200
       - DEFRA_ID_WELL_KNOWN_PATH=/cdp-defra-id-stub/.well-known/openid-configuration
       - DEFRA_ID_CLIENT_ID=client-test
