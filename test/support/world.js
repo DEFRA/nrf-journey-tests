@@ -19,6 +19,8 @@ import { CheckYourAnswersPage } from '../page-objects/check-your-answers.page.js
 import { ConfirmationPage } from '../page-objects/confirmation.page.js'
 import { DeleteQuotePage } from '../page-objects/delete-quote.page.js'
 import { DeleteQuoteConfirmationPage } from '../page-objects/delete-quote-confirmation.page.js'
+import { RequestToUseDeleteQuotePage } from '../page-objects/request-to-use-delete-quote.page.js'
+import { RequestToUseDeleteQuoteConfirmationPage } from '../page-objects/request-to-use-delete-quote-confirmation.page.js'
 import { UploadBoundaryPage } from '../page-objects/upload-boundary.page.js'
 import { UploadPreviewMapPage } from '../page-objects/upload-preview-map.page.js'
 import { NoEdpPage } from '../page-objects/no-edp.page.js'
@@ -134,6 +136,12 @@ export class PlaywrightWorld extends World {
         this.page,
         baseUrl
       ),
+      requestToUseDeleteQuotePage: new RequestToUseDeleteQuotePage(
+        this.page,
+        baseUrl
+      ),
+      requestToUseDeleteQuoteConfirmationPage:
+        new RequestToUseDeleteQuoteConfirmationPage(this.page, baseUrl),
       uploadBoundaryPage: new UploadBoundaryPage(this.page, baseUrl),
       uploadPreviewMapPage: new UploadPreviewMapPage(this.page, baseUrl),
       noEdpPage: new NoEdpPage(this.page, baseUrl),
