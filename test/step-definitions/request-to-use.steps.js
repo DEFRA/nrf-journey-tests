@@ -294,22 +294,6 @@ Then(
   }
 )
 
-Then(
-  'my quote details are unchanged on the review and amend quote details page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    assert.ok(
-      this.housingUnits,
-      'No number of housing units was noted earlier in this scenario'
-    )
-    const value = this.pageObjects.reviewQuoteDetailsPage.summaryRowValue(
-      'Number of housing units'
-    )
-    await waitForVisible(this.page, value, 'the number of housing units')
-    assert.equal(Number((await value.textContent()).trim()), this.housingUnits)
-  }
-)
-
 When(
   'I click Change for {string} on the review and amend quote details page',
   /** @this {PlaywrightWorld} */
