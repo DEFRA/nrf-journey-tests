@@ -121,7 +121,7 @@ docker compose build nrf-backend
 docker compose up -d \
   localstack redis postgres mongodb \
   cdp-uploader liquibase impact-assessor-migration \
-  edp-seed wwtw-seed nrf-impact-assessor nrf-backend
+  edp-seed wwtw-seed nrf-impact-assessor nrf-backend defra-id-stub
 ```
 
 Wait for the stack to be healthy (check with `docker ps`).
@@ -131,7 +131,13 @@ Wait for the stack to be healthy (check with `docker ps`).
 ```sh
 cd ../nrf-frontend
 NODE_ENV=development \
-ENABLE_DEFRA_ID=false \
+DEFRA_ID_BASE_URL=http://defra-id-stub.localhost:3200 \
+DEFRA_ID_WELL_KNOWN_PATH=/cdp-defra-id-stub/.well-known/openid-configuration \
+DEFRA_ID_CLIENT_ID=client-test \
+DEFRA_ID_CLIENT_SECRET=test_value \
+DEFRA_ID_SERVICE_ID=service-test \
+DEFRA_ID_SCOPES=openid,offline_access \
+DEFRA_ID_REDIRECT_HOSTS=http://defra-id-stub.localhost:3200 \
 NRF_BACKEND_API_URL=http://localhost:3001 \
 CDP_UPLOADER_URL=http://localhost:7337 \
 REDIS_HOST=localhost \
