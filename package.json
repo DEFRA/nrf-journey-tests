@@ -23,13 +23,13 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "postinstall": "npm run setup:husky && npx playwright install chromium",
-    "security-audit": "npm audit --audit-level=high",
+    "security-audit": "npm audit --omit=dev --audit-level=moderate",
     "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module",
     "report": "allure generate allure-results --single-file --clean",
     "report:publish": "npm run report; ./bin/publish-tests.sh"
   },
   "dependencies": {
-    "@cucumber/cucumber": "11.3.0",
+    "@cucumber/cucumber": "13.3.0",
     "allure-commandline": "2.46.1",
     "allure-cucumberjs": "3.14.0",
     "browserstack-local": "1.5.16",
