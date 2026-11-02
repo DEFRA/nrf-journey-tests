@@ -71,6 +71,66 @@ When(
 )
 
 When(
+  'I decline the levy amount',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.acceptLevyPage.declineAmount()
+    await clickContinue(this.page)
+  }
+)
+
+Then(
+  'I should see the are you sure you want to delete this quote page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const heading = this.pageObjects.requestToUseDeleteQuotePage.pageHeading
+    await waitForVisible(this.page, heading, 'the delete quote heading')
+    assert.equal(
+      (await heading.textContent()).trim(),
+      'Are you sure you want to delete this quote?'
+    )
+    const warning = this.page.getByText(
+      'This will permanently delete your quote. You can create a new quote.'
+    )
+    await waitForVisible(this.page, warning, 'the permanent deletion warning')
+  }
+)
+
+When(
+  'I cancel deleting my quote',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.requestToUseDeleteQuotePage.cancelLink.click()
+  }
+)
+
+When(
+  'I delete my quote',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.requestToUseDeleteQuotePage.deleteButton.click()
+  }
+)
+
+Then(
+  'I should see the your details have been deleted page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const panelTitle =
+      this.pageObjects.requestToUseDeleteQuoteConfirmationPage.panelTitle
+    await waitForVisible(
+      this.page,
+      panelTitle,
+      'the deletion confirmation panel'
+    )
+    assert.equal(
+      (await panelTitle.textContent()).trim(),
+      'Your details have been deleted'
+    )
+  }
+)
+
+When(
   'I request to use the levy for {string}',
   /** @this {PlaywrightWorld} */
   async function (answer) {
