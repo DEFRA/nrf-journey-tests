@@ -231,7 +231,7 @@ cucumber.js           # Cucumber profile configuration
 | `ENVIRONMENT`      | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority. |
 | `BASE_URL`         | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                       |
 | `BROWSER`          | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.  |
-| `PARALLEL_WORKERS` | `2`                     | Number of scenarios to run in parallel (ignored for BrowserStack, which runs serially).           |
+| `PARALLEL_WORKERS` | `3`                     | Number of scenarios to run in parallel (ignored for BrowserStack, which runs serially).           |
 | `E2E_HEADFUL`      | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
 | `NRF_FRONTEND`     | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
 | `NRF_BACKEND`      | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                         |
