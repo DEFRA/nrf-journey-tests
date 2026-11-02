@@ -14,6 +14,18 @@ Feature: Change answers on the review and amend quote details page
     When I follow the magic link in the email
     Then I should see the review and amend quote details page
 
+    # An ineligible change shows its dropout page without saving the answer
+    When I click Change for "Planning permission type" on the review and amend quote details page
+    And I select "Other" as my planning type
+    Then I should be taken to "/request-to-use/change/application-type-not-available"
+    And I should see the "Nature restoration levy is not currently available for this planning application type" heading
+    When I click the back link
+    Then I should see the "What type of planning application are you planning to submit?" heading
+    And the "Full planning permission" option should be selected
+    When I click the back link
+    Then I should see the review and amend quote details page
+    And I should see "Full planning permission" for "Planning permission type" on the review and amend quote details page
+
     # Change planning permission type
     When I click Change for "Planning permission type" on the review and amend quote details page
     Then I should be taken to "/request-to-use/change/planning-type"
