@@ -21,18 +21,12 @@ const POLYGON = {
   ]
 }
 
-// Creates a complete quote by driving the frontend's own routes over HTTP —
-// the same requests the browser makes when a user walks the quote journey,
-// just without rendering pages, uploading a file through the CDP uploader or
-// rendering the confirmation. The frontend adds the backend credentials
-// server-side, and the resulting quote is indistinguishable from a UI-created
-// one at the request-to-use stage. Leaves the world state the request-to-use
-// steps expect: submittedEmail, nrfReference, quoteSubmittedAt and
-// confirmationEmailBody (fetched from Notify, so NOTIFY_API_KEY is required).
-/**
- * @param {import('./world.js').PlaywrightWorld} world
- */
-async function seedQuoteViaFrontend(world) {
+// Drives the frontend's own routes over HTTP as far as /quote/check-your-answers
+// — the same requests the browser makes when a user walks the quote journey
+// with a drawn boundary, just without rendering pages. Returns the session
+// cookies so a caller can carry on over HTTP or hand them to a browser, plus
+// the helpers needed to keep posting.
+async function driveQuoteToCheckYourAnswers() {
   const cookies = new Map()
 
   const storeCookies = (response) => {
@@ -148,9 +142,31 @@ async function seedQuoteViaFrontend(world) {
     `Expected the boundary save to lead to the email page, got ${save.headers.get('location') ?? ''}`
   )
 
-  world.submittedEmail = SEED_EMAIL
   await postForm('/quote/email', { email: SEED_EMAIL }, 'the email address')
 
+  const checkYourAnswers = await request('/quote/check-your-answers')
+  assert.equal(
+    checkYourAnswers.status,
+    200,
+    `Expected the Check Your Answers page, got ${checkYourAnswers.status}`
+  )
+
+  return { request, postForm, cookies }
+}
+
+// Creates a complete quote by submitting the answers from
+// driveQuoteToCheckYourAnswers. The frontend adds the backend credentials
+// server-side, and the resulting quote is indistinguishable from a UI-created
+// one at the request-to-use stage. Leaves the world state the request-to-use
+// steps expect: submittedEmail, nrfReference, quoteSubmittedAt and
+// confirmationEmailBody (fetched from Notify, so NOTIFY_API_KEY is required).
+/**
+ * @param {import('./world.js').PlaywrightWorld} world
+ */
+async function seedQuoteViaFrontend(world) {
+  const { request, postForm } = await driveQuoteToCheckYourAnswers()
+
+  world.submittedEmail = SEED_EMAIL
   world.quoteSubmittedAt = new Date().toISOString()
   const submit = await postForm(
     '/quote/check-your-answers',
@@ -180,4 +196,20 @@ async function seedQuoteViaFrontend(world) {
   )
 }
 
-export { seedQuoteViaFrontend }
+// Leaves the browser holding a quote session that is waiting on the Check
+// Your Answers page, without walking the earlier pages in the UI.
+/**
+ * @param {import('./world.js').PlaywrightWorld} world
+ */
+async function seedCheckYourAnswersSession(world) {
+  const { cookies } = await driveQuoteToCheckYourAnswers()
+  await world.context.addCookies(
+    [...cookies.entries()].map(([name, pair]) => ({
+      name,
+      value: pair.slice(name.length + 1),
+      url: baseUrl
+    }))
+  )
+}
+
+export { seedQuoteViaFrontend, seedCheckYourAnswersSession }
