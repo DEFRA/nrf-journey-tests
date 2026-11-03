@@ -71,6 +71,21 @@ When(
 )
 
 When(
+  'I say the development is not an amendment',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const heading = this.pageObjects.variationPage.pageHeading
+    await waitForVisible(this.page, heading, 'the variation heading')
+    assert.equal(
+      (await heading.textContent()).trim(),
+      'Is the development an amendment to an existing planning permission?'
+    )
+    await this.pageObjects.variationPage.chooseNo()
+    await clickContinue(this.page)
+  }
+)
+
+When(
   'I decline the levy amount',
   /** @this {PlaywrightWorld} */
   async function () {
