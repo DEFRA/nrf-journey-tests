@@ -12,6 +12,10 @@ class OriginalCommittedPage extends Page {
   async chooseNo() {
     await this.selectAnswer('No')
   }
+
+  async chooseYes() {
+    await this.selectAnswer('Yes')
+  }
 }
 
 export { OriginalCommittedPage }

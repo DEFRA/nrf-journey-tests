@@ -127,6 +127,25 @@ When(
 )
 
 When(
+  'I say the original planning permission was committed',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const heading = this.pageObjects.originalCommittedPage.pageHeading
+    await waitForVisible(
+      this.page,
+      heading,
+      'the original planning permission committed heading'
+    )
+    assert.equal(
+      (await heading.textContent()).trim(),
+      'Was the original planning permission committed to using the nature restoration levy?'
+    )
+    await this.pageObjects.originalCommittedPage.chooseYes()
+    await clickContinue(this.page)
+  }
+)
+
+When(
   'I decline the levy amount',
   /** @this {PlaywrightWorld} */
   async function () {

@@ -1,23 +1,16 @@
 @regression
-Feature: Original NRL reference page
+Feature: Original NRL reference question in the request to use journey
 
-  Scenario: Entering the original NRL reference and continuing
+  Scenario: Entering the NRL reference for the original planning permission
     Given I have created a quote for Nature Restoration Levy
     And I am on the review and amend quote details page for my quote
-    When I continue
-    And I accept the levy amount
-    And I click the back link
-    Then I should see the "Enter the NRL reference for the original planning permission" heading
-    When I enter "NRL-123456" as the original NRL reference
-    Then I should see the "Who are you requesting to use the nature restoration levy for?" heading
-
-  @pending
-  Scenario: Entering the original reference from the original commitment page
-    Given I have created a quote for Nature Restoration Levy
-    And I am on the review and amend quote details page for my quote
-    When I continue
-    And I accept the levy amount
-    And I answer "Yes" to the original planning permission being committed to using the nature restoration levy
+    And I continue
+    When I accept the levy amount
+    And I say the development is an amendment
+    And I say the original planning permission was committed
     Then I should see the "Enter the NRL reference for the original planning permission" heading
     When I click the back link
     Then I should see the "Was the original planning permission committed to using the nature restoration levy?" heading
+    When I say the original planning permission was committed
+    And I enter "NRL-123456" as the original NRL reference
+    Then I should be taken to "/request-to-use/defra-account-user-type"
