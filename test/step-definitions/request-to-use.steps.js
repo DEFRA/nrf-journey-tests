@@ -4,7 +4,7 @@ import { waitForVisible } from '../support/wait-for-visible.js'
 import { clickContinue } from '../support/click-continue.js'
 import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
-import { seedQuoteViaFrontend } from '../support/seed-quote.js'
+import { seedQuoteViaFrontend, SEED_EMAIL } from '../support/seed-quote.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -97,14 +97,6 @@ Then(
 )
 
 When(
-  'I cancel deleting my quote',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    await this.pageObjects.requestToUseDeleteQuotePage.cancelLink.click()
-  }
-)
-
-When(
   'I delete my quote',
   /** @this {PlaywrightWorld} */
   async function () {
@@ -151,21 +143,7 @@ When(
   'I follow the request to use link in the quote email',
   /** @this {PlaywrightWorld} */
   async function () {
-    assert.ok(
-      this.confirmationEmailBody,
-      'No confirmation email body was captured earlier in this scenario'
-    )
-
-    // Only the path and query are used, so the link works whatever host the email names.
-    const linkMatch = this.confirmationEmailBody.match(
-      /https?:\/\/[^\s)\]>]*?(\/request-to-use\/enter-nrl-reference\?[^\s)\]>]+)/
-    )
-    assert.ok(
-      linkMatch,
-      `Expected the quote email to contain a request to use link but found none:\n${this.confirmationEmailBody}`
-    )
-
-    await this.pageObjects.enterNrlReferencePage.open(linkMatch[1])
+    await followRequestToUseLink.call(this)
   }
 )
 
@@ -173,14 +151,7 @@ Then(
   'the NRL reference from my quote is pre-filled',
   /** @this {PlaywrightWorld} */
   async function () {
-    await this.pageObjects.enterNrlReferencePage.nrlReferenceInput.waitFor({
-      state: 'visible'
-    })
-    assert.equal(
-      await this.pageObjects.enterNrlReferencePage.prefilledReference,
-      this.nrfReference
-    )
-    await clickContinue(this.page)
+    await continueWithPrefilledReference.call(this)
   }
 )
 
@@ -249,23 +220,7 @@ When(
   'I follow the magic link in the email',
   /** @this {PlaywrightWorld} */
   async function () {
-    assert.ok(
-      this.retrieveQuoteEmailBody,
-      'No retrieve quote email body was captured earlier in this scenario'
-    )
-
-    // Only the path is used, so the link works whatever host the email names.
-    const linkMatch = this.retrieveQuoteEmailBody.match(
-      new RegExp(
-        `https?://[^\\s)\\]>]*?(/request-to-use/retrieve/${this.nrfReference}/[\\w-]+)`
-      )
-    )
-    assert.ok(
-      linkMatch,
-      `Expected the email body to contain a magic link for ${this.nrfReference} but found none:\n${this.retrieveQuoteEmailBody}`
-    )
-
-    await this.pageObjects.reviewQuoteDetailsPage.open(linkMatch[1])
+    await followMagicLink.call(this)
   }
 )
 
@@ -282,6 +237,79 @@ Then(
     assert.equal(
       (await heading.textContent()).trim(),
       `Review and amend the quote details for ${this.nrfReference}`
+    )
+  }
+)
+
+/** @this {PlaywrightWorld} */
+async function followRequestToUseLink() {
+  assert.ok(
+    this.confirmationEmailBody,
+    'No confirmation email body was captured earlier in this scenario'
+  )
+
+  // Only the path and query are used, so the link works whatever host the email names.
+  const linkMatch = this.confirmationEmailBody.match(
+    /https?:\/\/[^\s)\]>]*?(\/request-to-use\/enter-nrl-reference\?[^\s)\]>]+)/
+  )
+  assert.ok(
+    linkMatch,
+    `Expected the quote email to contain a request to use link but found none:\n${this.confirmationEmailBody}`
+  )
+
+  await this.pageObjects.enterNrlReferencePage.open(linkMatch[1])
+}
+
+/** @this {PlaywrightWorld} */
+async function continueWithPrefilledReference() {
+  await this.pageObjects.enterNrlReferencePage.nrlReferenceInput.waitFor({
+    state: 'visible'
+  })
+  assert.equal(
+    await this.pageObjects.enterNrlReferencePage.prefilledReference,
+    this.nrfReference
+  )
+  await clickContinue(this.page)
+}
+
+/** @this {PlaywrightWorld} */
+async function followMagicLink() {
+  assert.ok(
+    this.retrieveQuoteEmailBody,
+    'No retrieve quote email body was captured earlier in this scenario'
+  )
+
+  // Only the path is used, so the link works whatever host the email names.
+  const linkMatch = this.retrieveQuoteEmailBody.match(
+    new RegExp(
+      `https?://[^\\s)\\]>]*?(/request-to-use/retrieve/${this.nrfReference}/[\\w-]+)`
+    )
+  )
+  assert.ok(
+    linkMatch,
+    `Expected the email body to contain a magic link for ${this.nrfReference} but found none:\n${this.retrieveQuoteEmailBody}`
+  )
+
+  await this.pageObjects.reviewQuoteDetailsPage.open(linkMatch[1])
+}
+
+Given(
+  'I am on the review and amend quote details page for my quote',
+  { timeout: 120_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await followRequestToUseLink.call(this)
+    await continueWithPrefilledReference.call(this)
+    this.submittedEmail = SEED_EMAIL
+    await this.pageObjects.emailPage.fillEmail(SEED_EMAIL)
+    await clickContinue(this.page)
+    await captureRetrieveQuoteEmail.call(this)
+    await followMagicLink.call(this)
+    const heading = this.pageObjects.reviewQuoteDetailsPage.pageHeading
+    await waitForVisible(
+      this.page,
+      heading,
+      'the review and amend quote details heading'
     )
   }
 )

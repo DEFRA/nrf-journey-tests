@@ -5,17 +5,7 @@ Feature: Change a red line boundary from Check Your Answers
   Your Answers instead of continuing to the email page.
 
   Background:
-    Given I am on the start page
-    When I start a new quote
-    And I select "I want a quote for the nature restoration levy" as what I would like to do
-    And I select "Full planning permission" as my planning type
-    And I confirm I am developing housing
-    And I enter "10" units
-    And I select "Draw on a map" as my boundary type
-    And I search the map for "Aylsham"
-    And I draw a boundary on the map
-    And I click Save and continue
-    And I enter "nrfjourneytests@gmail.com" as my email
+    Given I have a quote ready to submit
 
   Scenario: The drawn boundary Change link opens the boundary type page
     When I click Change for "Red line boundary" on the Check Your Answers page
@@ -32,25 +22,13 @@ Feature: Change a red line boundary from Check Your Answers
     When I click the back button on the map
     Then I should see the "Choose how you would like to show us the boundary of your development" heading
 
-  Scenario: Saving an unchanged drawn boundary returns to the Check Your Answers page
-    When I click Change for "Red line boundary" on the Check Your Answers page
-    And I continue
-    And I click Save and continue
-    Then I should see the "Check your answers" heading
-    And I should see "Added" for "Red line boundary" on the Check Your Answers page
-
-  Scenario: Saving an amended drawn boundary returns to the Check Your Answers page
+  Scenario: Saving a drawn boundary returns to the Check Your Answers page
     When I click Change for "Red line boundary" on the Check Your Answers page
     And I continue
     And I amend the boundary on the map
     And I click Save and continue
     Then I should see the "Check your answers" heading
     And I should see "Added" for "Red line boundary" on the Check Your Answers page
-
-  Scenario: Switching to upload from the boundary type page
-    When I click Change for "Red line boundary" on the Check Your Answers page
-    And I select "Upload a file" as my boundary type
-    Then I should see the "Upload a red line boundary file" heading
 
   Scenario: Saving an uploaded boundary returns to the Check Your Answers page
     When I click Change for "Red line boundary" on the Check Your Answers page

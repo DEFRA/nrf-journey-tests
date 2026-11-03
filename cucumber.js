@@ -4,7 +4,7 @@
 // the default, e.g. when a slower runner times out under load.
 const parallelWorkers = process.env.PARALLEL_WORKERS
   ? Number(process.env.PARALLEL_WORKERS)
-  : 2
+  : 3
 
 export default {
   // BrowserStack runs cover one upload and one draw journey, end to end. The
