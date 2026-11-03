@@ -9,6 +9,10 @@ class VariationPage extends Page {
     await this.page.getByRole('radio', { name: answer, exact: true }).click()
   }
 
+  async chooseYes() {
+    await this.selectAnswer('Yes')
+  }
+
   async chooseNo() {
     await this.selectAnswer('No')
   }

@@ -86,6 +86,36 @@ When(
 )
 
 When(
+  'I say the development is an amendment',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const heading = this.pageObjects.variationPage.pageHeading
+    await waitForVisible(this.page, heading, 'the variation heading')
+    await this.pageObjects.variationPage.chooseYes()
+    await clickContinue(this.page)
+  }
+)
+
+When(
+  'I say the original planning permission was not committed',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const heading = this.pageObjects.originalCommittedPage.pageHeading
+    await waitForVisible(
+      this.page,
+      heading,
+      'the original planning permission committed heading'
+    )
+    assert.equal(
+      (await heading.textContent()).trim(),
+      'Was the original planning permission committed to using the nature restoration levy?'
+    )
+    await this.pageObjects.originalCommittedPage.chooseNo()
+    await clickContinue(this.page)
+  }
+)
+
+When(
   'I decline the levy amount',
   /** @this {PlaywrightWorld} */
   async function () {
