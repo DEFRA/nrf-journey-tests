@@ -62,6 +62,17 @@ When(
 )
 
 When(
+  'I enter {string} as the original NRL reference',
+  /** @this {PlaywrightWorld} */
+  async function (reference) {
+    await this.pageObjects.originalReferencePage.fillOriginalReference(
+      reference
+    )
+    await clickContinue(this.page)
+  }
+)
+
+When(
   'I accept the levy amount',
   /** @this {PlaywrightWorld} */
   async function () {
