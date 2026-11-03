@@ -27,6 +27,8 @@ import { NoEdpPage } from '../page-objects/no-edp.page.js'
 import { DrawBoundaryPage } from '../page-objects/draw-boundary.page.js'
 import { ReviewQuoteDetailsPage } from '../page-objects/review-quote-details.page.js'
 import { AcceptLevyPage } from '../page-objects/accept-levy.page.js'
+import { VariationPage } from '../page-objects/variation.page.js'
+import { OriginalCommittedPage } from '../page-objects/original-committed.page.js'
 import { OriginalReferencePage } from '../page-objects/original-reference.page.js'
 import { DefraAccountUserTypePage } from '../page-objects/defra-account-user-type.page.js'
 import { DefraAccountIndividualPage } from '../page-objects/defra-account-individual.page.js'
@@ -149,6 +151,8 @@ export class PlaywrightWorld extends World {
       drawBoundaryPage: new DrawBoundaryPage(this.page, baseUrl),
       reviewQuoteDetailsPage: new ReviewQuoteDetailsPage(this.page, baseUrl),
       acceptLevyPage: new AcceptLevyPage(this.page, baseUrl),
+      variationPage: new VariationPage(this.page, baseUrl),
+      originalCommittedPage: new OriginalCommittedPage(this.page, baseUrl),
       originalReferencePage: new OriginalReferencePage(this.page, baseUrl),
       defraAccountUserTypePage: new DefraAccountUserTypePage(
         this.page,
