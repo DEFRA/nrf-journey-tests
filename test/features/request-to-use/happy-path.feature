@@ -10,6 +10,7 @@ Feature: Request to use journey
     When I continue
     Then I should see the levy amounts for my number of housing units
     When I accept the levy amount
+    And I say the development is not an amendment
     And I request to use the levy for "The business or organisation you work for"
     And I continue from the "You'll need to create or join a Defra account for your business or organisation" page
     And I sign in to Defra ID
@@ -25,6 +26,7 @@ Feature: Request to use journey
     When I continue
     Then I should see the levy amounts for my number of housing units
     When I accept the levy amount
+    And I say the development is not an amendment
     And I request to use the levy for "Yourself, as an individual"
     And I continue from the "You'll need to create or sign in to a Defra account as an individual" page
     And I sign in to Defra ID
@@ -39,6 +41,7 @@ Feature: Request to use journey
     When I continue
     Then I should see the levy amounts for my number of housing units
     When I accept the levy amount
+    And I say the development is not an amendment
     And I request to use the levy for "A client you act for as an agent or third party"
     And I continue from the "Your client will need to create a Defra account and invite you as an agent or third party" page
     And I sign in to Defra ID and am shown the organisation picker
