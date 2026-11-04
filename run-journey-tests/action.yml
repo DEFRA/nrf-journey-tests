@@ -227,6 +227,16 @@ runs:
     - name: Docker Login
       uses: DEFRA/cdp-build-action/docker-login@main
 
+    # BuildKit's docker-container driver is needed to export build layers to the
+    # GitHub Actions cache; the runtime vars let `docker compose build` reach it.
+    - name: Set up Docker Buildx
+      if: ${{ !inputs.environment }}
+      uses: docker/setup-buildx-action@v3
+
+    - name: Expose GitHub Actions cache credentials
+      if: ${{ !inputs.environment }}
+      uses: crazy-max/ghaction-github-runtime@v3
+
     # Image pulls and builds are slow and independent of the npm and Playwright
     # installs below, so they run in the background and are collected by "Wait
     # for image pulls and builds". Builds go through `docker compose build` so
@@ -262,9 +272,19 @@ runs:
         path: ~/.cache/ms-playwright
         key: playwright-${{ runner.os }}-${{ inputs.browser || 'chromium' }}-${{ hashFiles('package-lock.json') }}
 
+    # --with-deps on chromium only adds fonts the ubuntu runner lacks (21 MB of
+    # apt downloads, ~100s), which the tests don't need. Firefox and WebKit
+    # still need their system libraries.
     - name: Install Playwright browsers
       if: ${{ !inputs.browserstack-device }}
-      run: npx playwright install --with-deps ${{ inputs.browser || 'chromium' }}
+      env:
+        BROWSER: ${{ inputs.browser || 'chromium' }}
+      run: |
+        if [ "$BROWSER" = chromium ]; then
+          npx playwright install chromium
+        else
+          npx playwright install --with-deps "$BROWSER"
+        fi
       shell: bash
 
     - name: Wait for image pulls and builds
