@@ -62,6 +62,17 @@ When(
 )
 
 When(
+  'I enter {string} as the original NRL reference',
+  /** @this {PlaywrightWorld} */
+  async function (reference) {
+    await this.pageObjects.originalReferencePage.fillOriginalReference(
+      reference
+    )
+    await clickContinue(this.page)
+  }
+)
+
+When(
   'I accept the levy amount',
   /** @this {PlaywrightWorld} */
   async function () {
@@ -111,6 +122,25 @@ When(
       'Was the original planning permission committed to using the nature restoration levy?'
     )
     await this.pageObjects.originalCommittedPage.chooseNo()
+    await clickContinue(this.page)
+  }
+)
+
+When(
+  'I say the original planning permission was committed',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const heading = this.pageObjects.originalCommittedPage.pageHeading
+    await waitForVisible(
+      this.page,
+      heading,
+      'the original planning permission committed heading'
+    )
+    assert.equal(
+      (await heading.textContent()).trim(),
+      'Was the original planning permission committed to using the nature restoration levy?'
+    )
+    await this.pageObjects.originalCommittedPage.chooseYes()
     await clickContinue(this.page)
   }
 )
