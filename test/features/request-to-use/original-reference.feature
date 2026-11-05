@@ -1,6 +1,8 @@
 @regression
 Feature: Original NRL reference question in the request to use journey
 
+  # Pending until the impact assessor boundary comparison endpoint exists
+  @pending
   Scenario: Entering the NRL reference for the original planning permission
     Given I have created a quote for Nature Restoration Levy
     And I am on the review and amend quote details page for my quote
