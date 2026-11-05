@@ -8,7 +8,8 @@
 # frontend image may only exist locally, so it is only pulled when there is no
 # depends-on checkout to build it from.
 #
-# Env: NRF_BACKEND, NRF_BACKEND_PATH, NRF_IMPACT_ASSESSOR_PATH (read by compose.yml)
+# Env: BUILDX_BUILDER - Buildx builder with a cache-capable driver
+#      NRF_BACKEND, NRF_BACKEND_PATH, NRF_IMPACT_ASSESSOR_PATH (read by compose.yml)
 #      NRF_FRONTEND_PATH (optional) - a depends-on frontend checkout to build
 set -euo pipefail
 
@@ -39,7 +40,7 @@ start pull pull_and_start_infra
 start build docker compose -f compose.yml -f docker/compose.ci.yml build nrf-backend nrf-impact-assessor impact-assessor-migration
 
 if [ -n "${NRF_FRONTEND_PATH:-}" ]; then
-  start frontend docker build --load \
+  start frontend docker buildx build --builder "$BUILDX_BUILDER" --load \
     --cache-from type=gha,scope=nrf-frontend \
     --cache-to type=gha,scope=nrf-frontend,mode=max \
     -t defradigital/nrf-frontend:pr-build "$NRF_FRONTEND_PATH"
