@@ -137,7 +137,7 @@ services:
     # registry image. Forcing a build would fail on CI without the source.
     build:
       context: ../nrf-frontend
-      target: development
+      target: production
     environment:
       - PORT=3000
       - NODE_ENV=development
@@ -246,7 +246,7 @@ services:
     pull_policy: build
     build:
       context: ${NRF_BACKEND_PATH:-../nrf-backend}
-      target: development
+      target: production
     environment:
       - PORT=3001
       - NODE_ENV=development
@@ -299,7 +299,9 @@ services:
   # The nutrient assessment runner queries these layers directly — without them
   # it fails with "list index out of range".
   impact-assessor-migration:
-    image: defradigital/nrf-impact-assessor:${NRF_IMPACT_ASSESSOR:-latest}
+    # Its own image: it is a one-shot tool run from the development target, and
+    # must not overwrite the production image that nrf-impact-assessor runs.
+    image: defradigital/nrf-impact-assessor-migration:${NRF_IMPACT_ASSESSOR:-latest}
     pull_policy: build
     build:
       context: ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}
@@ -330,7 +332,7 @@ services:
     pull_policy: build
     build:
       context: ${NRF_IMPACT_ASSESSOR_PATH:-../nrf-impact-assessor}
-      target: development
+      target: production
     # Start the SQS consumer (which also boots the API server in a child
     # process). The image's default CMD may point at app.main only, so be
     # explicit here to guarantee the queue is polled.
