@@ -21,12 +21,27 @@ const POLYGON = {
   ]
 }
 
+// A larger WGS84 triangle around the same area that fully contains POLYGON, so
+// it still intersects the seeded EDP but is not substantially the same land.
+// Used to seed a second quote whose boundary does not match the first.
+export const LARGER_POLYGON = {
+  type: 'Polygon',
+  coordinates: [
+    [
+      [1.24, 52.788],
+      [1.262, 52.788],
+      [1.251, 52.808],
+      [1.24, 52.788]
+    ]
+  ]
+}
+
 // Drives the frontend's own routes over HTTP as far as /quote/check-your-answers
 // — the same requests the browser makes when a user walks the quote journey
 // with a drawn boundary, just without rendering pages. Returns the session
 // cookies so a caller can carry on over HTTP or hand them to a browser, plus
 // the helpers needed to keep posting.
-async function driveQuoteToCheckYourAnswers() {
+async function driveQuoteToCheckYourAnswers(polygon = POLYGON) {
   const cookies = new Map()
 
   const storeCookies = (response) => {
@@ -112,7 +127,7 @@ async function driveQuoteToCheckYourAnswers() {
   // verbatim — the same hand-off the draw map performs in the browser.
   const check = await postJson(
     '/quote/draw-boundary/check',
-    { geometry: POLYGON },
+    { geometry: polygon },
     'the boundary check'
   )
   const boundaryGeojson = await check.json()
@@ -160,11 +175,13 @@ async function driveQuoteToCheckYourAnswers() {
 // one at the request-to-use stage. Leaves the world state the request-to-use
 // steps expect: submittedEmail, nrfReference, quoteSubmittedAt and
 // confirmationEmailBody (fetched from Notify, so NOTIFY_API_KEY is required).
+// Pass a polygon to give the quote a boundary other than the default.
 /**
  * @param {import('./world.js').PlaywrightWorld} world
+ * @param {object} [polygon] - WGS84 GeoJSON polygon for the drawn boundary
  */
-async function seedQuoteViaFrontend(world) {
-  const { request, postForm } = await driveQuoteToCheckYourAnswers()
+async function seedQuoteViaFrontend(world, polygon) {
+  const { request, postForm } = await driveQuoteToCheckYourAnswers(polygon)
 
   world.submittedEmail = SEED_EMAIL
   world.quoteSubmittedAt = new Date().toISOString()

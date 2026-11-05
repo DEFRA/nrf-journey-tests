@@ -4,7 +4,11 @@ import { waitForVisible } from '../support/wait-for-visible.js'
 import { clickContinue } from '../support/click-continue.js'
 import { findNotifyEmail } from '../support/find-notify-email.js'
 import { assertSummaryRow } from '../support/assert-summary-row.js'
-import { seedQuoteViaFrontend, SEED_EMAIL } from '../support/seed-quote.js'
+import {
+  seedQuoteViaFrontend,
+  SEED_EMAIL,
+  LARGER_POLYGON
+} from '../support/seed-quote.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -14,6 +18,33 @@ Given(
   /** @this {PlaywrightWorld} */
   async function () {
     await seedQuoteViaFrontend(this)
+  }
+)
+
+Given(
+  'I have created another quote for Nature Restoration Levy with a different boundary',
+  { timeout: 120_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await seedQuoteViaFrontend(this, LARGER_POLYGON)
+  }
+)
+
+// Submitting from Check your answers is what gives the quote its commitment
+// certificate, which the original NRL reference lookup requires. The session
+// survives the submission, so the review page can be reopened afterwards.
+Given(
+  'I have submitted my request to use the levy',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.requestToUseCheckYourAnswersPage.open()
+    await this.pageObjects.requestToUseCheckYourAnswersPage.submit()
+    await this.page.waitForURL(/\/request-to-use\/confirmation/)
+    this.submittedNrfReference = this.nrfReference
+    await this.pageObjects.reviewQuoteDetailsPage.open(
+      '/request-to-use/review-quote-details'
+    )
   }
 )
 
@@ -67,6 +98,21 @@ When(
   async function (reference) {
     await this.pageObjects.originalReferencePage.fillOriginalReference(
       reference
+    )
+    await clickContinue(this.page)
+  }
+)
+
+When(
+  'I enter the NRL reference of my submitted request as the original NRL reference',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.submittedNrfReference,
+      'No request to use was submitted earlier in this scenario'
+    )
+    await this.pageObjects.originalReferencePage.fillOriginalReference(
+      this.submittedNrfReference
     )
     await clickContinue(this.page)
   }
