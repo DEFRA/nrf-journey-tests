@@ -1,0 +1,21 @@
+# CI-only overlay: shares build layers between runs through the GitHub Actions
+# cache. Used by docker/scripts/ci/start-image-work.sh.
+# nrf-impact-assessor and impact-assessor-migration build the same target, so
+# only one of them writes the cache.
+services:
+  nrf-backend:
+    build:
+      cache_from:
+        - type=gha,scope=nrf-backend-development
+      cache_to:
+        - type=gha,scope=nrf-backend-development,mode=max
+  nrf-impact-assessor:
+    build:
+      cache_from:
+        - type=gha,scope=nrf-impact-assessor-development
+      cache_to:
+        - type=gha,scope=nrf-impact-assessor-development,mode=max
+  impact-assessor-migration:
+    build:
+      cache_from:
+        - type=gha,scope=nrf-impact-assessor-development
