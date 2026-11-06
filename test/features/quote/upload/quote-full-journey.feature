@@ -6,6 +6,7 @@ Feature: NRF Quote full journey (file upload)
     When I start a new quote
     And I select "I want a quote for the nature restoration levy" as what I would like to do
     And I select "Full planning permission" as my planning type
+    And the beta banner should link to the "quote" survey
     And I confirm I am developing housing
     And I enter "10" units
     And I select "Upload a file" as my boundary type
