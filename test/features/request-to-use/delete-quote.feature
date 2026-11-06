@@ -4,6 +4,7 @@ Feature: Delete quote from the request to use journey
   Background:
     Given I have created a quote for Nature Restoration Levy
     And I am on the review and amend quote details page for my quote
+    And the beta banner should link to the "request to use" survey
     And I continue
     When I decline the levy amount
     Then I should see the are you sure you want to delete this quote page
