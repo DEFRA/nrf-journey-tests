@@ -13,3 +13,6 @@ Feature: Request to use journey when already signed in with Defra ID
     And I say the development is not an amendment
     Then I should be signed in and can enter my address
     And I should see that I am representing my organisation as an employee
+    And I should see the sign out link
+    When I sign out
+    Then I should be signed out of the service and Defra ID
