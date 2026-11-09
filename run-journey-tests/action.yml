@@ -136,14 +136,42 @@ runs:
         fi
         echo "::endgroup::"
 
-    # Check out the test code. clean: false preserves any subdirectories that
-    # depends-on checked out inside the workspace (e.g. nrf-backend, nrf-frontend).
+    # actions/checkout empties the workspace when its root is not a git
+    # repository, even with clean: false. That is the case when a calling
+    # workflow checks its own repo into a subdirectory (nrf-frontend's CI uses
+    # path: nrf-frontend), so move the repo checkouts aside while the test code
+    # is checked out.
+    - name: Set aside repo checkouts in the workspace
+      if: ${{ !inputs.environment }}
+      shell: bash
+      run: |
+        stash="$RUNNER_TEMP/workspace-checkouts"
+        rm -rf "$stash"
+        mkdir -p "$stash"
+        for repo in nrf-frontend nrf-backend nrf-impact-assessor; do
+          if [ -d "./$repo" ]; then
+            mv "./$repo" "$stash/$repo"
+          fi
+        done
+
+    # Check out the test code.
     # Uses the depends-on branch when present, otherwise falls back to inputs.ref (or main).
     - uses: actions/checkout@v4
       with:
         repository: DEFRA/nrf-journey-tests
         ref: ${{ steps.detect-jt.outputs.ref || inputs.ref }}
         clean: false
+
+    - name: Restore repo checkouts in the workspace
+      if: ${{ !inputs.environment }}
+      shell: bash
+      run: |
+        stash="$RUNNER_TEMP/workspace-checkouts"
+        for repo in nrf-frontend nrf-backend nrf-impact-assessor; do
+          if [ -d "$stash/$repo" ]; then
+            mv "$stash/$repo" "./$repo"
+          fi
+        done
 
     # Clean up any depends-on nrf-journey-tests checkout — it is now redundant.
     - name: Remove nrf-journey-tests depends-on checkout
