@@ -6,6 +6,7 @@ import {
   signInToDefraId
 } from '../support/defra-id/index.js'
 import { waitForVisible } from '../support/wait-for-visible.js'
+import { baseUrl } from '../support/base-url.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -100,5 +101,42 @@ Then(
       (await representing.textContent()).trim(),
       `You are representing ${organisationName} as an ${relationship}.`
     )
+  }
+)
+
+Then(
+  'I should see the sign out link',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await waitForVisible(
+      this.page,
+      this.pageObjects.enterAddressPage.signOutLink,
+      'the sign out link'
+    )
+  }
+)
+
+When(
+  'I sign out',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.enterAddressPage.signOutLink.click()
+    // Defra ID returns to the service in stub mode, or its own page in real mode
+    await this.page.waitForLoadState('load')
+  }
+)
+
+Then(
+  'I should be signed out of the service and Defra ID',
+  { timeout: 60_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.enterAddressPage.open()
+    const serviceOrigin = new URL(baseUrl).origin
+    // A signed-out user is sent to Defra ID rather than to the page
+    await this.page.waitForURL((url) => url.origin !== serviceOrigin, {
+      timeout: 30_000
+    })
   }
 )
