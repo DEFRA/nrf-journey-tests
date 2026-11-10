@@ -1,0 +1,21 @@
+{
+  "type": "FeatureCollection",
+  "name": "original_boundary",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [1.248, 52.793],
+            [1.254, 52.793],
+            [1.251, 52.798],
+            [1.248, 52.793]
+          ]
+        ]
+      }
+    }
+  ]
+}
