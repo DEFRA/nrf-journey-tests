@@ -143,6 +143,46 @@ When(
 )
 
 When(
+  'I enter the address details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const { enterAddressPage } = this.pageObjects
+    await enterAddressPage.fillAddressDetails()
+    await enterAddressPage.confirm()
+  }
+)
+
+When(
+  'I enter the developer details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const { enterAddressPage } = this.pageObjects
+    await enterAddressPage.fillDeveloperDetails()
+    await enterAddressPage.confirm()
+  }
+)
+
+Then(
+  'I should be taken to the review your details page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.page.waitForURL(
+      (url) => url.pathname === '/request-to-use/review-your-details'
+    )
+  }
+)
+
+Then(
+  'I should be taken to the review developer details page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.page.waitForURL(
+      (url) => url.pathname === '/request-to-use/review-developer-details'
+    )
+  }
+)
+
+When(
   'I say the development is an amendment',
   /** @this {PlaywrightWorld} */
   async function () {

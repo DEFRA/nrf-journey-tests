@@ -15,7 +15,8 @@ Feature: Request to use journey
     And I continue from the "You'll need to create or join a Defra account for your business or organisation" page
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
-    And I should see that I am representing my organisation as an employee
+    When I enter the address details
+    Then I should be taken to the review your details page
 
   Scenario: Individual completes request to use journey
     Given I have a Defra ID account as an individual
@@ -31,6 +32,8 @@ Feature: Request to use journey
     And I continue from the "You'll need to create or sign in to a Defra account as an individual" page
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
+    When I enter the address details
+    Then I should be taken to the review your details page
 
   Scenario: Agent completes request to use journey
     Given I have a Defra ID account as an agent
@@ -47,4 +50,5 @@ Feature: Request to use journey
     And I sign in to Defra ID and am shown the organisation picker
     And I choose "IVY HOUSEBUILDERS LIMITED" on the organisation picker
     Then I should be signed in and can enter my address
-    And I should see that I am representing my organisation as an agent
+    When I enter the developer details
+    Then I should be taken to the review developer details page

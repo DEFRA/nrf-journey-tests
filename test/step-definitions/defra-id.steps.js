@@ -1,4 +1,3 @@
-import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
 import {
   chooseOrganisation,
@@ -61,46 +60,18 @@ Then(
   'I should be signed in and can enter my address',
   /** @this {PlaywrightWorld} */
   async function () {
-    const { firstName, lastName, organisationName } = this.defraIdUser
-    const { enterAddressPage } = this.pageObjects
+    const { organisationName, relationshipRole } = this.defraIdUser
 
     await this.page.waitForURL(
       (url) => url.pathname === '/request-to-use/enter-address'
     )
-    const heading = this.page.locator('h1', {
-      hasText: organisationName
-        ? 'What is the business or organisation address?'
-        : 'What is your address?'
-    })
+    const headingText = !organisationName
+      ? 'What is your address?'
+      : relationshipRole === 'Agent'
+        ? `What are the details for ${organisationName}?`
+        : `What is the address for ${organisationName}?`
+    const heading = this.page.locator('h1', { hasText: headingText })
     await waitForVisible(this.page, heading, 'the enter address heading')
-
-    await waitForVisible(
-      this.page,
-      enterAddressPage.signedInAs,
-      'the signed in user'
-    )
-    assert.equal(
-      (await enterAddressPage.signedInAs.textContent()).trim(),
-      `You are signed in as ${firstName} ${lastName}.`
-    )
-  }
-)
-
-Then(
-  'I should see that I am representing my organisation as an {word}',
-  /** @this {PlaywrightWorld} */
-  async function (relationship) {
-    const { organisationName } = this.defraIdUser
-    const representing = this.pageObjects.enterAddressPage.representing
-    await waitForVisible(
-      this.page,
-      representing,
-      'the represented organisation'
-    )
-    assert.equal(
-      (await representing.textContent()).trim(),
-      `You are representing ${organisationName} as an ${relationship}.`
-    )
   }
 )
 
