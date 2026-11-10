@@ -484,6 +484,14 @@ Then(
 )
 
 When(
+  'I follow the {string} link',
+  /** @this {PlaywrightWorld} */
+  async function (name) {
+    await this.page.getByRole('link', { name }).click()
+  }
+)
+
+When(
   'I click Change for {string} on the review and amend quote details page',
   /** @this {PlaywrightWorld} */
   async function (key) {
