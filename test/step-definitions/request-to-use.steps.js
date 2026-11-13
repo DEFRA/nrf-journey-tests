@@ -163,21 +163,11 @@ When(
 )
 
 Then(
-  'I should be taken to the review your details page',
+  'I should be taken to the review details page',
   /** @this {PlaywrightWorld} */
   async function () {
     await this.page.waitForURL(
-      (url) => url.pathname === '/request-to-use/review-your-details'
-    )
-  }
-)
-
-Then(
-  'I should be taken to the review developer details page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    await this.page.waitForURL(
-      (url) => url.pathname === '/request-to-use/review-developer-details'
+      (url) => url.pathname === '/request-to-use/review-details'
     )
   }
 )
