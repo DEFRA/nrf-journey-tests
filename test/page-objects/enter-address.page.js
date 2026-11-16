@@ -28,6 +28,17 @@ class EnterAddressPage extends Page {
     await this.fillAddressDetails()
   }
 
+  // Different values to fillAddressDetails, so a scenario can check the
+  // review details page shows what an amended answer changed. The optional
+  // lines are cleared to check blank lines are dropped.
+  async fillChangedAddressDetails() {
+    await this.page.getByLabel('Address line 1').fill('2 Amended Street')
+    await this.page.getByLabel('Address line 2 (optional)').fill('')
+    await this.page.getByLabel('Town or city').fill('Amended')
+    await this.page.getByLabel('County (optional)').fill('')
+    await this.page.getByLabel('Postcode').fill('AM3 9ND')
+  }
+
   confirm() {
     return this.page.getByRole('button', { name: 'Confirm' }).click()
   }

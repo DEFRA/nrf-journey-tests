@@ -36,6 +36,7 @@ import { DefraAccountIndividualPage } from '../page-objects/defra-account-indivi
 import { DefraAccountOrganisationPage } from '../page-objects/defra-account-organisation.page.js'
 import { DefraAccountAgentPage } from '../page-objects/defra-account-agent.page.js'
 import { EnterAddressPage } from '../page-objects/enter-address.page.js'
+import { ReviewDetailsPage } from '../page-objects/review-details.page.js'
 import { ReadThisPage } from '../page-objects/read-this.page.js'
 import { AnalyticsInternalPage } from '../page-objects/analytics-internal.page.js'
 import {
@@ -174,6 +175,7 @@ export class PlaywrightWorld extends World {
       ),
       defraAccountAgentPage: new DefraAccountAgentPage(this.page, baseUrl),
       enterAddressPage: new EnterAddressPage(this.page, baseUrl),
+      reviewDetailsPage: new ReviewDetailsPage(this.page, baseUrl),
       readThisPage: new ReadThisPage(this.page, baseUrl),
       analyticsInternalPage: new AnalyticsInternalPage(this.page, baseUrl)
     }

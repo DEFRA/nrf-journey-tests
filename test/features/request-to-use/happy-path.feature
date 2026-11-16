@@ -17,10 +17,18 @@ Feature: Request to use journey
     Then I should be signed in and can enter my address
     When I enter the address details
     Then I should be taken to the review details page
-    # The review details page is not built yet: open the read this page
-    # directly until it exists
-    When I open the read this page
-    Then I should see the read this page content
+    And I should see "Helen Hanks" for "Full name" on the review details page
+    And I should see "Hamblin Housebuilders" for "Business name" on the review details page
+    And I should see "1 Development Road" for "Address" on the review details page
+    And I should not see a Change link for "Full name" on the review details page
+    And I should not see a Change link for "Business name" on the review details page
+    When I click Change for "Address" on the review details page
+    Then I should be signed in and can enter my address
+    When I change the address details
+    Then I should see "2 Amended Street" for "Address" on the review details page
+    When I confirm the details
+    Then I should be taken to "/request-to-use/read-this"
+    And I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"
 
@@ -40,10 +48,17 @@ Feature: Request to use journey
     Then I should be signed in and can enter my address
     When I enter the address details
     Then I should be taken to the review details page
-    # The review details page is not built yet: open the read this page
-    # directly until it exists
-    When I open the read this page
-    Then I should see the read this page content
+    And I should see "Chas Chandler" for "Full name" on the review details page
+    And I should not see a "Business name" row on the review details page
+    And I should see "1 Development Road" for "Address" on the review details page
+    And I should not see a Change link for "Full name" on the review details page
+    When I click Change for "Address" on the review details page
+    Then I should be signed in and can enter my address
+    When I enter the address details
+    Then I should be taken to the review details page
+    When I confirm the details
+    Then I should be taken to "/request-to-use/read-this"
+    And I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"
 
@@ -64,9 +79,18 @@ Feature: Request to use journey
     Then I should be signed in and can enter my address
     When I enter the developer details
     Then I should be taken to the review details page
-    # The review details page is not built yet: open the read this page
-    # directly until it exists
-    When I open the read this page
-    Then I should see the read this page content
+    And I should see "Trevor Barker" for "Full name" on the review details page
+    And I should see "IVY HOUSEBUILDERS LIMITED" for "Business name" on the review details page
+    And I should see "1 Development Road" for "Address" on the review details page
+    And I should see a Change link for "Full name" on the review details page
+    And I should see a Change link for "Business name" on the review details page
+    When I click Change for "Full name" on the review details page
+    Then I should be signed in and can enter my address
+    When I change the developer details
+    Then I should see "Amber Barker" for "Full name" on the review details page
+    And I should see "2 Amended Street" for "Address" on the review details page
+    When I confirm the details
+    Then I should be taken to "/request-to-use/read-this"
+    And I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"

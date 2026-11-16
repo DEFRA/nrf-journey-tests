@@ -169,6 +169,83 @@ Then(
     await this.page.waitForURL(
       (url) => url.pathname === '/request-to-use/review-details'
     )
+    const headingText =
+      this.defraIdUser.relationshipRole === 'Agent'
+        ? 'Review and confirm the developer details'
+        : 'Review and confirm your details'
+    const heading = this.page.locator('h1', { hasText: headingText })
+    await waitForVisible(this.page, heading, 'the review details heading')
+  }
+)
+
+Then(
+  'I should see {string} for {string} on the review details page',
+  /** @this {PlaywrightWorld} */
+  async function (value, key) {
+    await assertSummaryRow(this.pageObjects.reviewDetailsPage, key, value)
+  }
+)
+
+Then(
+  'I should see a Change link for {string} on the review details page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    const changeLink = this.pageObjects.reviewDetailsPage.changeLink(key)
+    await waitForVisible(this.page, changeLink, `the "${key}" change link`)
+  }
+)
+
+Then(
+  'I should not see a Change link for {string} on the review details page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    const changeLink = this.pageObjects.reviewDetailsPage.changeLink(key)
+    assert.equal(await changeLink.count(), 0)
+  }
+)
+
+Then(
+  'I should not see a {string} row on the review details page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    assert.equal(await this.pageObjects.reviewDetailsPage.row(key).count(), 0)
+  }
+)
+
+When(
+  'I click Change for {string} on the review details page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    await this.pageObjects.reviewDetailsPage.changeLink(key).click()
+  }
+)
+
+When(
+  'I change the address details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const { enterAddressPage } = this.pageObjects
+    await enterAddressPage.fillChangedAddressDetails()
+    await enterAddressPage.confirm()
+  }
+)
+
+When(
+  'I change the developer details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const { enterAddressPage } = this.pageObjects
+    await enterAddressPage.fullNameInput.fill('Amber Barker')
+    await enterAddressPage.fillChangedAddressDetails()
+    await enterAddressPage.confirm()
+  }
+)
+
+When(
+  'I confirm the details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.reviewDetailsPage.confirm()
   }
 )
 
@@ -563,16 +640,6 @@ Then(
     )
 
     await assertLevyAmounts.call(this, this.pageObjects.acceptLevyPage)
-  }
-)
-
-// The review details page is not built yet: open the read this page directly
-// until it exists, then make this a continue step.
-When(
-  'I open the read this page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    await this.pageObjects.readThisPage.open()
   }
 )
 
