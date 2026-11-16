@@ -338,6 +338,10 @@ async function captureRetrieveQuoteEmail(excludeBody) {
     body,
     `No retrieve quote email to ${this.submittedEmail} contained "${expectedText}" after all retries — see attached attempt log`
   )
+  assert.ok(
+    body.includes(`NRL reference: ${this.nrfReference}`),
+    `Expected email body to include "NRL reference: ${this.nrfReference}" but got:\n${body}`
+  )
   this.retrieveQuoteEmailBody = body
 }
 
