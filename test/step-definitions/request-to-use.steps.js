@@ -514,6 +514,37 @@ When(
 
 // Until inflation is applied, the inflation-adjusted amount equals the
 // provisional amount: both are the base charge per unit times the units.
+const expectedLevyAmount = (units) =>
+  new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    maximumFractionDigits: 0
+  }).format(BASE_CHARGE_PER_UNIT * units)
+
+/**
+ * Asserts both levy amount headings on the page object match the amount
+ * recalculated from the noted number of housing units.
+ * @this {PlaywrightWorld}
+ * @param {{ provisionalAmountHeading: import('playwright').Locator, inflationAdjustedAmountHeading: import('playwright').Locator }} pageObject
+ */
+async function assertLevyAmounts(pageObject) {
+  const expectedAmount = expectedLevyAmount(this.housingUnits)
+
+  await waitForVisible(
+    this.page,
+    pageObject.provisionalAmountHeading,
+    'the provisional levy amount'
+  )
+  assert.equal(
+    (await pageObject.provisionalAmountHeading.textContent()).trim(),
+    `Provisional nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+  )
+  assert.equal(
+    (await pageObject.inflationAdjustedAmountHeading.textContent()).trim(),
+    `Inflation-adjusted nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+  )
+}
+
 Then(
   'I should see the levy amounts for my number of housing units',
   /** @this {PlaywrightWorld} */
@@ -522,13 +553,6 @@ Then(
       this.housingUnits,
       'No number of housing units was noted earlier in this scenario'
     )
-    const expectedAmount = new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      maximumFractionDigits: 0
-    }).format(BASE_CHARGE_PER_UNIT * this.housingUnits)
-    const { provisionalAmountHeading, inflationAdjustedAmountHeading } =
-      this.pageObjects.acceptLevyPage
 
     await waitForVisible(
       this.page,
@@ -538,19 +562,73 @@ Then(
       'the accept levy heading'
     )
 
+    await assertLevyAmounts.call(this, this.pageObjects.acceptLevyPage)
+  }
+)
+
+// The review details page is not built yet: open the read this page directly
+// until it exists, then make this a continue step.
+When(
+  'I open the read this page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.readThisPage.open()
+  }
+)
+
+Then(
+  'I should see the levy amounts on the read this page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.housingUnits,
+      'No number of housing units was noted earlier in this scenario'
+    )
+
     await waitForVisible(
       this.page,
-      provisionalAmountHeading,
-      'the provisional levy amount'
+      this.page.locator('h1', {
+        hasText:
+          'Details to read before you request to use the nature restoration levy'
+      }),
+      'the read this heading'
     )
+
+    await assertLevyAmounts.call(this, this.pageObjects.readThisPage)
+  }
+)
+
+Then(
+  'I should see the NRL reference in the email link on the read this page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    assert.ok(
+      this.nrfReference,
+      'No NRL reference was noted earlier in this scenario'
+    )
+    const { emailLink } = this.pageObjects.readThisPage
+    await waitForVisible(this.page, emailLink, 'the Natural England email link')
     assert.equal(
-      (await provisionalAmountHeading.textContent()).trim(),
-      `Provisional nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+      await emailLink.getAttribute('href'),
+      `mailto:enquiries@naturalengland.org.uk?subject=${this.nrfReference}`
     )
+  }
+)
+
+Then(
+  'I should see the guidance links on the read this page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const { habitatsLink, callChargesLink, instalmentPlansLink } =
+      this.pageObjects.readThisPage
+
+    assert.equal(await habitatsLink.getAttribute('target'), '_blank')
     assert.equal(
-      (await inflationAdjustedAmountHeading.textContent()).trim(),
-      `Inflation-adjusted nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+      await callChargesLink.getAttribute('href'),
+      'https://www.gov.uk/call-charges'
     )
+    // Guidance pages that are not published yet link to a placeholder
+    assert.equal(await instalmentPlansLink.getAttribute('href'), '#')
   }
 )
 

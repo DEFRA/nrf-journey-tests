@@ -17,6 +17,14 @@ Feature: Request to use journey
     Then I should be signed in and can enter my address
     When I enter the address details
     Then I should be taken to the review details page
+    # The review details page is not built yet: open the read this page
+    # directly until it exists
+    When I open the read this page
+    Then I should see the levy amounts on the read this page
+    And I should see the NRL reference in the email link on the read this page
+    And I should see the guidance links on the read this page
+    When I continue
+    Then I should be taken to "/request-to-use/check-your-answers"
 
   Scenario: Individual completes request to use journey
     Given I have a Defra ID account as an individual
@@ -34,6 +42,14 @@ Feature: Request to use journey
     Then I should be signed in and can enter my address
     When I enter the address details
     Then I should be taken to the review details page
+    # The review details page is not built yet: open the read this page
+    # directly until it exists
+    When I open the read this page
+    Then I should see the levy amounts on the read this page
+    And I should see the NRL reference in the email link on the read this page
+    And I should see the guidance links on the read this page
+    When I continue
+    Then I should be taken to "/request-to-use/check-your-answers"
 
   Scenario: Agent completes request to use journey
     Given I have a Defra ID account as an agent
@@ -52,3 +68,11 @@ Feature: Request to use journey
     Then I should be signed in and can enter my address
     When I enter the developer details
     Then I should be taken to the review details page
+    # The review details page is not built yet: open the read this page
+    # directly until it exists
+    When I open the read this page
+    Then I should see the levy amounts on the read this page
+    And I should see the NRL reference in the email link on the read this page
+    And I should see the guidance links on the read this page
+    When I continue
+    Then I should be taken to "/request-to-use/check-your-answers"
