@@ -577,12 +577,16 @@ When(
 )
 
 Then(
-  'I should see the levy amounts on the read this page',
+  'I should see the read this page content',
   /** @this {PlaywrightWorld} */
   async function () {
     assert.ok(
       this.housingUnits,
       'No number of housing units was noted earlier in this scenario'
+    )
+    assert.ok(
+      this.nrfReference,
+      'No NRL reference was noted earlier in this scenario'
     )
 
     await waitForVisible(
@@ -595,32 +599,15 @@ Then(
     )
 
     await assertLevyAmounts.call(this, this.pageObjects.readThisPage)
-  }
-)
 
-Then(
-  'I should see the NRL reference in the email link on the read this page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    assert.ok(
-      this.nrfReference,
-      'No NRL reference was noted earlier in this scenario'
-    )
-    const { emailLink } = this.pageObjects.readThisPage
+    const { emailLink, habitatsLink, callChargesLink, instalmentPlansLink } =
+      this.pageObjects.readThisPage
+
     await waitForVisible(this.page, emailLink, 'the Natural England email link')
     assert.equal(
       await emailLink.getAttribute('href'),
       `mailto:enquiries@naturalengland.org.uk?subject=${this.nrfReference}`
     )
-  }
-)
-
-Then(
-  'I should see the guidance links on the read this page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    const { habitatsLink, callChargesLink, instalmentPlansLink } =
-      this.pageObjects.readThisPage
 
     assert.equal(await habitatsLink.getAttribute('target'), '_blank')
     assert.equal(

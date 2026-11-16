@@ -20,9 +20,7 @@ Feature: Request to use journey
     # The review details page is not built yet: open the read this page
     # directly until it exists
     When I open the read this page
-    Then I should see the levy amounts on the read this page
-    And I should see the NRL reference in the email link on the read this page
-    And I should see the guidance links on the read this page
+    Then I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"
 
@@ -45,9 +43,7 @@ Feature: Request to use journey
     # The review details page is not built yet: open the read this page
     # directly until it exists
     When I open the read this page
-    Then I should see the levy amounts on the read this page
-    And I should see the NRL reference in the email link on the read this page
-    And I should see the guidance links on the read this page
+    Then I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"
 
@@ -71,8 +67,6 @@ Feature: Request to use journey
     # The review details page is not built yet: open the read this page
     # directly until it exists
     When I open the read this page
-    Then I should see the levy amounts on the read this page
-    And I should see the NRL reference in the email link on the read this page
-    And I should see the guidance links on the read this page
+    Then I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"
