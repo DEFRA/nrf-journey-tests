@@ -29,7 +29,28 @@ Feature: Request to use journey
     Then I should be taken to "/request-to-use/read-this"
     And I should see the read this page content
     When I continue
-    Then I should be taken to "/request-to-use/check-your-answers"
+    Then I should be taken to the check your answers page showing
+      | row                           | value                      | change link |
+      | Accept levy amount            | Yes, accept this amount     | yes         |
+      | Requesting to use the levy as | Employee                    | no          |
+      | Full name                     | Helen Hanks                 | yes         |
+      | Developer business name       | Hamblin Housebuilders       | no          |
+      | Address                       | 2 Amended Street            | yes         |
+      | Planning permission type      | Full planning permission    | no          |
+      | Housing                       | Yes                         | no          |
+      | Number of housing units       | 10                          | no          |
+      | Red line boundary             | Added                       | no          |
+      | Email address                 | nrfjourneytests@gmail.com   | no          |
+    When I click Change for "Full name" on the check your answers page
+    Then I should be signed in and can enter my address
+    When I enter the address details
+    Then I should be taken to the review details page
+    When I confirm the details
+    Then I should be taken to "/request-to-use/read-this"
+    When I continue
+    Then I should be taken to the check your answers page
+    When I confirm the declaration
+    Then I should be taken to "/request-to-use/confirmation"
 
   Scenario: Individual completes request to use journey
     Given I have a Defra ID account as an individual
@@ -58,7 +79,19 @@ Feature: Request to use journey
     Then I should be taken to "/request-to-use/read-this"
     And I should see the read this page content
     When I continue
-    Then I should be taken to "/request-to-use/check-your-answers"
+    Then I should be taken to the check your answers page showing
+      | row                           | value                      | change link |
+      | Accept levy amount            | Yes, accept this amount     | yes         |
+      | Requesting to use the levy as | Individual                  | no          |
+      | Full name                     | Chas Chandler               | yes         |
+      | Address                       | 1 Development Road          | yes         |
+      | Planning permission type      | Full planning permission    | no          |
+      | Housing                       | Yes                         | no          |
+      | Number of housing units       | 10                          | no          |
+      | Red line boundary             | Added                       | no          |
+      | Email address                 | nrfjourneytests@gmail.com   | no          |
+    When I confirm the declaration
+    Then I should be taken to "/request-to-use/confirmation"
 
   Scenario: Agent completes request to use journey
     Given I have a Defra ID account as an agent
@@ -90,4 +123,30 @@ Feature: Request to use journey
     Then I should be taken to "/request-to-use/read-this"
     And I should see the read this page content
     When I continue
-    Then I should be taken to "/request-to-use/check-your-answers"
+    Then I should be taken to the check your answers page showing
+      | row                           | value                      | change link |
+      | Accept levy amount            | Yes, accept this amount     | yes         |
+      | Requesting to use the levy as | Agent                       | no          |
+      | Full name                     | Amber Barker                | yes         |
+      | Developer business name       | IVY HOUSEBUILDERS LIMITED   | no          |
+      | Address                       | 2 Amended Street            | yes         |
+      | Planning permission type      | Full planning permission    | no          |
+      | Housing                       | Yes                         | no          |
+      | Number of housing units       | 10                          | no          |
+      | Red line boundary             | Added                       | no          |
+      | Email address                 | nrfjourneytests@gmail.com   | no          |
+    When I confirm the declaration
+    Then I should be taken to "/request-to-use/confirmation"
+
+  Scenario: Following the review your quote and delete quote details links from check your answers
+    Given I have created a quote for Nature Restoration Levy
+    And I am on the review and amend quote details page for my quote
+    And I am on the check your answers page
+    When I follow the "review your quote" link
+    Then I should be taken to "/request-to-use/review-quote-details"
+    When I navigate back in the browser
+    Then I should be taken to the check your answers page
+    When I follow the "Delete quote details" link
+    Then I should see the are you sure you want to delete this quote page
+    When I click the back link
+    Then I should be taken to the check your answers page
