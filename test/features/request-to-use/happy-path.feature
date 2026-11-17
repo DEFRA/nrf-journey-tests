@@ -141,6 +141,7 @@ Feature: Request to use journey
   Scenario: Following the review your quote and delete quote details links from check your answers
     Given I have created a quote for Nature Restoration Levy
     And I am on the review and amend quote details page for my quote
+    And I am signed in to Defra ID as an employee
     And I am on the check your answers page
     When I follow the "review your quote" link
     Then I should be taken to "/request-to-use/review-quote-details"

@@ -9,6 +9,10 @@ import {
   SEED_EMAIL,
   LARGER_POLYGON
 } from '../support/seed-quote.js'
+import {
+  prepareDefraIdUser,
+  signInToDefraId
+} from '../support/defra-id/index.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -35,13 +39,24 @@ Given(
 // survives the submission, so the review page can be reopened afterwards.
 Given(
   'I have submitted my request to use the levy',
-  { timeout: 60_000 },
+  { timeout: 120_000 },
   /** @this {PlaywrightWorld} */
   async function () {
+    // The page is only reachable signed in: opening it signed out starts the
+    // Defra ID sign-in and returns to it. The step signs out again afterwards
+    // so the journey continues in its previous signed-out state, which the
+    // later pages (eg who the levy is for) depend on
+    await prepareDefraIdUser({ world: this, userType: 'employee' })
     await this.pageObjects.requestToUseCheckYourAnswersPage.open()
+    await signInToDefraId(this)
     await this.pageObjects.requestToUseCheckYourAnswersPage.confirm()
     await this.page.waitForURL(/\/request-to-use\/confirmation/)
     this.submittedNrfReference = this.nrfReference
+    // The confirmation page carries no header, so sign out from the enter
+    // address page, whose header shows the sign out link
+    await this.pageObjects.enterAddressPage.open()
+    await this.pageObjects.enterAddressPage.signOutLink.click()
+    await this.page.waitForLoadState('load')
     await this.pageObjects.reviewQuoteDetailsPage.open(
       '/request-to-use/review-quote-details'
     )
