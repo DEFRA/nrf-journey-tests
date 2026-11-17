@@ -162,19 +162,28 @@ When(
   }
 )
 
+/**
+ * Waits until the review details page is showing, so steps that assert on or
+ * act from it start from a page that has rendered.
+ * @param {PlaywrightWorld} world
+ */
+async function waitForReviewDetailsPage(world) {
+  await world.page.waitForURL(
+    (url) => url.pathname === '/request-to-use/review-details'
+  )
+  const headingText =
+    world.defraIdUser.relationshipRole === 'Agent'
+      ? 'Review and confirm the developer details'
+      : 'Review and confirm your details'
+  const heading = world.page.locator('h1', { hasText: headingText })
+  await waitForVisible(world.page, heading, 'the review details heading')
+}
+
 Then(
   'I should be taken to the review details page',
   /** @this {PlaywrightWorld} */
   async function () {
-    await this.page.waitForURL(
-      (url) => url.pathname === '/request-to-use/review-details'
-    )
-    const headingText =
-      this.defraIdUser.relationshipRole === 'Agent'
-        ? 'Review and confirm the developer details'
-        : 'Review and confirm your details'
-    const heading = this.page.locator('h1', { hasText: headingText })
-    await waitForVisible(this.page, heading, 'the review details heading')
+    await waitForReviewDetailsPage(this)
   }
 )
 
@@ -187,28 +196,31 @@ Then(
 )
 
 Then(
-  'I should see a Change link for {string} on the review details page',
+  'I should be taken to the review details page showing',
   /** @this {PlaywrightWorld} */
-  async function (key) {
-    const changeLink = this.pageObjects.reviewDetailsPage.changeLink(key)
-    await waitForVisible(this.page, changeLink, `the "${key}" change link`)
-  }
-)
+  async function (expectedRows) {
+    await waitForReviewDetailsPage(this)
 
-Then(
-  'I should not see a Change link for {string} on the review details page',
-  /** @this {PlaywrightWorld} */
-  async function (key) {
-    const changeLink = this.pageObjects.reviewDetailsPage.changeLink(key)
-    assert.equal(await changeLink.count(), 0)
-  }
-)
+    // The table is the complete set of rows in order: a row left out of it,
+    // like the individual's business name, is asserted to be absent.
+    const expected = expectedRows.rows()
+    const reviewDetailsPage = this.pageObjects.reviewDetailsPage
+    const actualKeys = (
+      await this.page.locator('.govuk-summary-list__key').allTextContents()
+    ).map((key) => key.trim())
+    assert.deepEqual(
+      actualKeys,
+      expected.map(([key]) => key)
+    )
 
-Then(
-  'I should not see a {string} row on the review details page',
-  /** @this {PlaywrightWorld} */
-  async function (key) {
-    assert.equal(await this.pageObjects.reviewDetailsPage.row(key).count(), 0)
+    for (const [key, value, changeLink] of expected) {
+      await assertSummaryRow(reviewDetailsPage, key, value)
+      assert.equal(
+        await reviewDetailsPage.changeLink(key).count(),
+        changeLink === 'yes' ? 1 : 0,
+        `Expected the "${key}" row to ${changeLink === 'yes' ? 'have' : 'have no'} Change link`
+      )
+    }
   }
 )
 

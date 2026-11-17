@@ -16,12 +16,11 @@ Feature: Request to use journey
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
     When I enter the address details
-    Then I should be taken to the review details page
-    And I should see "Helen Hanks" for "Full name" on the review details page
-    And I should see "Hamblin Housebuilders" for "Business name" on the review details page
-    And I should see "1 Development Road" for "Address" on the review details page
-    And I should not see a Change link for "Full name" on the review details page
-    And I should not see a Change link for "Business name" on the review details page
+    Then I should be taken to the review details page showing
+      | row           | value                  | change link |
+      | Full name     | Helen Hanks           | no          |
+      | Business name | Hamblin Housebuilders | no          |
+      | Address       | 1 Development Road    | yes         |
     When I click Change for "Address" on the review details page
     Then I should be signed in and can enter my address
     When I change the address details
@@ -47,11 +46,10 @@ Feature: Request to use journey
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
     When I enter the address details
-    Then I should be taken to the review details page
-    And I should see "Chas Chandler" for "Full name" on the review details page
-    And I should not see a "Business name" row on the review details page
-    And I should see "1 Development Road" for "Address" on the review details page
-    And I should not see a Change link for "Full name" on the review details page
+    Then I should be taken to the review details page showing
+      | row       | value              | change link |
+      | Full name | Chas Chandler      | no          |
+      | Address   | 1 Development Road | yes         |
     When I click Change for "Address" on the review details page
     Then I should be signed in and can enter my address
     When I enter the address details
@@ -78,12 +76,11 @@ Feature: Request to use journey
     And I choose "IVY HOUSEBUILDERS LIMITED" on the organisation picker
     Then I should be signed in and can enter my address
     When I enter the developer details
-    Then I should be taken to the review details page
-    And I should see "Trevor Barker" for "Full name" on the review details page
-    And I should see "IVY HOUSEBUILDERS LIMITED" for "Business name" on the review details page
-    And I should see "1 Development Road" for "Address" on the review details page
-    And I should see a Change link for "Full name" on the review details page
-    And I should see a Change link for "Business name" on the review details page
+    Then I should be taken to the review details page showing
+      | row           | value                     | change link |
+      | Full name     | Trevor Barker             | yes         |
+      | Business name | IVY HOUSEBUILDERS LIMITED | yes         |
+      | Address       | 1 Development Road        | yes         |
     When I click Change for "Full name" on the review details page
     Then I should be signed in and can enter my address
     When I change the developer details
