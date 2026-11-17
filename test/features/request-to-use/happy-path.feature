@@ -16,11 +16,18 @@ Feature: Request to use journey
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
     When I enter the address details
-    Then I should be taken to the review details page
-    # The review details page is not built yet: open the read this page
-    # directly until it exists
-    When I open the read this page
-    Then I should see the read this page content
+    Then I should be taken to the review details page showing
+      | row           | value                  | change link |
+      | Full name     | Helen Hanks           | no          |
+      | Business name | Hamblin Housebuilders | no          |
+      | Address       | 1 Development Road    | yes         |
+    When I click Change for "Address" on the review details page
+    Then I should be signed in and can enter my address
+    When I change the address details
+    Then I should see "2 Amended Street" for "Address" on the review details page
+    When I confirm the details
+    Then I should be taken to "/request-to-use/read-this"
+    And I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"
 
@@ -39,11 +46,17 @@ Feature: Request to use journey
     And I sign in to Defra ID
     Then I should be signed in and can enter my address
     When I enter the address details
+    Then I should be taken to the review details page showing
+      | row       | value              | change link |
+      | Full name | Chas Chandler      | no          |
+      | Address   | 1 Development Road | yes         |
+    When I click Change for "Address" on the review details page
+    Then I should be signed in and can enter my address
+    When I enter the address details
     Then I should be taken to the review details page
-    # The review details page is not built yet: open the read this page
-    # directly until it exists
-    When I open the read this page
-    Then I should see the read this page content
+    When I confirm the details
+    Then I should be taken to "/request-to-use/read-this"
+    And I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"
 
@@ -63,10 +76,18 @@ Feature: Request to use journey
     And I choose "IVY HOUSEBUILDERS LIMITED" on the organisation picker
     Then I should be signed in and can enter my address
     When I enter the developer details
-    Then I should be taken to the review details page
-    # The review details page is not built yet: open the read this page
-    # directly until it exists
-    When I open the read this page
-    Then I should see the read this page content
+    Then I should be taken to the review details page showing
+      | row           | value                     | change link |
+      | Full name     | Trevor Barker             | yes         |
+      | Business name | IVY HOUSEBUILDERS LIMITED | yes         |
+      | Address       | 1 Development Road        | yes         |
+    When I click Change for "Full name" on the review details page
+    Then I should be signed in and can enter my address
+    When I change the developer details
+    Then I should see "Amber Barker" for "Full name" on the review details page
+    And I should see "2 Amended Street" for "Address" on the review details page
+    When I confirm the details
+    Then I should be taken to "/request-to-use/read-this"
+    And I should see the read this page content
     When I continue
     Then I should be taken to "/request-to-use/check-your-answers"

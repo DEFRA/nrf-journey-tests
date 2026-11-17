@@ -162,13 +162,102 @@ When(
   }
 )
 
+/**
+ * Waits until the review details page is showing, so steps that assert on or
+ * act from it start from a page that has rendered.
+ * @param {PlaywrightWorld} world
+ */
+async function waitForReviewDetailsPage(world) {
+  await world.page.waitForURL(
+    (url) => url.pathname === '/request-to-use/review-details'
+  )
+  const headingText =
+    world.defraIdUser.relationshipRole === 'Agent'
+      ? 'Review and confirm the developer details'
+      : 'Review and confirm your details'
+  const heading = world.page.locator('h1', { hasText: headingText })
+  await waitForVisible(world.page, heading, 'the review details heading')
+}
+
 Then(
   'I should be taken to the review details page',
   /** @this {PlaywrightWorld} */
   async function () {
-    await this.page.waitForURL(
-      (url) => url.pathname === '/request-to-use/review-details'
+    await waitForReviewDetailsPage(this)
+  }
+)
+
+Then(
+  'I should see {string} for {string} on the review details page',
+  /** @this {PlaywrightWorld} */
+  async function (value, key) {
+    await assertSummaryRow(this.pageObjects.reviewDetailsPage, key, value)
+  }
+)
+
+Then(
+  'I should be taken to the review details page showing',
+  /** @this {PlaywrightWorld} */
+  async function (expectedRows) {
+    await waitForReviewDetailsPage(this)
+
+    // The table is the complete set of rows in order: a row left out of it,
+    // like the individual's business name, is asserted to be absent.
+    const expected = expectedRows.rows()
+    const reviewDetailsPage = this.pageObjects.reviewDetailsPage
+    const actualKeys = (
+      await this.page.locator('.govuk-summary-list__key').allTextContents()
+    ).map((key) => key.trim())
+    assert.deepEqual(
+      actualKeys,
+      expected.map(([key]) => key)
     )
+
+    for (const [key, value, changeLink] of expected) {
+      await assertSummaryRow(reviewDetailsPage, key, value)
+      assert.equal(
+        await reviewDetailsPage.changeLink(key).count(),
+        changeLink === 'yes' ? 1 : 0,
+        `Expected the "${key}" row to ${changeLink === 'yes' ? 'have' : 'have no'} Change link`
+      )
+    }
+  }
+)
+
+When(
+  'I click Change for {string} on the review details page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    await this.pageObjects.reviewDetailsPage.changeLink(key).click()
+  }
+)
+
+When(
+  'I change the address details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const { enterAddressPage } = this.pageObjects
+    await enterAddressPage.fillChangedAddressDetails()
+    await enterAddressPage.confirm()
+  }
+)
+
+When(
+  'I change the developer details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    const { enterAddressPage } = this.pageObjects
+    await enterAddressPage.fullNameInput.fill('Amber Barker')
+    await enterAddressPage.fillChangedAddressDetails()
+    await enterAddressPage.confirm()
+  }
+)
+
+When(
+  'I confirm the details',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.reviewDetailsPage.confirm()
   }
 )
 
@@ -563,16 +652,6 @@ Then(
     )
 
     await assertLevyAmounts.call(this, this.pageObjects.acceptLevyPage)
-  }
-)
-
-// The review details page is not built yet: open the read this page directly
-// until it exists, then make this a continue step.
-When(
-  'I open the read this page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    await this.pageObjects.readThisPage.open()
   }
 )
 
