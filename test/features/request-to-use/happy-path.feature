@@ -42,11 +42,11 @@ Feature: Request to use journey
       | Red line boundary             | Added                       | no          |
       | Email address                 | nrfjourneytests@gmail.com   | no          |
     When I click Change for "Accept levy amount" on the check your answers page
-    Then I should be taken to "/request-to-use/accept-levy"
+    Then I should be taken to "/request-to-use/change/accept-levy"
     When I click the back link
     Then I should be taken to the check your answers page
     When I click Change for "Accept levy amount" on the check your answers page
-    Then I should be taken to "/request-to-use/accept-levy"
+    Then I should be taken to "/request-to-use/change/accept-levy"
     When I accept the levy amount
     Then I should be taken to the check your answers page
     When I click Change for "Full name" on the check your answers page
