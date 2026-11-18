@@ -41,6 +41,14 @@ Feature: Request to use journey
       | Number of housing units       | 10                          | no          |
       | Red line boundary             | Added                       | no          |
       | Email address                 | nrfjourneytests@gmail.com   | no          |
+    When I click Change for "Accept levy amount" on the check your answers page
+    Then I should be taken to "/request-to-use/accept-levy"
+    When I click the back link
+    Then I should be taken to the check your answers page
+    When I click Change for "Accept levy amount" on the check your answers page
+    Then I should be taken to "/request-to-use/accept-levy"
+    When I accept the levy amount
+    Then I should be taken to the check your answers page
     When I click Change for "Full name" on the check your answers page
     Then I should be signed in and can enter my address
     When I click the back link
