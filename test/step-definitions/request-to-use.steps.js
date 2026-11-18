@@ -9,6 +9,10 @@ import {
   SEED_EMAIL,
   LARGER_POLYGON
 } from '../support/seed-quote.js'
+import {
+  prepareDefraIdUser,
+  signInToDefraId
+} from '../support/defra-id/index.js'
 
 /** @typedef {import('../support/world.js').PlaywrightWorld} PlaywrightWorld */
 
@@ -35,13 +39,24 @@ Given(
 // survives the submission, so the review page can be reopened afterwards.
 Given(
   'I have submitted my request to use the levy',
-  { timeout: 60_000 },
+  { timeout: 120_000 },
   /** @this {PlaywrightWorld} */
   async function () {
+    // The page is only reachable signed in: opening it signed out starts the
+    // Defra ID sign-in and returns to it. The step signs out again afterwards
+    // so the journey continues in its previous signed-out state, which the
+    // later pages (eg who the levy is for) depend on
+    await prepareDefraIdUser({ world: this, userType: 'employee' })
     await this.pageObjects.requestToUseCheckYourAnswersPage.open()
-    await this.pageObjects.requestToUseCheckYourAnswersPage.submit()
+    await signInToDefraId(this)
+    await this.pageObjects.requestToUseCheckYourAnswersPage.confirm()
     await this.page.waitForURL(/\/request-to-use\/confirmation/)
     this.submittedNrfReference = this.nrfReference
+    // The confirmation page carries no header, so sign out from the enter
+    // address page, whose header shows the sign out link
+    await this.pageObjects.enterAddressPage.open()
+    await this.pageObjects.enterAddressPage.signOutLink.click()
+    await this.page.waitForLoadState('load')
     await this.pageObjects.reviewQuoteDetailsPage.open(
       '/request-to-use/review-quote-details'
     )
@@ -258,6 +273,108 @@ When(
   /** @this {PlaywrightWorld} */
   async function () {
     await this.pageObjects.reviewDetailsPage.confirm()
+  }
+)
+
+/**
+ * Waits until the check your answers page is showing, so steps that assert
+ * on or act from it start from a page that has rendered.
+ * @param {PlaywrightWorld} world
+ */
+async function waitForCheckYourAnswersPage(world) {
+  await world.page.waitForURL(
+    (url) => url.pathname === '/request-to-use/check-your-answers'
+  )
+  const heading = world.page.locator('h1', { hasText: 'Check your answers' })
+  await waitForVisible(world.page, heading, 'the check your answers heading')
+}
+
+Given(
+  'I am on the check your answers page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.requestToUseCheckYourAnswersPage.open()
+    await waitForCheckYourAnswersPage(this)
+  }
+)
+
+Then(
+  'I should be taken to the check your answers page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await waitForCheckYourAnswersPage(this)
+  }
+)
+
+Then(
+  'I should be taken to the check your answers page showing',
+  /** @this {PlaywrightWorld} */
+  async function (expectedRows) {
+    await waitForCheckYourAnswersPage(this)
+
+    // The table is the complete set of rows across both summary lists, in
+    // order: a row left out of it, like the individual's developer business
+    // name, is asserted to be absent.
+    const expected = expectedRows.rows()
+    const checkYourAnswersPage =
+      this.pageObjects.requestToUseCheckYourAnswersPage
+    const actualKeys = (
+      await this.page.locator('.govuk-summary-list__key').allTextContents()
+    ).map((key) => key.trim())
+    assert.deepEqual(
+      actualKeys,
+      expected.map(([key]) => key)
+    )
+
+    for (const [key, value, changeLink] of expected) {
+      await assertSummaryRow(checkYourAnswersPage, key, value)
+      assert.equal(
+        await checkYourAnswersPage.changeLink(key).count(),
+        changeLink === 'yes' ? 1 : 0,
+        `Expected the "${key}" row to ${changeLink === 'yes' ? 'have' : 'have no'} Change link`
+      )
+    }
+  }
+)
+
+When(
+  'I click Change for {string} on the check your answers page',
+  /** @this {PlaywrightWorld} */
+  async function (key) {
+    await this.pageObjects.requestToUseCheckYourAnswersPage
+      .changeLink(key)
+      .click()
+  }
+)
+
+Then(
+  'the back link should point to {string}',
+  /** @this {PlaywrightWorld} */
+  async function (path) {
+    // exact: the footer's "give your feedback" link substring-matches "Back"
+    const backLink = this.page.getByRole('link', { name: 'Back', exact: true })
+    await waitForVisible(this.page, backLink, 'the back link')
+    assert.equal(await backLink.getAttribute('href'), path)
+  }
+)
+
+Then(
+  'I should see {string} for {string} on the check your answers page',
+  /** @this {PlaywrightWorld} */
+  async function (value, key) {
+    await assertSummaryRow(
+      this.pageObjects.requestToUseCheckYourAnswersPage,
+      key,
+      value
+    )
+  }
+)
+
+When(
+  'I confirm the declaration',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.pageObjects.requestToUseCheckYourAnswersPage.confirm()
   }
 )
 

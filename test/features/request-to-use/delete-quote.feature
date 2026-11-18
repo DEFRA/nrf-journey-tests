@@ -8,6 +8,10 @@ Feature: Delete quote from the request to use journey
     When I decline the levy amount
     Then I should see the are you sure you want to delete this quote page
 
+  Scenario: Backing out of the delete page returns to the accept levy page
+    When I click the back link
+    Then I should be taken to "/request-to-use/accept-levy"
+
   Scenario: Deleting the quote shows the your details have been deleted page
     When I delete my quote
     Then I should be taken to "/request-to-use/delete-quote-confirmation"

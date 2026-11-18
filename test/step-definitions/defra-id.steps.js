@@ -62,8 +62,12 @@ Then(
   async function () {
     const { organisationName, relationshipRole } = this.defraIdUser
 
-    await this.page.waitForURL(
-      (url) => url.pathname === '/request-to-use/enter-address'
+    // The change alias of the enter address page serves the same form
+    await this.page.waitForURL((url) =>
+      [
+        '/request-to-use/enter-address',
+        '/request-to-use/change/enter-address'
+      ].includes(url.pathname)
     )
     const headingText = !organisationName
       ? 'What is your address?'
