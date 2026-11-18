@@ -348,6 +348,17 @@ When(
 )
 
 Then(
+  'the back link should point to {string}',
+  /** @this {PlaywrightWorld} */
+  async function (path) {
+    // exact: the footer's "give your feedback" link substring-matches "Back"
+    const backLink = this.page.getByRole('link', { name: 'Back', exact: true })
+    await waitForVisible(this.page, backLink, 'the back link')
+    assert.equal(await backLink.getAttribute('href'), path)
+  }
+)
+
+Then(
   'I should see {string} for {string} on the check your answers page',
   /** @this {PlaywrightWorld} */
   async function (value, key) {

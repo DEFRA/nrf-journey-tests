@@ -158,5 +158,4 @@ Feature: Request to use journey
     Then I should be taken to the check your answers page
     When I follow the "Delete quote details" link
     Then I should see the are you sure you want to delete this quote page
-    When I click the back link
-    Then I should be taken to the check your answers page
+    And the back link should point to "/request-to-use/change/accept-levy"
