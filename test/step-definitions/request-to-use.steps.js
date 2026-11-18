@@ -347,6 +347,18 @@ When(
   }
 )
 
+Then(
+  'I should see {string} for {string} on the check your answers page',
+  /** @this {PlaywrightWorld} */
+  async function (value, key) {
+    await assertSummaryRow(
+      this.pageObjects.requestToUseCheckYourAnswersPage,
+      key,
+      value
+    )
+  }
+)
+
 When(
   'I confirm the declaration',
   /** @this {PlaywrightWorld} */

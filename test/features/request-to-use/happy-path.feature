@@ -43,12 +43,13 @@ Feature: Request to use journey
       | Email address                 | nrfjourneytests@gmail.com   | no          |
     When I click Change for "Full name" on the check your answers page
     Then I should be signed in and can enter my address
-    When I enter the address details
-    Then I should be taken to the review details page
-    When I confirm the details
-    Then I should be taken to "/request-to-use/read-this"
-    When I continue
+    When I click the back link
     Then I should be taken to the check your answers page
+    When I click Change for "Full name" on the check your answers page
+    Then I should be signed in and can enter my address
+    When I enter the address details
+    Then I should be taken to the check your answers page
+    And I should see "1 Development Road" for "Address" on the check your answers page
     When I confirm the declaration
     Then I should be taken to "/request-to-use/confirmation"
 
