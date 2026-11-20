@@ -42,6 +42,10 @@ Given(
   { timeout: 120_000 },
   /** @this {PlaywrightWorld} */
   async function () {
+    // Continuing from the review page calculates the levy and saves it to the
+    // session, which Check your answers sends to the backend
+    await clickContinue(this.page)
+    await this.page.waitForURL(/\/request-to-use\/accept-levy/)
     // The page is only reachable signed in: opening it signed out starts the
     // Defra ID sign-in and returns to it. The step signs out again afterwards
     // so the journey continues in its previous signed-out state, which the
