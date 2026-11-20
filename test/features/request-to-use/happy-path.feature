@@ -121,7 +121,7 @@ Feature: Request to use journey
     Then I should be taken to the review details page showing
       | row           | value                     | change link |
       | Full name     | Trevor Barker             | yes         |
-      | Business name | IVY HOUSEBUILDERS LIMITED | yes         |
+      | Business name | IVY HOUSEBUILDERS LIMITED | no          |
       | Address       | 1 Development Road        | yes         |
     When I click Change for "Full name" on the review details page
     Then I should be signed in and can enter my address
