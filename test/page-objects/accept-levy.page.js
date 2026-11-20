@@ -23,6 +23,13 @@ class AcceptLevyPage extends Page {
     })
   }
 
+  async getBaseChargePerUnit() {
+    const value = await this.provisionalAmountHeading.getAttribute(
+      'data-base-charge-per-unit'
+    )
+    return Number.parseFloat(value)
+  }
+
   get inflationAdjustedAmountHeading() {
     return this.page.getByRole('heading', {
       name: /^Inflation-adjusted nature restoration levy amount:/
