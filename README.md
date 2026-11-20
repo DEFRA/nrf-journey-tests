@@ -9,13 +9,13 @@ End-to-end tests using [Playwright](https://playwright.dev/) (browser library) a
 | Browser automation | `playwright` (Chromium)                    |
 | Test runner / BDD  | `@cucumber/cucumber`                       |
 | Reporting          | `allure-cucumberjs` + `allure-commandline` |
-| Language           | JavaScript (ESM, Node ≥ 22)                |
+| Language           | JavaScript (ESM, Node ≥ 24)                |
 
 ## Prerequisites
 
-- **Node.js ≥ 22.13.1** — if your system default is older, activate Node 22 via nvm first:
+- **Node.js ≥ 24.22.3** (see `.nvmrc` and `engines` in `package.json`) — if your system default is older, activate it via nvm first:
   ```sh
-  export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 22
+  export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use
   ```
 - **Docker** — required for localstack mode
 - **Dependencies** — installs npm packages and the Chromium browser:
@@ -81,7 +81,7 @@ What the script does:
 
 1. Builds `nrf-backend` and `nrf-impact-assessor` Docker images from `../nrf-backend` and `../nrf-impact-assessor`
 2. `docker compose up --wait -d` — starts all services and waits for healthchecks to pass
-3. `npm run test:e2e` — runs Cucumber against `http://localhost:3000` (the nginx proxy)
+3. `DEFRA_ID_MODE=stub npm run test:e2e:debug` — runs Cucumber against `http://localhost:3000` (the nginx proxy), signing in through the defra-id-stub in a visible (headed) browser
 
 Services started: nrf-frontend, nrf-backend, nrf-impact-assessor, postgres (+ liquibase migrations), mongodb (+ EDP seed), redis, localstack (AWS mock: S3, SQS, SNS), and cdp-uploader.
 
@@ -92,11 +92,11 @@ NRF_FRONTEND=1.2.3 NRF_BACKEND=2.3.4 npm run test:localstack
 npm run compose:down
 ```
 
-**Headed mode** (opens a visible browser while tests run):
+`test:localstack` always runs **headed** (a visible browser window) — it delegates to `npm run test:e2e:debug`, which sets `E2E_HEADFUL=true`. To run headless against the same stack:
 
 ```sh
 docker compose up --wait -d
-E2E_HEADFUL=true npm run test:e2e
+DEFRA_ID_MODE=stub npm run test:e2e
 npm run compose:down
 ```
 
@@ -226,17 +226,17 @@ cucumber.js           # Cucumber profile configuration
 
 ## Environment variables
 
-| Variable           | Default                 | Description                                                                                       |
-| ------------------ | ----------------------- | ------------------------------------------------------------------------------------------------- |
-| `ENVIRONMENT`      | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority. |
-| `BASE_URL`         | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                       |
-| `BROWSER`          | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.  |
-| `PARALLEL_WORKERS` | `3`                     | Number of scenarios to run in parallel (ignored for BrowserStack, which runs serially).           |
-| `E2E_HEADFUL`      | `false`                 | Set to `true` to run with a visible browser window (local mode only).                             |
-| `NRF_FRONTEND`     | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                        |
-| `NRF_BACKEND`      | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                         |
-| `NOTIFY_API_KEY`   | <secret>                | API key for test to access Notify sent emails. Get from another team dev, or CDP secrets          |
-| `DEFRA_ID_MODE`    | `real`                  | `stub` signs in through the defra-id-stub; `real` through the non-prod Defra ID. See below.       |
+| Variable           | Default                 | Description                                                                                                   |
+| ------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `ENVIRONMENT`      | —                       | CDP environment name (e.g. `dev`, `test`). Constructs the CDP cloud URL — takes highest priority.             |
+| `BASE_URL`         | `http://localhost:3000` | Full base URL override. Used when `ENVIRONMENT` is not set.                                                   |
+| `BROWSER`          | `chromium`              | Browser engine to use. Accepted values: `chromium`, `firefox`, `webkit`. Defaults to `chromium`.              |
+| `PARALLEL_WORKERS` | `3`                     | Number of scenarios to run in parallel (ignored for BrowserStack, which runs serially).                       |
+| `E2E_HEADFUL`      | `false`                 | Set to `true` to run with a visible browser window. Always true under `test:localstack` and `test:e2e:debug`. |
+| `NRF_FRONTEND`     | `latest`                | Docker image tag for nrf-frontend used in localstack mode.                                                    |
+| `NRF_BACKEND`      | `latest`                | Docker image tag for nrf-backend used in localstack mode.                                                     |
+| `NOTIFY_API_KEY`   | <secret>                | API key for test to access Notify sent emails. Get from another team dev, or CDP secrets                      |
+| `DEFRA_ID_MODE`    | `real`                  | `stub` signs in through the defra-id-stub; `real` through the non-prod Defra ID. See below.                   |
 
 ---
 
@@ -246,7 +246,7 @@ Scenarios that need a signed-in user use `test/support/defra-id/index.js`, which
 
 | Mode             | Used for                                 | How the user signs in                                                                                      |
 | ---------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `stub`           | Pull requests (Docker Compose stack)     | A fresh user is registered with the defra-id-stub per scenario, then removed. No credentials needed.       |
+| `stub`           | Pull requests and `test:localstack` runs | A fresh user is registered with the defra-id-stub per scenario, then removed. No credentials needed.       |
 | `real` (default) | Deployed CDP environments, after merging | A non-prod [test account](https://eaflood.atlassian.net/wiki/spaces/NRFDT/pages/6575620298) via One Login. |
 
 - The action sets the mode itself: `stub` for the Compose stack, `real` when the `environment` input is set.
