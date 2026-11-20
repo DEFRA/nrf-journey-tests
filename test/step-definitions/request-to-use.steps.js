@@ -703,8 +703,6 @@ When(
   }
 )
 
-const BASE_CHARGE_PER_UNIT = 2675
-
 When(
   'I note the number of housing units',
   /** @this {PlaywrightWorld} */
@@ -724,12 +722,12 @@ When(
 
 // Until inflation is applied, the inflation-adjusted amount equals the
 // provisional amount: both are the base charge per unit times the units.
-const expectedLevyAmount = (units) =>
+const expectedLevyAmount = (baseChargePerUnit, units) =>
   new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: 'GBP',
     maximumFractionDigits: 0
-  }).format(BASE_CHARGE_PER_UNIT * units)
+  }).format(baseChargePerUnit * units)
 
 /**
  * Asserts both levy amount headings on the page object match the amount
@@ -738,7 +736,10 @@ const expectedLevyAmount = (units) =>
  * @param {{ provisionalAmountHeading: import('playwright').Locator, inflationAdjustedAmountHeading: import('playwright').Locator }} pageObject
  */
 async function assertLevyAmounts(pageObject) {
-  const expectedAmount = expectedLevyAmount(this.housingUnits)
+  const expectedAmount = expectedLevyAmount(
+    this.baseChargePerUnit,
+    this.housingUnits
+  )
 
   await waitForVisible(
     this.page,
@@ -772,6 +773,14 @@ Then(
       'the accept levy heading'
     )
 
+    // The read this page has no attribute, so keep the value for its step
+    this.baseChargePerUnit =
+      await this.pageObjects.acceptLevyPage.getBaseChargePerUnit()
+    assert.ok(
+      this.baseChargePerUnit > 0,
+      'Expected the accept levy page to expose a positive base charge per unit'
+    )
+
     await assertLevyAmounts.call(this, this.pageObjects.acceptLevyPage)
   }
 )
@@ -787,6 +796,10 @@ Then(
     assert.ok(
       this.nrfReference,
       'No NRL reference was noted earlier in this scenario'
+    )
+    assert.ok(
+      this.baseChargePerUnit,
+      'No base charge per unit was read from the accept levy page earlier in this scenario'
     )
 
     await waitForVisible(
