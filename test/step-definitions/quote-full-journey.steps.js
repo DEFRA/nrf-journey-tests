@@ -376,9 +376,9 @@ Then(
 
     const expectedText = `NRL reference: ${nrfReference}`
     const levyAmountParagraph =
-      /Provisional nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(excluding VAT\)/
+      /Provisional nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(plus VAT\)/
     const inflationAdjustedLevyAmountParagraph =
-      /Inflation-adjusted nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(excluding VAT\)/
+      /Inflation-adjusted nature restoration levy amount: £[\d,]+(?:\.\d{2})? \(plus VAT\)/
     const matchEmailBody = await findNotifyEmail(
       this,
       this.submittedEmail,
