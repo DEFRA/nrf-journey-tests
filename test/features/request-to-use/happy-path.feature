@@ -33,7 +33,7 @@ Feature: Request to use journey
       | row                           | value                                     | change link |
       | Accept levy amount            | Yes, accept this amount                   | yes         |
       | Requesting to use the levy as | The business or organisation you work for | no          |
-      | Full name                     | Helen Hanks                               | yes         |
+      | Full name                     | Helen Hanks                               | no          |
       | Developer business name       | Hamblin Housebuilders                     | no          |
       | Address                       | 2 Amended Street                          | yes         |
       | Planning permission type      | Full planning permission                  | no          |
@@ -49,11 +49,11 @@ Feature: Request to use journey
     Then I should be taken to "/request-to-use/change/accept-levy"
     When I accept the levy amount
     Then I should be taken to the check your answers page
-    When I click Change for "Full name" on the check your answers page
+    When I click Change for "Address" on the check your answers page
     Then I should be signed in and can enter my address
     When I click the back link
     Then I should be taken to the check your answers page
-    When I click Change for "Full name" on the check your answers page
+    When I click Change for "Address" on the check your answers page
     Then I should be signed in and can enter my address
     When I enter the address details
     Then I should be taken to the check your answers page
@@ -92,7 +92,7 @@ Feature: Request to use journey
       | row                           | value                      | change link |
       | Accept levy amount            | Yes, accept this amount    | yes         |
       | Requesting to use the levy as | Yourself, as an individual | no          |
-      | Full name                     | Chas Chandler              | yes         |
+      | Full name                     | Chas Chandler              | no          |
       | Address                       | 1 Development Road         | yes         |
       | Planning permission type      | Full planning permission   | no          |
       | Housing                       | Yes                        | no          |
