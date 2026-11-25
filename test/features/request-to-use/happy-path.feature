@@ -72,6 +72,14 @@ Feature: Request to use journey
     And I say the development is not an amendment
     Then I should be taken to the check your answers page
     And I should see "No" for "Amendment to an existing planning permission" on the check your answers page
+    When I click Change for "Amendment to an existing planning permission" on the check your answers page
+    And I say the development is an amendment
+    Then I should be taken to "/request-to-use/change/original-committed"
+    When I say the original planning permission was not committed
+    Then I should be taken to the check your answers page
+    And I should see "Yes" for "Amendment to an existing planning permission" on the check your answers page
+    And I should see "No" for "Original planning permission committed to the levy" on the check your answers page
+    And I should see "Not applicable" for "Original NRL reference" on the check your answers page
     When I click Change for "Address" on the check your answers page
     Then I should be signed in and can enter my address
     When I click the back link
