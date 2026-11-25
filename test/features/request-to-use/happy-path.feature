@@ -30,17 +30,18 @@ Feature: Request to use journey
     And I should see the read this page content
     When I continue
     Then I should be taken to the check your answers page showing
-      | row                           | value                                     | change link |
-      | Accept levy amount            | Yes, accept this amount                   | yes         |
-      | Requesting to use the levy as | The business or organisation you work for | no          |
-      | Full name                     | Helen Hanks                               | no          |
-      | Developer business name       | Hamblin Housebuilders                     | no          |
-      | Address                       | 2 Amended Street                          | yes         |
-      | Planning permission type      | Full planning permission                  | no          |
-      | Housing                       | Yes                                       | no          |
-      | Number of housing units       | 10                                        | no          |
-      | Red line boundary             | Added                                     | no          |
-      | Email address                 | nrfjourneytests@gmail.com                 | no          |
+      | row                                          | value                                     | change link |
+      | Accept levy amount                           | Yes, accept this amount                   | yes         |
+      | Amendment to an existing planning permission | No                                        | yes         |
+      | Requesting to use the levy as                | The business or organisation you work for | no          |
+      | Full name                                    | Helen Hanks                               | no          |
+      | Developer business name                      | Hamblin Housebuilders                     | no          |
+      | Address                                      | 2 Amended Street                          | yes         |
+      | Planning permission type                     | Full planning permission                  | no          |
+      | Housing                                      | Yes                                       | no          |
+      | Number of housing units                      | 10                                        | no          |
+      | Red line boundary                            | Added                                     | no          |
+      | Email address                                | nrfjourneytests@gmail.com                 | no          |
     When I click Change for "Accept levy amount" on the check your answers page
     Then I should be taken to "/request-to-use/change/accept-levy"
     When I click the back link
@@ -48,6 +49,13 @@ Feature: Request to use journey
     When I click Change for "Accept levy amount" on the check your answers page
     Then I should be taken to "/request-to-use/change/accept-levy"
     When I accept the levy amount
+    Then I should be taken to the check your answers page
+    When I click Change for "Amendment to an existing planning permission" on the check your answers page
+    Then I should be taken to "/request-to-use/change/variation"
+    When I click the back link
+    Then I should be taken to the check your answers page
+    When I click Change for "Amendment to an existing planning permission" on the check your answers page
+    And I say the development is not an amendment
     Then I should be taken to the check your answers page
     When I click Change for "Address" on the check your answers page
     Then I should be signed in and can enter my address
@@ -89,16 +97,17 @@ Feature: Request to use journey
     And I should see the read this page content
     When I continue
     Then I should be taken to the check your answers page showing
-      | row                           | value                      | change link |
-      | Accept levy amount            | Yes, accept this amount    | yes         |
-      | Requesting to use the levy as | Yourself, as an individual | no          |
-      | Full name                     | Chas Chandler              | no          |
-      | Address                       | 1 Development Road         | yes         |
-      | Planning permission type      | Full planning permission   | no          |
-      | Housing                       | Yes                        | no          |
-      | Number of housing units       | 10                         | no          |
-      | Red line boundary             | Added                      | no          |
-      | Email address                 | nrfjourneytests@gmail.com  | no          |
+      | row                                          | value                      | change link |
+      | Accept levy amount                           | Yes, accept this amount    | yes         |
+      | Amendment to an existing planning permission | No                         | yes         |
+      | Requesting to use the levy as                | Yourself, as an individual | no          |
+      | Full name                                    | Chas Chandler              | no          |
+      | Address                                      | 1 Development Road         | yes         |
+      | Planning permission type                     | Full planning permission   | no          |
+      | Housing                                      | Yes                        | no          |
+      | Number of housing units                      | 10                         | no          |
+      | Red line boundary                            | Added                      | no          |
+      | Email address                                | nrfjourneytests@gmail.com  | no          |
     When I confirm the declaration
     Then I should be taken to "/request-to-use/confirmation"
 
@@ -133,17 +142,18 @@ Feature: Request to use journey
     And I should see the read this page content
     When I continue
     Then I should be taken to the check your answers page showing
-      | row                           | value                                           | change link |
-      | Accept levy amount            | Yes, accept this amount                         | yes         |
-      | Requesting to use the levy as | A client you act for as an agent or third party | no          |
-      | Full name                     | Amber Barker                                    | yes         |
-      | Developer business name       | IVY HOUSEBUILDERS LIMITED                       | no          |
-      | Address                       | 2 Amended Street                                | yes         |
-      | Planning permission type      | Full planning permission                        | no          |
-      | Housing                       | Yes                                             | no          |
-      | Number of housing units       | 10                                              | no          |
-      | Red line boundary             | Added                                           | no          |
-      | Email address                 | nrfjourneytests@gmail.com                       | no          |
+      | row                                          | value                                           | change link |
+      | Accept levy amount                           | Yes, accept this amount                         | yes         |
+      | Amendment to an existing planning permission | No                                              | yes         |
+      | Requesting to use the levy as                | A client you act for as an agent or third party | no          |
+      | Full name                                    | Amber Barker                                    | yes         |
+      | Developer business name                      | IVY HOUSEBUILDERS LIMITED                       | no          |
+      | Address                                      | 2 Amended Street                                | yes         |
+      | Planning permission type                     | Full planning permission                        | no          |
+      | Housing                                      | Yes                                             | no          |
+      | Number of housing units                      | 10                                              | no          |
+      | Red line boundary                            | Added                                           | no          |
+      | Email address                                | nrfjourneytests@gmail.com                       | no          |
     When I confirm the declaration
     Then I should be taken to "/request-to-use/confirmation"
 
