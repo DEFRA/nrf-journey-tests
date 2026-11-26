@@ -45,6 +45,14 @@ Feature: Request to use journey
       | Number of housing units                            | 10                                        | no          |
       | Red line boundary                                  | Added                                     | no          |
       | Email address                                      | nrfjourneytests@gmail.com                 | no          |
+    When I follow the "review your quote" link
+    Then I should be taken to "/request-to-use/review-quote-details"
+    When I navigate back in the browser
+    Then I should be taken to the check your answers page
+    When I follow the "Delete quote details" link
+    Then I should see the are you sure you want to delete this quote page
+    When I click the back link
+    Then I should be taken to the check your answers page
     When I click Change for "Accept levy amount" on the check your answers page
     Then I should be taken to "/request-to-use/change/accept-levy"
     When I click the back link
@@ -175,17 +183,3 @@ Feature: Request to use journey
       | Email address                                | nrfjourneytests@gmail.com                       | no          |
     When I confirm the declaration
     Then I should be taken to "/request-to-use/confirmation"
-
-  Scenario: Following the review your quote and delete quote details links from check your answers
-    Given I have created a quote for Nature Restoration Levy
-    And I am on the review and amend quote details page for my quote
-    And I am signed in to Defra ID as an employee
-    And I am on the check your answers page
-    When I follow the "review your quote" link
-    Then I should be taken to "/request-to-use/review-quote-details"
-    When I navigate back in the browser
-    Then I should be taken to the check your answers page
-    When I follow the "Delete quote details" link
-    Then I should see the are you sure you want to delete this quote page
-    When I click the back link
-    Then I should be taken to the check your answers page
