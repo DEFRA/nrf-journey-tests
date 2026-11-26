@@ -46,20 +46,42 @@ Given(
     // session, which Check your answers sends to the backend
     await clickContinue(this.page)
     await this.page.waitForURL(/\/request-to-use\/accept-levy/)
-    // The page is only reachable signed in: opening it signed out starts the
-    // Defra ID sign-in and returns to it. The step signs out again afterwards
-    // so the journey continues in its previous signed-out state, which the
-    // later pages (eg who the levy is for) depend on
+    // Check your answers fails with the incomplete answers page until every
+    // answer has been given, so an employee signs in and completes the journey
+    // before submitting. The step signs out again afterwards so the journey
+    // continues in its previous signed-out state, which the later pages (eg
+    // who the levy is for) depend on
     await prepareDefraIdUser({ world: this, userType: 'employee' })
-    await this.pageObjects.requestToUseCheckYourAnswersPage.open()
+    await this.pageObjects.enterAddressPage.open()
     await signInToDefraId(this)
-    await this.pageObjects.requestToUseCheckYourAnswersPage.confirm()
+    const {
+      acceptLevyPage,
+      variationPage,
+      enterAddressPage,
+      reviewDetailsPage,
+      requestToUseCheckYourAnswersPage
+    } = this.pageObjects
+    await acceptLevyPage.open()
+    await acceptLevyPage.acceptAmount()
+    await clickContinue(this.page)
+    await this.page.waitForURL(/\/request-to-use\/variation/)
+    await variationPage.chooseNo()
+    await clickContinue(this.page)
+    await this.page.waitForURL(/\/request-to-use\/enter-address/)
+    await enterAddressPage.fillAddressDetails()
+    await enterAddressPage.confirm()
+    await waitForReviewDetailsPage(this)
+    await reviewDetailsPage.confirm()
+    await this.page.waitForURL(/\/request-to-use\/read-this/)
+    await clickContinue(this.page)
+    await waitForCheckYourAnswersPage(this)
+    await requestToUseCheckYourAnswersPage.confirm()
     await this.page.waitForURL(/\/request-to-use\/confirmation/)
     this.submittedNrfReference = this.nrfReference
     // The confirmation page carries no header, so sign out from the enter
     // address page, whose header shows the sign out link
-    await this.pageObjects.enterAddressPage.open()
-    await this.pageObjects.enterAddressPage.signOutLink.click()
+    await enterAddressPage.open()
+    await enterAddressPage.signOutLink.click()
     await this.page.waitForLoadState('load')
     await this.pageObjects.reviewQuoteDetailsPage.open(
       '/request-to-use/review-quote-details'
@@ -292,15 +314,6 @@ async function waitForCheckYourAnswersPage(world) {
   const heading = world.page.locator('h1', { hasText: 'Check your answers' })
   await waitForVisible(world.page, heading, 'the check your answers heading')
 }
-
-Given(
-  'I am on the check your answers page',
-  /** @this {PlaywrightWorld} */
-  async function () {
-    await this.pageObjects.requestToUseCheckYourAnswersPage.open()
-    await waitForCheckYourAnswersPage(this)
-  }
-)
 
 Then(
   'I should be taken to the check your answers page',
