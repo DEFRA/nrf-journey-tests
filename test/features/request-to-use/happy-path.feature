@@ -35,7 +35,7 @@ Feature: Request to use journey
       | Accept levy amount                                 | Yes, accept this amount                   | yes         |
       | Amendment to an existing planning permission       | Yes                                       | yes         |
       | Original planning permission committed to the levy | No                                        | yes         |
-      | Original NRL reference                             | Not applicable                            | yes         |
+      | Original NRL reference                             | Not applicable                            | no          |
       | Requesting to use the levy as                      | The business or organisation you work for | no          |
       | Full name                                          | Helen Hanks                               | no          |
       | Developer business name                            | Hamblin Housebuilders                     | no          |
@@ -59,10 +59,6 @@ Feature: Request to use journey
     Then I should be taken to the check your answers page
     When I click Change for "Original planning permission committed to the levy" on the check your answers page
     And I say the original planning permission was not committed
-    Then I should be taken to the check your answers page
-    When I click Change for "Original NRL reference" on the check your answers page
-    Then I should be taken to "/request-to-use/change/original-reference"
-    When I click the back link
     Then I should be taken to the check your answers page
     When I click Change for "Amendment to an existing planning permission" on the check your answers page
     Then I should be taken to "/request-to-use/change/variation"
