@@ -45,6 +45,17 @@ When(
   }
 )
 
+When(
+  'I choose to change who I am representing',
+  { timeout: 120_000 },
+  /** @this {PlaywrightWorld} */
+  async function () {
+    // The organisation picker step waits for Defra ID, which can be slow on a
+    // deployed environment
+    await this.pageObjects.enterAddressPage.changeWhoYouAreRepresentingLink.click()
+  }
+)
+
 Given(
   'I am signed in to Defra ID as an {word}',
   { timeout: 120_000 },
@@ -60,7 +71,8 @@ Then(
   'I should be signed in and can enter my address',
   /** @this {PlaywrightWorld} */
   async function () {
-    const { organisationName, relationshipRole } = this.defraIdUser
+    const { organisationName, relationshipRole, otherRelationships } =
+      this.defraIdUser
 
     // The change alias of the enter address page serves the same form
     await this.page.waitForURL((url) =>
@@ -76,6 +88,24 @@ Then(
         : `What is the address for ${organisationName}?`
     const heading = this.page.locator('h1', { hasText: headingText })
     await waitForVisible(this.page, heading, 'the enter address heading')
+
+    // The page says who a user with several organisation links chose to act
+    // for, and offers to change it
+    if (otherRelationships?.length) {
+      const { enterAddressPage } = this.pageObjects
+      await waitForVisible(
+        this.page,
+        enterAddressPage.organisationHeading.filter({
+          hasText: organisationName
+        }),
+        'the organisation the user is representing'
+      )
+      await waitForVisible(
+        this.page,
+        enterAddressPage.changeWhoYouAreRepresentingLink,
+        'the link to change who they are representing'
+      )
+    }
   }
 )
 

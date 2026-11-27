@@ -9,6 +9,18 @@ class EnterAddressPage extends Page {
     return this.page.getByRole('link', { name: 'Sign out' })
   }
 
+  // Who the signed-in user is acting for, shown only when Defra ID asked them
+  // to choose between several organisation links
+  get organisationHeading() {
+    return this.page.getByRole('region', { name: 'Organisation' })
+  }
+
+  get changeWhoYouAreRepresentingLink() {
+    return this.page.getByRole('link', {
+      name: /Change\s*who you are representing/
+    })
+  }
+
   get fullNameInput() {
     return this.page.getByLabel('Full name')
   }
