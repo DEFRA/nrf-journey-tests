@@ -761,11 +761,11 @@ async function assertLevyAmounts(pageObject) {
   )
   assert.equal(
     (await pageObject.provisionalAmountHeading.textContent()).trim(),
-    `Provisional nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+    `Provisional nature restoration levy amount: ${expectedAmount} (plus VAT)`
   )
   assert.equal(
     (await pageObject.inflationAdjustedAmountHeading.textContent()).trim(),
-    `Inflation-adjusted nature restoration levy amount: ${expectedAmount} (excluding VAT)`
+    `Inflation-adjusted nature restoration levy amount: ${expectedAmount} (plus VAT)`
   )
 }
 
