@@ -78,10 +78,7 @@ Given(
     await requestToUseCheckYourAnswersPage.confirm()
     await this.page.waitForURL(/\/request-to-use\/confirmation/)
     this.submittedNrfReference = this.nrfReference
-    // The confirmation page carries no header, so sign out from the enter
-    // address page, whose header shows the sign out link
-    await enterAddressPage.open()
-    await enterAddressPage.signOutLink.click()
+    await this.pageObjects.requestToUseConfirmationPage.signOutLink.click()
     await this.page.waitForLoadState('load')
     await this.pageObjects.reviewQuoteDetailsPage.open(
       '/request-to-use/review-quote-details'
@@ -492,6 +489,34 @@ Then(
     assert.equal(
       (await panelTitle.textContent()).trim(),
       'Your details have been deleted'
+    )
+  }
+)
+
+Then(
+  'I should see the your details have been submitted page',
+  /** @this {PlaywrightWorld} */
+  async function () {
+    await this.page.waitForURL(
+      (url) => url.pathname === '/request-to-use/confirmation'
+    )
+    const { panelTitle, panelBody, whatHappensNextHeading } =
+      this.pageObjects.requestToUseConfirmationPage
+    await waitForVisible(this.page, panelTitle, 'the confirmation panel')
+    assert.equal(
+      (await panelTitle.textContent()).trim(),
+      'Your details have been submitted'
+    )
+    assert.ok(
+      (await panelBody.textContent()).includes(
+        `NRL reference: ${this.nrfReference}`
+      ),
+      `Expected the confirmation panel to show NRL reference ${this.nrfReference}`
+    )
+    await waitForVisible(
+      this.page,
+      whatHappensNextHeading,
+      'the what happens next heading'
     )
   }
 )

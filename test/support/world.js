@@ -20,6 +20,7 @@ import { ConfirmationPage } from '../page-objects/confirmation.page.js'
 import { DeleteQuotePage } from '../page-objects/delete-quote.page.js'
 import { DeleteQuoteConfirmationPage } from '../page-objects/delete-quote-confirmation.page.js'
 import { RequestToUseCheckYourAnswersPage } from '../page-objects/request-to-use-check-your-answers.page.js'
+import { RequestToUseConfirmationPage } from '../page-objects/request-to-use-confirmation.page.js'
 import { RequestToUseDeleteQuotePage } from '../page-objects/request-to-use-delete-quote.page.js'
 import { RequestToUseDeleteQuoteConfirmationPage } from '../page-objects/request-to-use-delete-quote-confirmation.page.js'
 import { UploadBoundaryPage } from '../page-objects/upload-boundary.page.js'
@@ -143,6 +144,10 @@ export class PlaywrightWorld extends World {
         baseUrl
       ),
       requestToUseCheckYourAnswersPage: new RequestToUseCheckYourAnswersPage(
+        this.page,
+        baseUrl
+      ),
+      requestToUseConfirmationPage: new RequestToUseConfirmationPage(
         this.page,
         baseUrl
       ),
