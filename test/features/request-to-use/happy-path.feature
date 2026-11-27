@@ -94,7 +94,7 @@ Feature: Request to use journey
     Then I should be taken to the check your answers page
     And I should see "1 Development Road" for "Address" on the check your answers page
     When I confirm the declaration
-    Then I should be taken to "/request-to-use/confirmation"
+    Then I should see the your details have been submitted page
 
   Scenario: Individual completes request to use journey
     Given I have a Defra ID account as an individual
@@ -136,7 +136,7 @@ Feature: Request to use journey
       | Red line boundary                            | Added                      | no          |
       | Email address                                | nrfjourneytests@gmail.com  | no          |
     When I confirm the declaration
-    Then I should be taken to "/request-to-use/confirmation"
+    Then I should see the your details have been submitted page
 
   Scenario: Agent completes request to use journey
     Given I have a Defra ID account as an agent
@@ -182,4 +182,4 @@ Feature: Request to use journey
       | Red line boundary                            | Added                                           | no          |
       | Email address                                | nrfjourneytests@gmail.com                       | no          |
     When I confirm the declaration
-    Then I should be taken to "/request-to-use/confirmation"
+    Then I should see the your details have been submitted page
