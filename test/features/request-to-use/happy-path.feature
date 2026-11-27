@@ -153,6 +153,9 @@ Feature: Request to use journey
     And I sign in to Defra ID and am shown the organisation picker
     And I choose "IVY HOUSEBUILDERS LIMITED" on the organisation picker
     Then I should be signed in and can enter my address
+    When I choose to change who I am representing
+    And I choose "IVY HOUSEBUILDERS LIMITED" on the organisation picker
+    Then I should be signed in and can enter my address
     When I enter the developer details
     Then I should be taken to the review details page showing
       | row           | value                     | change link |
